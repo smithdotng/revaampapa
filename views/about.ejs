@@ -1,0 +1,458 @@
+<!DOCTYPE html>
+<html lang="en-US">
+
+<head>
+    <title>About Us | RevaampAPA - Aggregation, Promotions & Agency Platform</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="HandheldFriendly" content="true">
+    <meta name="author" content="RevaampAPA" />
+    <meta name="description" content="Learn about RevaampAPA - Nigeria's leading aggregation, promotions and agency platform for property and project management." />
+
+    <!-- switzer font css -->
+    <link rel="stylesheet" href="/fonts/css/switzer.css" type="text/css" media="all">
+    <!-- font awesome css -->
+    <link rel="stylesheet" href="/fonts/css/font-awesome.min.css" type="text/css" media="all">
+    <!-- bootstrap grid css -->
+    <link rel="stylesheet" href="/css/plugins/bootstrap-grid.css" type="text/css" media="all">
+    <!-- swiper css -->
+    <link rel="stylesheet" href="/css/plugins/swiper.min.css" type="text/css" media="all">
+    <!-- magnific popup -->
+    <link rel="stylesheet" href="/css/plugins/magnific-popup.css" type="text/css" media="all">
+    <!-- plax css -->
+    <link rel="stylesheet" href="/css/style.css" type="text/css" media="all">
+    <!-- custom css -->
+    <link rel="stylesheet" href="/css/custom.css" type="text/css" media="all">
+
+    <!-- Favicon -->
+    <link rel="shortcut icon" href="/favicon.ico" type="image/x-icon">
+    <link rel="icon" href="/favicon.ico" type="image/x-icon">
+</head>
+
+<body>
+
+    <!-- wrapper -->
+    <div id="smooth-wrapper" class="mil-wrapper">
+
+        <!-- preloader -->
+        <div class="mil-preloader">
+            <div class="mil-load"></div>
+            <p class="h2 mil-mb-30"><span class="mil-light mil-counter" data-number="100">100</span><span class="mil-light">%</span></p>
+        </div>
+        <!-- preloader end -->
+
+        <!-- scroll progress -->
+        <div class="mil-progress-track">
+            <div class="mil-progress"></div>
+        </div>
+        <!-- scroll progress end -->
+
+        <!-- back to top -->
+        <div class="progress-wrap active-progress"></div>
+
+        <!-- top panel -->
+        <div class="mil-top-panel">
+            <div class="container">
+                <a href="/" class="mil-logo">
+                    <img src="/img/logo.png" alt="RevaampAPA" width="83" height="32">
+                </a>
+                <nav class="mil-top-menu">
+                    <ul>
+                        <li><a href="/">Home</a></li>
+                        <li><a href="/properties">Properties</a></li>
+                        <li><a href="/projects">Projects</a></li>
+                        <li class="mil-active"><a href="/about">About</a></li>
+                        <li><a href="/contact">Contact</a></li>
+                    </ul>
+                </nav>
+                <div class="mil-menu-buttons">
+                    <% if (typeof user !== 'undefined' && user) { %>
+                        <div class="dropdown" style="position: relative;">
+                            <a href="#" class="mil-btn mil-sm dropdown-toggle" data-bs-toggle="dropdown">
+                                <i class="fa fa-user-circle"></i> <%= user.name %>
+                                <i class="fa fa-chevron-down" style="margin-left: 8px; font-size: 12px;"></i>
+                            </a>
+                            <ul class="dropdown-menu">
+                                <li><a href="/dashboard"><i class="fa fa-tachometer"></i> Dashboard</a></li>
+                                <li><a href="/dashboard/settings"><i class="fa fa-cog"></i> Settings</a></li>
+                                <li><hr></li>
+                                <li><a href="/logout"><i class="fa fa-sign-out-alt"></i> Logout</a></li>
+                            </ul>
+                        </div>
+                    <% } else { %>
+                        <a href="/login" class="mil-btn mil-sm">Log in</a>
+                        <a href="/register" class="mil-btn mil-sm mil-light">Get Started</a>
+                    <% } %>
+                    <div class="mil-menu-btn">
+                        <span></span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- top panel end -->
+
+        <!-- content -->
+        <div id="smooth-content">
+
+            <!-- banner -->
+            <div class="mil-banner mil-banner-inner mil-dissolve">
+                <div class="container">
+                    <div class="row align-items-center justify-content-center">
+                        <div class="col-xl-8">
+                            <div class="mil-banner-text mil-text-center">
+                                <div class="mil-text-m mil-mb-20 mil-up">Who We Are</div>
+                                <h1 class="mil-mb-60 mil-up">About RevaampAPA</h1>
+                                <ul class="mil-breadcrumbs mil-center mil-up">
+                                    <li><a href="/">Home</a></li>
+                                    <li><a href="/about">About</a></li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- banner end -->
+
+            <!-- about intro -->
+            <div class="mil-features mil-p-80-80">
+                <div class="container">
+                    <div class="row align-items-center">
+                        <div class="col-xl-6 mil-mb-80">
+                            <div class="mil-image-frame mil-visible-overflow">
+                                <img src="/img/about/about-main.jpg" alt="About RevaampAPA" class="mil-up" style="border-radius: 30px; width: 100%;">
+                            </div>
+                        </div>
+                        <div class="col-xl-6 mil-mb-80">
+                            <div class="mil-up">
+                                <h2 class="mil-mb-30">Aggregation, Promotions & Agency Platform</h2>
+                                <p class="mil-text-m mil-soft mil-mb-30">RevaampAPA (Revaamps - Aggregation, Promotions and Agency Platform) is Nigeria's leading integrated platform for property aggregation, promotion services, and project management agency services.</p>
+                                <p class="mil-text-m mil-soft mil-mb-30">We connect property owners with verified promoters and provide comprehensive project management solutions for construction and development projects across Nigeria.</p>
+                                <div class="mil-buttons-frame">
+                                    <a href="/register" class="mil-btn mil-md mil-add-arrow">Get Started</a>
+                                    <a href="/contact" class="mil-btn mil-md mil-light">Contact Us</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- about intro end -->
+
+            <!-- mission & vision -->
+            <div class="mil-cta mil-up">
+                <div class="container">
+                    <div class="mil-out-frame mil-p-80-80" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+                        <div class="row">
+                            <div class="col-xl-6 mil-mb-60">
+                                <div class="mil-text-center">
+                                    <i class="fa fa-bullseye" style="font-size: 50px; color: white; margin-bottom: 20px;"></i>
+                                    <h2 class="mil-light mil-mb-30">Our Mission</h2>
+                                    <p class="mil-text-m mil-dark-soft">To democratize property aggregation and promotion in Nigeria, creating a transparent, efficient, and rewarding ecosystem for property owners, promoters, and investors.</p>
+                                </div>
+                            </div>
+                            <div class="col-xl-6 mil-mb-60">
+                                <div class="mil-text-center">
+                                    <i class="fa fa-eye" style="font-size: 50px; color: white; margin-bottom: 20px;"></i>
+                                    <h2 class="mil-light mil-mb-30">Our Vision</h2>
+                                    <p class="mil-text-m mil-dark-soft">To become Africa's most trusted property aggregation, promotion, and project management platform, empowering thousands of property owners and creating wealth for our community.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- mission & vision end -->
+
+            <!-- core values -->
+            <div class="mil-features mil-p-80-80">
+                <div class="container">
+                    <div class="mil-text-center mil-mb-60">
+                        <h2 class="mil-mb-30 mil-up">Our Core Values</h2>
+                        <p class="mil-text-m mil-soft mil-up">The principles that guide everything we do</p>
+                    </div>
+                    <div class="row">
+                        <div class="col-xl-3 col-md-6 mil-mb-30">
+                            <div class="mil-price-card mil-up mil-mb-30 mil-text-center" style="height: 100%;">
+                                <i class="fa fa-shield" style="font-size: 50px; color: #03A6A6; margin-bottom: 20px;"></i>
+                                <h4 class="mil-mb-15">Trust & Transparency</h4>
+                                <p class="mil-text-s mil-soft">We believe in complete transparency in all our dealings, building trust with every interaction.</p>
+                            </div>
+                        </div>
+                        <div class="col-xl-3 col-md-6 mil-mb-30">
+                            <div class="mil-price-card mil-up mil-mb-30 mil-text-center" style="height: 100%;">
+                                <i class="fa fa-star" style="font-size: 50px; color: #03A6A6; margin-bottom: 20px;"></i>
+                                <h4 class="mil-mb-15">Excellence</h4>
+                                <p class="mil-text-s mil-soft">We strive for excellence in everything we do, from property verification to project management.</p>
+                            </div>
+                        </div>
+                        <div class="col-xl-3 col-md-6 mil-mb-30">
+                            <div class="mil-price-card mil-up mil-mb-30 mil-text-center" style="height: 100%;">
+                                <i class="fa fa-handshake" style="font-size: 50px; color: #03A6A6; margin-bottom: 20px;"></i>
+                                <h4 class="mil-mb-15">Partnership</h4>
+                                <p class="mil-text-s mil-soft">We build lasting partnerships with property owners, promoters, and investors.</p>
+                            </div>
+                        </div>
+                        <div class="col-xl-3 col-md-6 mil-mb-30">
+                            <div class="mil-price-card mil-up mil-mb-30 mil-text-center" style="height: 100%;">
+                                <i class="fa fa-lightbulb-o" style="font-size: 50px; color: #03A6A6; margin-bottom: 20px;"></i>
+                                <h4 class="mil-mb-15">Innovation</h4>
+                                <p class="mil-text-s mil-soft">We continuously innovate to provide better solutions for our community.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- core values end -->
+
+            <!-- what we do -->
+            <div class="mil-cta mil-up">
+                <div class="container">
+                    <div class="mil-out-frame mil-p-80-80" style="background: #f8f9fa;">
+                        <div class="mil-text-center mil-mb-60">
+                            <h2 class="mil-mb-30 mil-up">What We Do</h2>
+                            <p class="mil-text-m mil-soft mil-up">Three powerful services under one platform</p>
+                        </div>
+                        <div class="row">
+                            <div class="col-xl-4 col-md-6 mil-mb-30">
+                                <div class="mil-text-center">
+                                    <div class="mil-icon-box mil-mb-30">
+                                        <i class="fa fa-building" style="font-size: 60px; color: #03A6A6;"></i>
+                                    </div>
+                                    <h4 class="mil-mb-15">Property Aggregation</h4>
+                                    <p class="mil-text-s mil-soft">We aggregate verified properties from trusted owners across Nigeria, providing buyers with a curated selection of quality real estate.</p>
+                                </div>
+                            </div>
+                            <div class="col-xl-4 col-md-6 mil-mb-30">
+                                <div class="mil-text-center">
+                                    <div class="mil-icon-box mil-mb-30">
+                                        <i class="fa fa-megaphone" style="font-size: 60px; color: #03A6A6;"></i>
+                                    </div>
+                                    <h4 class="mil-mb-15">Promotion Services</h4>
+                                    <p class="mil-text-s mil-soft">We empower promoters to earn 70% commission by sharing properties on their networks, creating a powerful marketing ecosystem.</p>
+                                </div>
+                            </div>
+                            <div class="col-xl-4 col-md-6 mil-mb-30">
+                                <div class="mil-text-center">
+                                    <div class="mil-icon-box mil-mb-30">
+                                        <i class="fa fa-tasks" style="font-size: 60px; color: #03A6A6;"></i>
+                                    </div>
+                                    <h4 class="mil-mb-15">Project Management Agency</h4>
+                                    <p class="mil-text-s mil-soft">We provide comprehensive project management services for construction and development projects, ensuring timely delivery and quality execution.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- what we do end -->
+
+            <!-- stats section -->
+            <div class="mil-facts mil-p-80-80">
+                <div class="container">
+                    <div class="row justify-content-between align-items-center">
+                        <div class="col-xl-6">
+                            <div class="row">
+                                <div class="col-xl-6 mil-sm-text-center mil-mb-30 mil-up">
+                                    <p class="h1 mil-display mil-mb-15"><span class="mil-accent mil-counter" data-number="500">500</span><span class="mil-pale">+</span></p>
+                                    <h5>Verified Properties</h5>
+                                </div>
+                                <div class="col-xl-6 mil-sm-text-center mil-mb-30 mil-up">
+                                    <p class="h1 mil-display mil-mb-15"><span class="mil-accent mil-counter" data-number="200">200</span><span class="mil-pale">+</span></p>
+                                    <h5>Active Promoters</h5>
+                                </div>
+                                <div class="col-xl-6 mil-sm-text-center mil-mb-30 mil-up">
+                                    <p class="h1 mil-display mil-mb-15"><span class="mil-accent mil-counter" data-number="1000">1000</span><span class="mil-pale">+</span></p>
+                                    <h5>Projects Managed</h5>
+                                </div>
+                                <div class="col-xl-6 mil-sm-text-center mil-mb-30 mil-up">
+                                    <p class="h1 mil-display mil-mb-15"><span class="mil-accent mil-counter" data-number="98">98</span><span class="mil-pale">%</span></p>
+                                    <h5>Client Satisfaction</h5>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-xl-5 mil-mb-80">
+                            <p class="mil-text-m mil-soft mil-up">Join thousands of satisfied property owners, promoters, subscribers, and partners who trust RevaampAPA for their property aggregation, promotion and project management needs.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- stats end -->
+
+            <!-- team section -->
+            <!-- <div class="mil-features mil-p-80-80">
+                <div class="container">
+                    <div class="mil-text-center mil-mb-60">
+                        <h2 class="mil-mb-30 mil-up">Our Leadership Team</h2>
+                        <p class="mil-text-m mil-soft mil-up">Meet the experts behind RevaampAPA</p>
+                    </div>
+                    <div class="row">
+                        <div class="col-xl-3 col-md-6 mil-mb-30">
+                            <div class="mil-price-card mil-up mil-mb-30 mil-text-center">
+                                <img src="/img/team/ceo.jpg" alt="CEO" style="width: 150px; height: 150px; border-radius: 50%; object-fit: cover; margin: 0 auto 20px;">
+                                <h4 class="mil-mb-5">John Adebayo</h4>
+                                <p class="mil-text-s mil-accent mil-mb-15">Chief Executive Officer</p>
+                                <p class="mil-text-xs mil-soft">15+ years in real estate and property development</p>
+                            </div>
+                        </div>
+                        <div class="col-xl-3 col-md-6 mil-mb-30">
+                            <div class="mil-price-card mil-up mil-mb-30 mil-text-center">
+                                <img src="/img/team/cto.jpg" alt="CTO" style="width: 150px; height: 150px; border-radius: 50%; object-fit: cover; margin: 0 auto 20px;">
+                                <h4 class="mil-mb-5">Chidi Okonkwo</h4>
+                                <p class="mil-text-s mil-accent mil-mb-15">Chief Technology Officer</p>
+                                <p class="mil-text-xs mil-soft">10+ years in software architecture and fintech</p>
+                            </div>
+                        </div>
+                        <div class="col-xl-3 col-md-6 mil-mb-30">
+                            <div class="mil-price-card mil-up mil-mb-30 mil-text-center">
+                                <img src="/img/team/commercial.jpg" alt="Commercial Director" style="width: 150px; height: 150px; border-radius: 50%; object-fit: cover; margin: 0 auto 20px;">
+                                <h4 class="mil-mb-5">Amara Eze</h4>
+                                <p class="mil-text-s mil-accent mil-mb-15">Commercial Director</p>
+                                <p class="mil-text-xs mil-soft">12+ years in business development and partnerships</p>
+                            </div>
+                        </div>
+                        <div class="col-xl-3 col-md-6 mil-mb-30">
+                            <div class="mil-price-card mil-up mil-mb-30 mil-text-center">
+                                <img src="/img/team/operations.jpg" alt="Operations" style="width: 150px; height: 150px; border-radius: 50%; object-fit: cover; margin: 0 auto 20px;">
+                                <h4 class="mil-mb-5">Sarah Johnson</h4>
+                                <p class="mil-text-s mil-accent mil-mb-15">Head of Operations</p>
+                                <p class="mil-text-xs mil-soft">8+ years in project management and operations</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div> -->
+            <!-- team end -->
+
+            <!-- call to action -->
+            <div class="mil-cta mil-up">
+                <div class="container">
+                    <div class="mil-out-frame mil-p-80-80" style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);">
+                        <div class="row justify-content-between align-items-center">
+                            <div class="col-xl-8 mil-sm-text-center">
+                                <h2 class="mil-light mil-mb-30 mil-up">Ready to Join Our Community?</h2>
+                                <p class="mil-text-m mil-mb-30 mil-dark-soft mil-up">Whether you're a property owner, promoter, or investor, RevaampAPA has something for you.</p>
+                            </div>
+                            <div class="col-xl-4 mil-sm-text-center">
+                                <div class="mil-buttons-frame mil-up">
+                                    <a href="/register" class="mil-btn mil-md mil-light">Get Started Today</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- call to action end -->
+
+            <!-- footer -->
+            <footer class="mil-p-80-0">
+                <div class="container">
+                    <div class="row">
+                        <div class="col-xl-3">
+                            <a href="/" class="mil-footer-logo mil-mb-60">
+                                <img src="/img/logo-2.png" alt="RevaampAPA" width="28" height="32">
+                            </a>
+                        </div>
+                        <div class="col-xl-3 mil-mb-60">
+                            <h6 class="mil-mb-60">Useful Links</h6>
+                            <ul class="mil-footer-list">
+                                <li class="mil-text-m mil-soft mil-mb-15"><a href="/">Home</a></li>
+                                <li class="mil-text-m mil-soft mil-mb-15"><a href="/about">About Us</a></li>
+                                <li class="mil-text-m mil-soft mil-mb-15"><a href="/contact">Contact Us</a></li>
+                                <li class="mil-text-m mil-soft mil-mb-15"><a href="/properties">Properties</a></li>
+                                <li class="mil-text-m mil-soft mil-mb-15"><a href="/projects">Projects</a></li>
+                            </ul>
+                        </div>
+                        <div class="col-xl-3 mil-mb-60">
+                            <h6 class="mil-mb-60">For Partners</h6>
+                            <ul class="mil-footer-list">
+                                <li class="mil-text-m mil-soft mil-mb-15"><a href="/business-partner/register">Become a Partner</a></li>
+                                <li class="mil-text-m mil-soft mil-mb-15"><a href="/partner/benefits">Partner Benefits</a></li>
+                                <li class="mil-text-m mil-soft mil-mb-15"><a href="/partner/resources">Resources</a></li>
+                            </ul>
+                        </div>
+                        <div class="col-xl-3 mil-mb-80">
+                            <h6 class="mil-mb-60">Newsletter</h6>
+                            <p class="mil-text-xs mil-soft mil-mb-15">Subscribe to get the latest updates</p>
+                            <form class="mil-subscripe-form-footer" id="footerNewsletterForm">
+                                <input class="mil-input" type="email" placeholder="Email">
+                                <button type="submit"><i class="far fa-envelope-open mil-dark"></i></button>
+                            </form>
+                        </div>
+                    </div>
+                    <div class="mil-footer-bottom">
+                        <div class="row">
+                            <div class="col-xl-6">
+                                <p class="mil-text-s mil-soft">© 2026 RevaampAPA. All rights reserved.</p>
+                            </div>
+                            <div class="col-xl-6">
+                                <p class="mil-text-s mil-text-right mil-sm-text-left mil-soft">Website Design & Development by <a href="https://shedfactory.co" target="_blank" style="color: #667eea; text-decoration: none;">Shed Factory</a></p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </footer>
+            <!-- footer end -->
+
+        </div>
+        <!-- content end -->
+    </div>
+    <!-- wrapper end -->
+
+    <!-- jquery js -->
+    <script src="/js/plugins/jquery.min.js"></script>
+    <script src="/js/plugins/swiper.min.js"></script>
+    <script src="/js/plugins/gsap.min.js"></script>
+    <script src="/js/plugins/ScrollSmoother.min.js"></script>
+    <script src="/js/plugins/ScrollTrigger.min.js"></script>
+    <script src="/js/plugins/ScrollTo.min.js"></script>
+    <script src="/js/plugins/magnific-popup.js"></script>
+    <script src="/js/main.js"></script>
+
+    <script>
+        // Newsletter subscription
+        function initNewsletter() {
+            const newsletterForm = document.getElementById('footerNewsletterForm');
+            if (newsletterForm) {
+                newsletterForm.addEventListener('submit', async (e) => {
+                    e.preventDefault();
+                    const email = newsletterForm.querySelector('input[type="email"]').value;
+                    try {
+                        const response = await fetch('/api/subscribe', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ email })
+                        });
+                        const data = await response.json();
+                        alert(data.success ? 'Successfully subscribed to newsletter!' : 'Error subscribing. Please try again.');
+                        if (data.success) newsletterForm.reset();
+                    } catch (error) {
+                        console.error('Newsletter error:', error);
+                        alert('Error subscribing. Please try again.');
+                    }
+                });
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            initNewsletter();
+        });
+    </script>
+
+    <style>
+        .dropdown-menu { display: none; }
+        .dropdown:hover .dropdown-menu { display: block; }
+        .mil-mb-5 { margin-bottom: 5px; }
+        .mil-mb-15 { margin-bottom: 15px; }
+        .mil-mb-30 { margin-bottom: 30px; }
+        .mil-mb-60 { margin-bottom: 60px; }
+        .mil-p-80-80 { padding: 80px 0; }
+        .team-member-img {
+            width: 150px;
+            height: 150px;
+            border-radius: 50%;
+            object-fit: cover;
+            margin: 0 auto 20px;
+        }
+    </style>
+</body>
+</html>

@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="en-US">
+
+<head>
+    <title><%= title %></title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    
+    <link rel="stylesheet" href="/fonts/css/switzer.css" type="text/css" media="all">
+    <link rel="stylesheet" href="/fonts/css/font-awesome.min.css" type="text/css" media="all">
+    <link rel="stylesheet" href="/css/plugins/bootstrap-grid.css" type="text/css" media="all">
+    <link rel="stylesheet" href="/css/style.css" type="text/css" media="all">
+    <link rel="stylesheet" href="/css/custom.css" type="text/css" media="all">
+
+    <link rel="shortcut icon" href="/favicon.ico" type="image/x-icon">
+    <link rel="icon" href="/favicon.ico" type="image/x-icon">
+</head>
+
+<body>
+    <div id="smooth-wrapper" class="mil-wrapper">
+        <div class="mil-preloader"><div class="mil-load"></div><p class="h2 mil-mb-30"><span class="mil-light mil-counter" data-number="100">100</span><span class="mil-light">%</span></p></div>
+        <div class="mil-progress-track"><div class="mil-progress"></div></div>
+        <div class="progress-wrap active-progress"></div>
+
+        <div class="mil-top-panel">
+            <div class="container">
+                <a href="/" class="mil-logo"><img src="/img/logo.png" alt="RevaampAP" width="83" height="32"></a>
+                <nav class="mil-top-menu">
+                    <ul>
+                        <li><a href="/">Home</a></li>
+                        <li><a href="/project-subscriber/dashboard">Dashboard</a></li>
+                        <li><a href="/project-subscriber/projects">Projects</a></li>
+                        <li class="mil-active"><a href="/project-subscriber/projects/create">Create Project</a></li>
+                    </ul>
+                </nav>
+                <div class="mil-menu-buttons">
+                    <div class="dropdown">
+                        <a href="#" class="mil-btn mil-sm dropdown-toggle" data-bs-toggle="dropdown">
+                            <i class="fa fa-user-circle"></i> <%= user.name %> <i class="fa fa-chevron-down"></i>
+                        </a>
+                        <ul class="dropdown-menu">
+                            <li><a href="/project-subscriber/dashboard"><i class="fa fa-tachometer"></i> Dashboard</a></li>
+                            <li><a href="/project-subscriber/settings"><i class="fa fa-cog"></i> Settings</a></li>
+                            <li><hr></li>
+                            <li><a href="/logout"><i class="fa fa-sign-out-alt"></i> Logout</a></li>
+                        </ul>
+                    </div>
+                    <div class="mil-menu-btn"><span></span></div>
+                </div>
+            </div>
+        </div>
+
+        <div id="smooth-content">
+            <div class="mil-banner mil-banner-inner mil-dissolve">
+                <div class="container">
+                    <div class="row align-items-center justify-content-center">
+                        <div class="col-xl-8">
+                            <div class="mil-banner-text mil-text-center">
+                                <div class="mil-text-m mil-mb-20">Start Your Project</div>
+                                <h1 class="mil-mb-60">Create New Project</h1>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="mil-blog-list mil-p-80-80">
+                <div class="container">
+                    <div class="row justify-content-center">
+                        <div class="col-xl-8">
+                            <% if (bankGuaranteeStatus !== 'approved') { %>
+                                <div class="mil-price-card mil-up mil-mb-30" style="border-left: 4px solid #dc3545; background: #fff3cd;">
+                                    <div class="mil-text-center">
+                                        <i class="fa fa-exclamation-triangle" style="font-size: 40px; color: #856404; margin-bottom: 15px;"></i>
+                                        <h4>Bank Guarantee Required</h4>
+                                        <p class="mil-text-s">You need an approved bank guarantee before creating a project.</p>
+                                        <a href="/project-subscriber/bank-guarantee" class="mil-btn mil-sm mil-mt-15">Submit Bank Guarantee</a>
+                                    </div>
+                                </div>
+                            <% } else { %>
+                                <div class="mil-price-card mil-up mil-mb-30">
+                                    <form action="/project-subscriber/projects/create" method="POST" enctype="multipart/form-data">
+                                        <h4 class="mil-mb-30">Project Details</h4>
+                                        
+                                        <div class="row">
+                                            <div class="col-md-12">
+                                                <label class="mil-text-s mil-soft">Project Title</label>
+                                                <input class="mil-input mil-mb-15" type="text" name="title" placeholder="e.g., 5-Bedroom Luxury Villa" required>
+                                            </div>
+                                            <div class="col-md-12">
+                                                <label class="mil-text-s mil-soft">Project Description</label>
+                                                <textarea class="mil-input mil-mb-15" name="description" rows="5" placeholder="Describe your project in detail..." required></textarea>
+                                            </div>
+                                            <div class="col-md-6">
+                                                <label class="mil-text-s mil-soft">Project Type</label>
+                                                <select class="mil-input mil-mb-15" name="projectType" required>
+                                                    <option value="residential">Residential</option>
+                                                    <option value="commercial">Commercial</option>
+                                                    <option value="industrial">Industrial</option>
+                                                    <option value="infrastructure">Infrastructure</option>
+                                                    <option value="renovation">Renovation</option>
+                                                </select>
+                                            </div>
+                                            <div class="col-md-6">
+                                                <label class="mil-text-s mil-soft">Project Value (₦)</label>
+                                                <input class="mil-input mil-mb-15" type="number" name="projectValue" placeholder="Estimated project cost" required>
+                                            </div>
+                                            <div class="col-md-6">
+                                                <label class="mil-text-s mil-soft">Project Duration (months)</label>
+                                                <input class="mil-input mil-mb-15" type="number" name="projectDuration" placeholder="Expected completion time" required>
+                                            </div>
+                                            <div class="col-md-6">
+                                                <label class="mil-text-s mil-soft">Bank Name</label>
+                                                <input class="mil-input mil-mb-15" type="text" name="bankName" placeholder="Bank providing guarantee" required>
+                                            </div>
+                                            <div class="col-md-12">
+                                                <label class="mil-text-s mil-soft">Bank Guarantee Reference Number</label>
+                                                <input class="mil-input mil-mb-15" type="text" name="bankGuaranteeRef" placeholder="Enter your bank guarantee reference" required>
+                                            </div>
+                                        </div>
+
+                                        <h4 class="mil-mb-30 mil-mt-30">Location Details</h4>
+                                        <div class="row">
+                                            <div class="col-md-12">
+                                                <label class="mil-text-s mil-soft">Address</label>
+                                                <input class="mil-input mil-mb-15" type="text" name="address" placeholder="Street address" required>
+                                            </div>
+                                            <div class="col-md-6">
+                                                <label class="mil-text-s mil-soft">City</label>
+                                                <input class="mil-input mil-mb-15" type="text" name="city" placeholder="City" required>
+                                            </div>
+                                            <div class="col-md-6">
+                                                <label class="mil-text-s mil-soft">State</label>
+                                                <input class="mil-input mil-mb-15" type="text" name="state" placeholder="State" required>
+                                            </div>
+                                        </div>
+
+                                        <div class="mil-mt-30">
+                                            <button type="submit" class="mil-btn mil-md">Submit Project</button>
+                                            <a href="/project-subscriber/projects" class="mil-btn mil-md mil-light">Cancel</a>
+                                        </div>
+                                    </form>
+                                </div>
+                            <% } %>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <footer class="mil-p-80-0">
+            <div class="container">
+                <div class="mil-footer-bottom">
+                    <p class="mil-text-s mil-soft">© 2024 RevaampAP. All rights reserved.</p>
+                </div>
+            </div>
+        </footer>
+    </div>
+
+    <script src="/js/plugins/jquery.min.js"></script>
+    <script src="/js/main.js"></script>
+    <style>
+        .dropdown-menu { display: none; }
+        .dropdown:hover .dropdown-menu { display: block; }
+        .mil-input { width: 100%; padding: 12px 15px; border: 1px solid #e0e0e0; border-radius: 8px; }
+        label { display: block; margin-bottom: 5px; font-weight: 500; }
+        .mil-mt-30 { margin-top: 30px; }
+        .mil-mt-15 { margin-top: 15px; }
+        .mil-mb-15 { margin-bottom: 15px; }
+        .mil-mb-30 { margin-bottom: 30px; }
+    </style>
+</body>
+</html>

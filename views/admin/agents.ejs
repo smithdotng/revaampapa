@@ -1,0 +1,842 @@
+<%- include('../partials/header') %>
+
+<%
+// Ensure agents array exists
+if (typeof agents === 'undefined') {
+    var agents = [];
+}
+
+// Helper function to format date
+function formatDate(date) {
+    return new Date(date).toLocaleDateString('en-NG', {
+        year: 'numeric',
+        month: 'short',
+        day: 'numeric'
+    });
+}
+%>
+
+<!-- Page Top -->
+<section>
+    <div class="w-100 pt-180 pb-110 black-layer opc45 position-relative">
+        <div class="fixed-bg" style="background-image: url(/assets/images/pg-tp-bg.jpg);"></div>
+        <div class="container">
+            <div class="pg-tp-wrp text-center w-100">
+                <h1 class="mb-0">Agent Approvals</h1>
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item"><a href="/admin/dashboard" title="Admin Dashboard">Dashboard</a></li>
+                    <li class="breadcrumb-item active">Agent Approvals</li>
+                </ol>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Pending Agents Section -->
+<section>
+    <div class="w-100 pt-120 pb-90 position-relative">
+        <div class="container">
+            <div class="row">
+                <!-- Sidebar -->
+                <div class="col-md-3">
+                    <div class="admin-sidebar">
+                        <div class="admin-profile text-center mb-4">
+                            <img src="<%= user?.profileImage ? '/uploads/profiles/' + user.profileImage : '/assets/images/default-avatar.jpg' %>" 
+                                 alt="<%= user?.name || 'Admin' %>" 
+                                 class="rounded-circle img-fluid" style="width: 80px; height: 80px; object-fit: cover;">
+                            <h6 class="mt-2"><%= user?.name || 'Admin' %></h6>
+                            <p class="text-muted small">Administrator</p>
+                        </div>
+                        <ul class="list-unstyled">
+                            <li><a href="/admin/dashboard"><i class="fas fa-tachometer-alt"></i> Dashboard</a></li>
+                            <li><a href="/admin/users"><i class="fas fa-users"></i> Users</a></li>
+                            <li><a href="/admin/agents"><i class="fas fa-user-tie"></i> All Agents</a></li>
+                            <li class="active"><a href="/admin/agents/pending"><i class="fas fa-clock"></i> Pending Approvals</a></li>
+                            <li><a href="/admin/properties"><i class="fas fa-building"></i> Properties</a></li>
+                            <li><a href="/admin/properties/pending"><i class="fas fa-hourglass-half"></i> Pending Properties</a></li>
+                            <li><a href="/admin/featured"><i class="fas fa-star"></i> Featured</a></li>
+                            <li><a href="/admin/transactions"><i class="fas fa-credit-card"></i> Transactions</a></li>
+                            <li><a href="/admin/withdrawals"><i class="fas fa-money-bill-wave"></i> Withdrawals</a></li>
+                            <li><a href="/admin/settings"><i class="fas fa-cog"></i> Settings</a></li>
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Main Content -->
+                <div class="col-md-9">
+                    <div class="admin-content">
+                        <!-- Tabs for Pending/Approved/Rejected -->
+                        <ul class="nav nav-tabs mb-4" id="agentTabs" role="tablist">
+                            <li class="nav-item">
+                                <a class="nav-link active" id="pending-tab" data-toggle="tab" href="#pending" role="tab">
+                                    <i class="fas fa-clock"></i> Pending 
+                                    <span class="badge badge-warning"><%= agents.filter(a => !a.agentProfile?.isApproved && !a.agentProfile?.rejected).length %></span>
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" id="approved-tab" data-toggle="tab" href="#approved" role="tab">
+                                    <i class="fas fa-check-circle"></i> Approved
+                                    <span class="badge badge-success"><%= agents.filter(a => a.agentProfile?.isApproved).length %></span>
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" id="rejected-tab" data-toggle="tab" href="#rejected" role="tab">
+                                    <i class="fas fa-times-circle"></i> Rejected
+                                    <span class="badge badge-danger"><%= agents.filter(a => a.agentProfile?.rejected).length %></span>
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" id="all-tab" data-toggle="tab" href="#all" role="tab">
+                                    <i class="fas fa-list"></i> All
+                                    <span class="badge badge-secondary"><%= agents.length %></span>
+                                </a>
+                            </li>
+                        </ul>
+
+                        <!-- Tab Content -->
+                        <div class="tab-content" id="agentTabsContent">
+                            <!-- Pending Tab -->
+                            <div class="tab-pane fade show active" id="pending" role="tabpanel">
+                                <div class="d-flex justify-content-between align-items-center mb-4">
+                                    <h3>Pending Applications</h3>
+                                    <input type="text" class="form-control form-control-sm w-auto" id="pendingSearch" placeholder="Search pending...">
+                                </div>
+
+                                <% 
+                                const pendingAgents = agents.filter(a => !a.agentProfile?.isApproved && !a.agentProfile?.rejected);
+                                if (pendingAgents.length > 0) { 
+                                %>
+                                    <div class="table-responsive">
+                                        <table class="table table-hover" id="pendingTable">
+                                            <thead>
+                                                <tr>
+                                                    <th>Date</th>
+                                                    <th>Agent</th>
+                                                    <th>Contact</th>
+                                                    <th>Experience</th>
+                                                    <th>Payment</th>
+                                                    <th>Actions</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                <% pendingAgents.forEach(agent => { %>
+                                                    <tr class="pending-row" data-name="<%= agent.name.toLowerCase() %>" data-email="<%= agent.email.toLowerCase() %>">
+                                                        <td><%= formatDate(agent.createdAt) %></td>
+                                                        <td>
+                                                            <div class="d-flex align-items-center">
+                                                                <img src="<%= agent.profileImage ? '/uploads/profiles/' + agent.profileImage : '/assets/images/default-avatar.jpg' %>" 
+                                                                     class="rounded-circle mr-2" style="width: 35px; height: 35px; object-fit: cover;">
+                                                                <div>
+                                                                    <strong><%= agent.name %></strong><br>
+                                                                    <small class="text-muted"><%= agent.agentProfile?.socialHandle || 'No social' %></small>
+                                                                </div>
+                                                            </div>
+                                                        </td>
+                                                        <td>
+                                                            <small>
+                                                                <i class="fas fa-phone"></i> <%= agent.phone %><br>
+                                                                <i class="fas fa-envelope"></i> <%= agent.email %>
+                                                            </small>
+                                                        </td>
+                                                        <td><%= agent.agentProfile?.experience || 'Not specified' %></td>
+                                                        <td>
+                                                            <span class="badge badge-success">Paid</span><br>
+                                                            <small class="text-muted">₦<%= (process.env.AGENT_REGISTRATION_FEE || 5000).toLocaleString() %></small>
+                                                        </td>
+                                                        <td>
+                                                            <button class="btn btn-sm btn-success" onclick="approveAgent('<%= agent._id %>')" title="Approve">
+                                                                <i class="fas fa-check"></i>
+                                                            </button>
+                                                            <button class="btn btn-sm btn-danger" onclick="rejectAgent('<%= agent._id %>')" title="Reject">
+                                                                <i class="fas fa-times"></i>
+                                                            </button>
+                                                            <button class="btn btn-sm btn-info" onclick="viewAgent('<%= agent._id %>')" title="View Details">
+                                                                <i class="fas fa-eye"></i>
+                                                            </button>
+                                                        </td>
+                                                    </tr>
+                                                <% }); %>
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                <% } else { %>
+                                    <div class="text-center py-5">
+                                        <i class="fas fa-check-circle fa-4x text-success mb-3"></i>
+                                        <h4>No Pending Applications</h4>
+                                        <p class="text-muted">All agent applications have been processed.</p>
+                                    </div>
+                                <% } %>
+                            </div>
+
+                            <!-- Approved Tab -->
+                            <div class="tab-pane fade" id="approved" role="tabpanel">
+                                <div class="d-flex justify-content-between align-items-center mb-4">
+                                    <h3>Approved Agents</h3>
+                                    <input type="text" class="form-control form-control-sm w-auto" id="approvedSearch" placeholder="Search approved...">
+                                </div>
+
+                                <% 
+                                const approvedAgents = agents.filter(a => a.agentProfile?.isApproved);
+                                if (approvedAgents.length > 0) { 
+                                %>
+                                    <div class="table-responsive">
+                                        <table class="table table-hover" id="approvedTable">
+                                            <thead>
+                                                <tr>
+                                                    <th>Date Approved</th>
+                                                    <th>Agent</th>
+                                                    <th>Contact</th>
+                                                    <th>Earnings</th>
+                                                    <th>Transactions</th>
+                                                    <th>Status</th>
+                                                    <th>Actions</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                <% approvedAgents.forEach(agent => { %>
+                                                    <tr class="approved-row" data-name="<%= agent.name.toLowerCase() %>" data-email="<%= agent.email.toLowerCase() %>">
+                                                        <td><%= agent.agentProfile?.approvalDate ? formatDate(agent.agentProfile.approvalDate) : formatDate(agent.updatedAt) %></td>
+                                                        <td>
+                                                            <div class="d-flex align-items-center">
+                                                                <img src="<%= agent.profileImage ? '/uploads/profiles/' + agent.profileImage : '/assets/images/default-avatar.jpg' %>" 
+                                                                     class="rounded-circle mr-2" style="width: 35px; height: 35px; object-fit: cover;">
+                                                                <div>
+                                                                    <strong><%= agent.name %></strong><br>
+                                                                    <small class="text-muted"><%= agent.agentProfile?.uniqueLink || 'No link' %></small>
+                                                                </div>
+                                                            </div>
+                                                        </td>
+                                                        <td>
+                                                            <small>
+                                                                <i class="fas fa-phone"></i> <%= agent.phone %><br>
+                                                                <i class="fas fa-envelope"></i> <%= agent.email %>
+                                                            </small>
+                                                        </td>
+                                                        <td>₦<%= (agent.agentProfile?.totalEarnings || 0).toLocaleString() %></td>
+                                                        <td><%= agent.referralStats?.totalTransactions || 0 %></td>
+                                                        <td>
+                                                            <span class="badge badge-success">Approved</span><br>
+                                                            <small class="text-muted"><%= agent.agentProfile?.isActive ? 'Active' : 'Inactive' %></small>
+                                                        </td>
+                                                        <td>
+                                                            <button class="btn btn-sm btn-warning" onclick="suspendAgent('<%= agent._id %>')" title="Suspend">
+                                                                <i class="fas fa-pause"></i>
+                                                            </button>
+                                                            <button class="btn btn-sm btn-info" onclick="viewAgent('<%= agent._id %>')" title="View Details">
+                                                                <i class="fas fa-eye"></i>
+                                                            </button>
+                                                        </td>
+                                                    </tr>
+                                                <% }); %>
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                <% } else { %>
+                                    <div class="text-center py-5">
+                                        <i class="fas fa-user-tie fa-4x text-muted mb-3"></i>
+                                        <h4>No Approved Agents</h4>
+                                        <p class="text-muted">No agents have been approved yet.</p>
+                                    </div>
+                                <% } %>
+                            </div>
+
+                            <!-- Rejected Tab -->
+                            <div class="tab-pane fade" id="rejected" role="tabpanel">
+                                <div class="d-flex justify-content-between align-items-center mb-4">
+                                    <h3>Rejected Applications</h3>
+                                    <input type="text" class="form-control form-control-sm w-auto" id="rejectedSearch" placeholder="Search rejected...">
+                                </div>
+
+                                <% 
+                                const rejectedAgents = agents.filter(a => a.agentProfile?.rejected);
+                                if (rejectedAgents.length > 0) { 
+                                %>
+                                    <div class="table-responsive">
+                                        <table class="table table-hover" id="rejectedTable">
+                                            <thead>
+                                                <tr>
+                                                    <th>Date Rejected</th>
+                                                    <th>Agent</th>
+                                                    <th>Contact</th>
+                                                    <th>Reason</th>
+                                                    <th>Actions</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                <% rejectedAgents.forEach(agent => { %>
+                                                    <tr class="rejected-row" data-name="<%= agent.name.toLowerCase() %>" data-email="<%= agent.email.toLowerCase() %>">
+                                                        <td><%= agent.agentProfile?.rejectionDate ? formatDate(agent.agentProfile.rejectionDate) : formatDate(agent.updatedAt) %></td>
+                                                        <td>
+                                                            <div class="d-flex align-items-center">
+                                                                <img src="<%= agent.profileImage ? '/uploads/profiles/' + agent.profileImage : '/assets/images/default-avatar.jpg' %>" 
+                                                                     class="rounded-circle mr-2" style="width: 35px; height: 35px; object-fit: cover;">
+                                                                <div>
+                                                                    <strong><%= agent.name %></strong><br>
+                                                                    <small class="text-muted"><%= agent.email %></small>
+                                                                </div>
+                                                            </div>
+                                                        </td>
+                                                        <td>
+                                                            <small>
+                                                                <i class="fas fa-phone"></i> <%= agent.phone %><br>
+                                                                <i class="fas fa-envelope"></i> <%= agent.email %>
+                                                            </small>
+                                                        </td>
+                                                        <td><%= agent.agentProfile?.rejectionReason || 'Not specified' %></td>
+                                                        <td>
+                                                            <button class="btn btn-sm btn-success" onclick="approveAgent('<%= agent._id %>')" title="Approve">
+                                                                <i class="fas fa-check"></i>
+                                                            </button>
+                                                            <button class="btn btn-sm btn-danger" onclick="deleteAgent('<%= agent._id %>')" title="Delete">
+                                                                <i class="fas fa-trash"></i>
+                                                            </button>
+                                                            <button class="btn btn-sm btn-info" onclick="viewAgent('<%= agent._id %>')" title="View Details">
+                                                                <i class="fas fa-eye"></i>
+                                                            </button>
+                                                        </td>
+                                                    </tr>
+                                                <% }); %>
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                <% } else { %>
+                                    <div class="text-center py-5">
+                                        <i class="fas fa-times-circle fa-4x text-muted mb-3"></i>
+                                        <h4>No Rejected Applications</h4>
+                                        <p class="text-muted">No agents have been rejected.</p>
+                                    </div>
+                                <% } %>
+                            </div>
+
+                            <!-- All Agents Tab -->
+                            <div class="tab-pane fade" id="all" role="tabpanel">
+                                <div class="d-flex justify-content-between align-items-center mb-4">
+                                    <h3>All Agent Applications</h3>
+                                    <input type="text" class="form-control form-control-sm w-auto" id="allSearch" placeholder="Search all...">
+                                </div>
+
+                                <% if (agents.length > 0) { %>
+                                    <div class="table-responsive">
+                                        <table class="table table-hover" id="allTable">
+                                            <thead>
+                                                <tr>
+                                                    <th>Date</th>
+                                                    <th>Agent</th>
+                                                    <th>Contact</th>
+                                                    <th>Status</th>
+                                                    <th>Payment</th>
+                                                    <th>Actions</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                <% agents.forEach(agent => { %>
+                                                    <tr class="all-row" data-name="<%= agent.name.toLowerCase() %>" data-email="<%= agent.email.toLowerCase() %>">
+                                                        <td><%= formatDate(agent.createdAt) %></td>
+                                                        <td>
+                                                            <div class="d-flex align-items-center">
+                                                                <img src="<%= agent.profileImage ? '/uploads/profiles/' + agent.profileImage : '/assets/images/default-avatar.jpg' %>" 
+                                                                     class="rounded-circle mr-2" style="width: 35px; height: 35px; object-fit: cover;">
+                                                                <div>
+                                                                    <strong><%= agent.name %></strong><br>
+                                                                    <small class="text-muted"><%= agent.agentProfile?.socialHandle || 'No social' %></small>
+                                                                </div>
+                                                            </div>
+                                                        </td>
+                                                        <td>
+                                                            <small>
+                                                                <i class="fas fa-phone"></i> <%= agent.phone %><br>
+                                                                <i class="fas fa-envelope"></i> <%= agent.email %>
+                                                            </small>
+                                                        </td>
+                                                        <td>
+                                                            <% if (agent.agentProfile?.isApproved) { %>
+                                                                <span class="badge badge-success">Approved</span>
+                                                            <% } else if (agent.agentProfile?.rejected) { %>
+                                                                <span class="badge badge-danger">Rejected</span>
+                                                            <% } else { %>
+                                                                <span class="badge badge-warning">Pending</span>
+                                                            <% } %>
+                                                        </td>
+                                                        <td>
+                                                            <% if (agent.agentProfile?.registrationPaid) { %>
+                                                                <span class="badge badge-success">Paid</span>
+                                                            <% } else { %>
+                                                                <span class="badge badge-secondary">Unpaid</span>
+                                                            <% } %>
+                                                        </td>
+                                                        <td>
+                                                            <% if (!agent.agentProfile?.isApproved && !agent.agentProfile?.rejected) { %>
+                                                                <button class="btn btn-sm btn-success" onclick="approveAgent('<%= agent._id %>')" title="Approve">
+                                                                    <i class="fas fa-check"></i>
+                                                                </button>
+                                                                <button class="btn btn-sm btn-danger" onclick="rejectAgent('<%= agent._id %>')" title="Reject">
+                                                                    <i class="fas fa-times"></i>
+                                                                </button>
+                                                            <% } %>
+                                                            <button class="btn btn-sm btn-info" onclick="viewAgent('<%= agent._id %>')" title="View Details">
+                                                                <i class="fas fa-eye"></i>
+                                                            </button>
+                                                            <button class="btn btn-sm btn-danger" onclick="deleteAgent('<%= agent._id %>')" title="Delete">
+                                                                <i class="fas fa-trash"></i>
+                                                            </button>
+                                                        </td>
+                                                    </tr>
+                                                <% }); %>
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                <% } else { %>
+                                    <div class="text-center py-5">
+                                        <i class="fas fa-user-tie fa-4x text-muted mb-3"></i>
+                                        <h4>No Agents Found</h4>
+                                        <p class="text-muted">No agents have registered yet.</p>
+                                    </div>
+                                <% } %>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Agent Details Modal -->
+<div class="modal fade" id="agentModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Agent Details</h5>
+                <button type="button" class="close" data-dismiss="modal">
+                    <span>&times;</span>
+                </button>
+            </div>
+            <div class="modal-body" id="agentModalBody">
+                <div class="text-center py-4">
+                    <div class="spinner-border text-primary" role="status">
+                        <span class="sr-only">Loading...</span>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-success" id="approveModalBtn" style="display: none;">Approve</button>
+                <button type="button" class="btn btn-danger" id="rejectModalBtn" style="display: none;">Reject</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Rejection Reason Modal -->
+<div class="modal fade" id="rejectModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Rejection Reason</h5>
+                <button type="button" class="close" data-dismiss="modal">
+                    <span>&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label>Reason for rejection:</label>
+                    <textarea class="form-control" id="rejectionReason" rows="3" placeholder="Enter reason for rejection..."></textarea>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-danger" onclick="confirmReject()">Reject Application</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.admin-sidebar {
+    background: white;
+    border-radius: 10px;
+    padding: 30px 20px;
+    box-shadow: 0 0 20px rgba(0,0,0,0.1);
+    position: sticky;
+    top: 100px;
+}
+
+.admin-sidebar ul li {
+    margin-bottom: 10px;
+}
+
+.admin-sidebar ul li a {
+    display: block;
+    padding: 12px 15px;
+    border-radius: 5px;
+    color: #333;
+    transition: all 0.3s ease;
+    text-decoration: none;
+}
+
+.admin-sidebar ul li a i {
+    margin-right: 10px;
+    width: 20px;
+}
+
+.admin-sidebar ul li a:hover {
+    background: #f8f9fa;
+}
+
+.admin-sidebar ul li.active a {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+}
+
+.admin-content {
+    background: white;
+    border-radius: 10px;
+    padding: 30px;
+    box-shadow: 0 0 20px rgba(0,0,0,0.1);
+}
+
+.nav-tabs .nav-link {
+    color: #555;
+    font-weight: 500;
+}
+
+.nav-tabs .nav-link.active {
+    color: #ff6b6b;
+    border-bottom: 2px solid #ff6b6b;
+}
+
+.nav-tabs .badge {
+    margin-left: 5px;
+}
+
+.table th {
+    border-top: none;
+    font-weight: 600;
+    color: #555;
+    font-size: 13px;
+    text-transform: uppercase;
+}
+
+.table td {
+    vertical-align: middle;
+    font-size: 14px;
+}
+
+.badge-success {
+    background: #28a745;
+    color: white;
+    padding: 5px 10px;
+}
+
+.badge-warning {
+    background: #ffc107;
+    color: #333;
+    padding: 5px 10px;
+}
+
+.badge-danger {
+    background: #dc3545;
+    color: white;
+    padding: 5px 10px;
+}
+
+.badge-secondary {
+    background: #6c757d;
+    color: white;
+    padding: 5px 10px;
+}
+
+.btn-sm {
+    padding: 5px 10px;
+    font-size: 12px;
+    margin: 2px;
+}
+
+.btn-success {
+    background: #28a745;
+    border-color: #28a745;
+}
+
+.btn-success:hover {
+    background: #218838;
+    border-color: #1e7e34;
+}
+
+.btn-danger {
+    background: #dc3545;
+    border-color: #dc3545;
+}
+
+.btn-danger:hover {
+    background: #c82333;
+    border-color: #bd2130;
+}
+
+.btn-info {
+    background: #17a2b8;
+    border-color: #17a2b8;
+    color: white;
+}
+
+.btn-info:hover {
+    background: #138496;
+    border-color: #117a8b;
+}
+
+.btn-warning {
+    background: #ffc107;
+    border-color: #ffc107;
+    color: #333;
+}
+
+.search-box {
+    width: 250px;
+}
+
+@media (max-width: 768px) {
+    .admin-sidebar {
+        position: relative;
+        top: 0;
+        margin-bottom: 30px;
+    }
+    
+    .search-box {
+        width: 100%;
+        margin-top: 10px;
+    }
+}
+</style>
+
+<script>
+let currentAgentId = null;
+
+// View agent details
+function viewAgent(id) {
+    $('#agentModal').modal('show');
+    $('#agentModalBody').html('<div class="text-center py-4"><div class="spinner-border text-primary" role="status"><span class="sr-only">Loading...</span></div></div>');
+    
+    $.get('/admin/agents/' + id, function(data) {
+        const status = data.agentProfile?.isApproved ? 'Approved' : (data.agentProfile?.rejected ? 'Rejected' : 'Pending');
+        const statusClass = data.agentProfile?.isApproved ? 'success' : (data.agentProfile?.rejected ? 'danger' : 'warning');
+        
+        let html = `
+            <div class="row">
+                <div class="col-md-4 text-center">
+                    <img src="${data.profileImage ? '/uploads/profiles/' + data.profileImage : '/assets/images/default-avatar.jpg'}" 
+                         class="rounded-circle img-fluid mb-3" style="width: 150px; height: 150px; object-fit: cover;">
+                    <h5>${data.name}</h5>
+                    <p class="text-muted">${data.email}</p>
+                    <span class="badge badge-${statusClass} p-2">${status}</span>
+                </div>
+                <div class="col-md-8">
+                    <table class="table table-borderless">
+                        <tr>
+                            <th width="40%">Phone:</th>
+                            <td>${data.phone}</td>
+                        </tr>
+                        <tr>
+                            <th>Social Handle:</th>
+                            <td>${data.agentProfile?.socialHandle || 'Not provided'}</td>
+                        </tr>
+                        <tr>
+                            <th>Experience:</th>
+                            <td>${data.agentProfile?.experience || 'Not specified'}</td>
+                        </tr>
+                        <tr>
+                            <th>Registration Date:</th>
+                            <td>${new Date(data.createdAt).toLocaleString()}</td>
+                        </tr>
+                        <tr>
+                            <th>Payment Reference:</th>
+                            <td>${data.agentProfile?.paymentReference || 'N/A'}</td>
+                        </tr>
+                        <tr>
+                            <th>Payment Status:</th>
+                            <td><span class="badge badge-success">Paid (₦${(data.agentProfile?.registrationFee || 5000).toLocaleString()})</span></td>
+                        </tr>
+                        <tr>
+                            <th>Unique Link:</th>
+                            <td><code>${window.location.origin}/r/${data.agentProfile?.uniqueLink || ''}</code></td>
+                        </tr>
+                        ${data.agentProfile?.isApproved ? `
+                        <tr>
+                            <th>Total Earnings:</th>
+                            <td>₦${(data.agentProfile?.totalEarnings || 0).toLocaleString()}</td>
+                        </tr>
+                        <tr>
+                            <th>Total Transactions:</th>
+                            <td>${data.referralStats?.totalTransactions || 0}</td>
+                        </tr>
+                        <tr>
+                            <th>Total Clicks:</th>
+                            <td>${data.referralStats?.totalClicks || 0}</td>
+                        </tr>
+                        ` : ''}
+                        ${data.agentProfile?.bankDetails ? `
+                        <tr>
+                            <th>Bank Details:</th>
+                            <td>
+                                ${data.agentProfile.bankDetails.bankName}<br>
+                                ${data.agentProfile.bankDetails.accountNumber}<br>
+                                ${data.agentProfile.bankDetails.accountName}
+                            </td>
+                        </tr>
+                        ` : ''}
+                        ${data.agentProfile?.rejectionReason ? `
+                        <tr>
+                            <th>Rejection Reason:</th>
+                            <td class="text-danger">${data.agentProfile.rejectionReason}</td>
+                        </tr>
+                        ` : ''}
+                    </table>
+                </div>
+            </div>
+        `;
+        $('#agentModalBody').html(html);
+        
+        currentAgentId = id;
+        if (!data.agentProfile?.isApproved && !data.agentProfile?.rejected) {
+            $('#approveModalBtn').show().off('click').click(() => approveAgent(id));
+            $('#rejectModalBtn').show().off('click').click(() => showRejectModal(id));
+        } else {
+            $('#approveModalBtn, #rejectModalBtn').hide();
+        }
+    }).fail(function() {
+        $('#agentModalBody').html('<p class="text-center text-danger">Error loading agent details</p>');
+    });
+}
+
+// Approve agent
+function approveAgent(id) {
+    if (confirm('Are you sure you want to approve this agent? They will be able to access the agent dashboard and earn commissions.')) {
+        $.post('/admin/agents/' + id + '/approve', function(data) {
+            if (data.success) {
+                alert('Agent approved successfully!');
+                location.reload();
+            } else {
+                alert('Error approving agent');
+            }
+        }).fail(function(xhr) {
+            alert('Error approving agent: ' + (xhr.responseJSON?.error || 'Unknown error'));
+        });
+    }
+}
+
+// Show reject modal
+function showRejectModal(id) {
+    currentAgentId = id;
+    $('#rejectModal').modal('show');
+}
+
+// Confirm rejection with reason
+function confirmReject() {
+    const reason = $('#rejectionReason').val();
+    if (!reason) {
+        alert('Please enter a reason for rejection');
+        return;
+    }
+    
+    $.ajax({
+        url: '/admin/agents/' + currentAgentId + '/reject',
+        type: 'POST',
+        data: { reason: reason },
+        success: function(data) {
+            if (data.success) {
+                alert('Agent application rejected');
+                $('#rejectModal').modal('hide');
+                location.reload();
+            } else {
+                alert('Error rejecting agent');
+            }
+        },
+        error: function(xhr) {
+            alert('Error rejecting agent: ' + (xhr.responseJSON?.error || 'Unknown error'));
+        }
+    });
+}
+
+// Reject agent (legacy)
+function rejectAgent(id) {
+    currentAgentId = id;
+    showRejectModal(id);
+}
+
+// Suspend agent
+function suspendAgent(id) {
+    if (confirm('Are you sure you want to suspend this agent?')) {
+        $.post('/admin/agents/' + id + '/suspend', function(data) {
+            if (data.success) {
+                alert('Agent suspended successfully');
+                location.reload();
+            }
+        }).fail(function(xhr) {
+            alert('Error suspending agent: ' + (xhr.responseJSON?.error || 'Unknown error'));
+        });
+    }
+}
+
+// Delete agent
+function deleteAgent(id) {
+    if (confirm('Are you sure you want to permanently delete this agent? This action cannot be undone.')) {
+        $.ajax({
+            url: '/admin/agents/' + id,
+            type: 'DELETE',
+            success: function(data) {
+                if (data.success) {
+                    alert('Agent deleted successfully');
+                    location.reload();
+                }
+            },
+            error: function(xhr) {
+                alert('Error deleting agent: ' + (xhr.responseJSON?.error || 'Unknown error'));
+            }
+        });
+    }
+}
+
+// Search functionality
+function setupSearch(inputId, tableId) {
+    $('#' + inputId).on('keyup', function() {
+        const searchTerm = $(this).val().toLowerCase();
+        $('#' + tableId + ' tbody tr').each(function() {
+            const name = $(this).data('name') || '';
+            const email = $(this).data('email') || '';
+            $(this).toggle(name.includes(searchTerm) || email.includes(searchTerm));
+        });
+    });
+}
+
+// Initialize search on document ready
+$(document).ready(function() {
+    setupSearch('pendingSearch', 'pendingTable');
+    setupSearch('approvedSearch', 'approvedTable');
+    setupSearch('rejectedSearch', 'rejectedTable');
+    setupSearch('allSearch', 'allTable');
+    
+    // Store current tab in URL hash
+    $('a[data-toggle="tab"]').on('shown.bs.tab', function(e) {
+        window.location.hash = $(e.target).attr('href');
+    });
+    
+    // Activate tab based on URL hash
+    if (window.location.hash) {
+        $('a[href="' + window.location.hash + '"]').tab('show');
+    }
+});
+
+// Approve from modal
+function approveFromModal() {
+    if (currentAgentId) {
+        approveAgent(currentAgentId);
+    }
+}
+
+// Reject from modal
+function rejectFromModal() {
+    if (currentAgentId) {
+        showRejectModal(currentAgentId);
+    }
+}
+</script>
+
+<%- include('../partials/footer') %>

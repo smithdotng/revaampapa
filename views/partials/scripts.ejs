@@ -1,0 +1,118 @@
+<!-- Scripts -->
+<script src="/assets/js/jquery.min.js"></script>
+<script src="/assets/js/aos.js"></script>
+<script src="/assets/js/bootstrap.min.js"></script>
+<script src="/assets/js/magnific-popup.min.js"></script>
+<script src="/assets/js/owl.carousel.min.js"></script>
+<script src="/assets/js/main.js"></script>
+
+<script>
+    // Initialize AOS
+    AOS.init({
+        duration: 800,
+        once: true
+    });
+    
+    // Global search function
+    function performGlobalSearch() {
+        const query = document.getElementById('globalSearchInput').value;
+        if (query && query.trim()) {
+            window.location.href = '/properties?search=' + encodeURIComponent(query.trim());
+        }
+    }
+    
+    // Enter key search
+    document.getElementById('globalSearchInput')?.addEventListener('keypress', function(e) {
+        if (e.key === 'Enter') {
+            performGlobalSearch();
+        }
+    });
+    
+    // Close flash messages after 5 seconds
+    setTimeout(() => {
+        document.querySelectorAll('.alert').forEach(alert => {
+            const bsAlert = new bootstrap.Alert(alert);
+            bsAlert.close();
+        });
+    }, 5000);
+    
+    // Property search function
+    function searchProperties() {
+        const location = document.getElementById('searchLocation')?.value || '';
+        const type = document.getElementById('searchType')?.value || '';
+        const priceRange = document.getElementById('searchPrice')?.value || '';
+        
+        let url = '/properties?';
+        if (location) url += `state=${encodeURIComponent(location)}&`;
+        if (type) url += `type=${encodeURIComponent(type)}&`;
+        if (priceRange) {
+            if (priceRange === '0-50k') url += 'maxPrice=50000000&';
+            else if (priceRange === '50k-100k') url += 'minPrice=50000000&maxPrice=100000000&';
+            else if (priceRange === '100k+') url += 'minPrice=100000000&';
+        }
+        
+        window.location.href = url;
+    }
+    
+    // Load more properties
+    let currentPage = 1;
+    function loadMoreProperties() {
+        currentPage++;
+        const container = document.getElementById('propertiesContainer');
+        const loading = document.getElementById('loadingSpinner');
+        
+        loading.style.display = 'block';
+        
+        fetch(`/api/properties?page=${currentPage}`)
+            .then(response => response.json())
+            .then(data => {
+                if (data.properties && data.properties.length > 0) {
+                    data.properties.forEach(property => {
+                        container.insertAdjacentHTML('beforeend', createPropertyCard(property));
+                    });
+                }
+                if (!data.hasMore) {
+                    document.getElementById('loadMoreBtn').style.display = 'none';
+                }
+                loading.style.display = 'none';
+            })
+            .catch(error => {
+                console.error('Error loading properties:', error);
+                loading.style.display = 'none';
+            });
+    }
+    
+    // Create property card HTML
+    function createPropertyCard(property) {
+        const primaryImage = property.images && property.images.length > 0 ? property.images[0].url : '/assets/img/all-img/property-placeholder.jpg';
+        const priceFormatted = new Intl.NumberFormat('en-NG', { style: 'currency', currency: 'NGN', minimumFractionDigits: 0 }).format(property.price);
+        
+        return `
+            <div class="col-lg-4 col-md-6">
+                <div class="property-card">
+                    <div class="property-image">
+                        <img src="${primaryImage}" alt="${property.title}" class="img-fluid">
+                        ${property.featured ? '<span class="featured-badge">Featured</span>' : ''}
+                        ${property.verificationStatus === 'verified' ? '<span class="verified-badge"><i class="bx bx-check-circle"></i> Verified</span>' : ''}
+                    </div>
+                    <div class="property-info">
+                        <h3><a href="/properties/${property.slug}">${property.title}</a></h3>
+                        <p class="location"><i class="bx bx-map"></i> ${property.location.city}, ${property.location.state}</p>
+                        <p class="price">${priceFormatted}</p>
+                        <div class="property-features">
+                            ${property.features.bedrooms ? `<span><i class="bx bx-bed"></i> ${property.features.bedrooms}</span>` : ''}
+                            ${property.features.bathrooms ? `<span><i class="bx bx-bath"></i> ${property.features.bathrooms}</span>` : ''}
+                            ${property.features.parkingSpaces ? `<span><i class="bx bx-car"></i> ${property.features.parkingSpaces}</span>` : ''}
+                        </div>
+                        <div class="property-footer">
+                            <span class="property-type">${property.propertyType}</span>
+                            <a href="/properties/${property.slug}" class="view-details">View Details <i class="bx bx-right-arrow-alt"></i></a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        `;
+    }
+</script>
+
+<%= typeof scripts !== 'undefined' ? scripts : '' %>

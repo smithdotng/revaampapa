@@ -1,0 +1,18 @@
+<%- include('partials/header') %>
+
+<h1>Test Promotions API</h1>
+<pre id="result">Loading...</pre>
+
+<script>
+$(document).ready(function() {
+    $.get('/api/agent/promotions')
+        .done(function(data) {
+            $('#result').text(JSON.stringify(data, null, 2));
+        })
+        .fail(function(xhr) {
+            $('#result').text('Error: ' + xhr.status + ' ' + xhr.statusText);
+        });
+});
+</script>
+
+<%- include('partials/footer') %>

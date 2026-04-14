@@ -1,0 +1,251 @@
+<!-- Shortlet Booking Form Partial -->
+<div class="booking-widget">
+    <h4>Book This Shortlet</h4>
+    
+    <!-- Price Summary -->
+    <div class="price-summary mb-4">
+        <h3>₦<%= property.price.toLocaleString() %> <span>/ night</span></h3>
+        <% if (property.shortletDetails?.cleaningFee > 0) { %>
+            <p class="mb-1">+ ₦<%= property.shortletDetails.cleaningFee.toLocaleString() %> cleaning fee</p>
+        <% } %>
+        <% if (property.shortletDetails?.securityDeposit > 0) { %>
+            <p class="mb-1">₦<%= property.shortletDetails.securityDeposit.toLocaleString() %> security deposit</p>
+        <% } %>
+    </div>
+    
+    <!-- Date Selection -->
+    <form action="/shortlets/<%= property._id %>/book" method="POST" id="bookingForm">
+        <div class="form-group">
+            <label>Check-in Date</label>
+            <input type="date" class="form-control" name="checkIn" id="checkIn" 
+                   min="<%= new Date().toISOString().split('T')[0] %>" required>
+        </div>
+        
+        <div class="form-group">
+            <label>Check-out Date</label>
+            <input type="date" class="form-control" name="checkOut" id="checkOut" required>
+        </div>
+        
+        <div class="form-group">
+            <label>Number of Guests</label>
+            <select class="form-control" name="numberOfGuests" id="numberOfGuests">
+                <% for (let i = 1; i <= (property.shortletDetails?.maxGuests || 10); i++) { %>
+                    <option value="<%= i %>"><%= i %> <%= i === 1 ? 'Guest' : 'Guests' %></option>
+                <% } %>
+            </select>
+        </div>
+        
+        <!-- Price Breakdown (dynamic) -->
+        <div class="price-breakdown bg-light p-3 rounded mb-3" id="priceBreakdown" style="display: none;">
+            <h6>Price Breakdown</h6>
+            <div class="d-flex justify-content-between">
+                <span id="nightsCount"></span>
+                <span id="nightlyRate"></span>
+            </div>
+            <div class="d-flex justify-content-between" id="weekendRateRow" style="display: none;">
+                <span>Weekend surcharge</span>
+                <span id="weekendRate"></span>
+            </div>
+            <div class="d-flex justify-content-between" id="discountRow" style="display: none;">
+                <span id="discountLabel"></span>
+                <span id="discountAmount" class="text-success"></span>
+            </div>
+            <div class="d-flex justify-content-between">
+                <span>Cleaning fee</span>
+                <span id="cleaningFee">₦0</span>
+            </div>
+            <hr>
+            <div class="d-flex justify-content-between font-weight-bold">
+                <span>Total</span>
+                <span id="totalPrice">₦0</span>
+            </div>
+            <small class="text-muted">Security deposit of ₦<%= property.shortletDetails?.securityDeposit?.toLocaleString() || 0 %> will be refunded after check-out</small>
+        </div>
+        
+        <!-- Guest Information -->
+        <div class="guest-info mt-4">
+            <h5>Your Information</h5>
+            <div class="form-group">
+                <label>Full Name</label>
+                <input type="text" class="form-control" name="guestName" required>
+            </div>
+            <div class="form-group">
+                <label>Email Address</label>
+                <input type="email" class="form-control" name="guestEmail" required>
+            </div>
+            <div class="form-group">
+                <label>Phone Number</label>
+                <input type="tel" class="form-control" name="guestPhone" required>
+            </div>
+            <div class="form-group">
+                <label>Special Requests (Optional)</label>
+                <textarea class="form-control" name="specialRequests" rows="3"></textarea>
+            </div>
+        </div>
+        
+        <!-- Referral Code -->
+        <div class="form-group">
+            <label>Referral Code (Optional)</label>
+            <input type="text" class="form-control" name="referralCode" placeholder="Enter agent referral code">
+        </div>
+        
+        <!-- Payment Method -->
+        <div class="form-group">
+            <label>Payment Method</label>
+            <select class="form-control" name="paymentMethod" required>
+                <option value="paystack">Pay Online (Card/Bank Transfer)</option>
+                <option value="bank_transfer">Bank Transfer</option>
+                <option value="cash">Cash on Arrival</option>
+            </select>
+        </div>
+        
+        <!-- Terms -->
+        <div class="form-check mb-3">
+            <input class="form-check-input" type="checkbox" id="terms" required>
+            <label class="form-check-label" for="terms">
+                I agree to the <a href="#" data-toggle="modal" data-target="#termsModal">terms and conditions</a> and 
+                <a href="#" data-toggle="modal" data-target="#cancellationModal">cancellation policy</a>
+            </label>
+        </div>
+        
+        <button type="submit" class="thm-btn btn-block" id="bookBtn" disabled>
+            <i class="fas fa-calendar-check"></i> Request to Book
+        </button>
+    </form>
+</div>
+
+<!-- Terms Modal -->
+<div class="modal fade" id="termsModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Terms and Conditions</h5>
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <h6>Cancellation Policy</h6>
+                <p><%= property.shortletDetails?.cancellationPolicy === 'flexible' ? 'Flexible: Full refund 1 day before check-in' : 
+                       property.shortletDetails?.cancellationPolicy === 'moderate' ? 'Moderate: Full refund 5 days before, 50% refund 3 days before' :
+                       'Strict: 50% refund up to 7 days before check-in' %></p>
+                
+                <h6>House Rules</h6>
+                <ul>
+                    <% (property.shortletDetails?.houseRules || []).forEach(rule => { %>
+                        <li><%= rule %></li>
+                    <% }); %>
+                </ul>
+                
+                <h6>Amenities</h6>
+                <ul>
+                    <% (property.shortletDetails?.amenities || []).forEach(amenity => { %>
+                        <li><%= amenity %></li>
+                    <% }); %>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Cancellation Modal -->
+<div class="modal fade" id="cancellationModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Cancellation Policy</h5>
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <p><strong><%= property.shortletDetails?.cancellationPolicy?.toUpperCase() || 'MODERATE' %> POLICY</strong></p>
+                <% if (property.shortletDetails?.cancellationPolicy === 'flexible') { %>
+                    <p>• Free cancellation up to 24 hours before check-in for a full refund</p>
+                    <p>• No refund if cancelled less than 24 hours before check-in</p>
+                <% } else if (property.shortletDetails?.cancellationPolicy === 'moderate') { %>
+                    <p>• Free cancellation up to 5 days before check-in for a full refund</p>
+                    <p>• 50% refund if cancelled between 3-5 days before check-in</p>
+                    <p>• No refund if cancelled less than 3 days before check-in</p>
+                <% } else { %>
+                    <p>• 50% refund if cancelled at least 7 days before check-in</p>
+                    <p>• No refund if cancelled less than 7 days before check-in</p>
+                <% } %>
+                <p class="mt-3"><small>Cleaning fee is non-refundable</small></p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.booking-widget {
+    background: white;
+    border-radius: 10px;
+    padding: 25px;
+    box-shadow: 0 0 20px rgba(0,0,0,0.1);
+    position: sticky;
+    top: 100px;
+}
+
+.price-summary h3 {
+    font-size: 28px;
+    font-weight: bold;
+    color: #333;
+}
+
+.price-summary h3 span {
+    font-size: 16px;
+    font-weight: normal;
+    color: #666;
+}
+
+.price-breakdown {
+    font-size: 14px;
+}
+</style>
+
+<script>
+document.getElementById('checkIn').addEventListener('change', checkAvailability);
+document.getElementById('checkOut').addEventListener('change', checkAvailability);
+document.getElementById('numberOfGuests').addEventListener('change', checkAvailability);
+document.getElementById('terms').addEventListener('change', function() {
+    document.getElementById('bookBtn').disabled = !this.checked;
+});
+
+async function checkAvailability() {
+    const checkIn = document.getElementById('checkIn').value;
+    const checkOut = document.getElementById('checkOut').value;
+    const guests = document.getElementById('numberOfGuests').value;
+    const propertyId = '<%= property._id %>';
+    
+    if (!checkIn || !checkOut) return;
+    
+    try {
+        const response = await fetch(`/shortlets/${propertyId}/check?checkIn=${checkIn}&checkOut=${checkOut}&guests=${guests}`);
+        const data = await response.json();
+        
+        if (data.available) {
+            document.getElementById('priceBreakdown').style.display = 'block';
+            document.getElementById('nightsCount').textContent = `${data.nights} nights`;
+            document.getElementById('nightlyRate').textContent = `₦${data.priceBreakdown.nightlyRate.toLocaleString()} x ${data.nights}`;
+            document.getElementById('cleaningFee').textContent = `₦${data.priceBreakdown.cleaningFee.toLocaleString()}`;
+            document.getElementById('totalPrice').textContent = `₦${data.priceBreakdown.total.toLocaleString()}`;
+            
+            if (data.priceBreakdown.weekendRate) {
+                document.getElementById('weekendRateRow').style.display = 'flex';
+                document.getElementById('weekendRate').textContent = `₦${data.priceBreakdown.weekendRate.toLocaleString()}`;
+            }
+            
+            if (data.priceBreakdown.discounts.weekly > 0 || data.priceBreakdown.discounts.monthly > 0) {
+                document.getElementById('discountRow').style.display = 'flex';
+                const discount = data.priceBreakdown.discounts.weekly || data.priceBreakdown.discounts.monthly;
+                const discountType = data.nights >= 28 ? 'Monthly' : 'Weekly';
+                document.getElementById('discountLabel').textContent = `${discountType} discount (${discount}%)`;
+                const discountAmount = (data.priceBreakdown.subtotal * discount / 100);
+                document.getElementById('discountAmount').textContent = `-₦${discountAmount.toLocaleString()}`;
+            }
+        } else {
+            document.getElementById('priceBreakdown').style.display = 'none';
+            alert(data.reason || 'Selected dates are not available');
+        }
+    } catch (error) {
+        console.error('Error checking availability:', error);
+    }
+}
+</script>

@@ -1,0 +1,1598 @@
+<%- include('partials/header') %>
+
+<% 
+// Ensure stats object exists with default values
+if (typeof stats === 'undefined') { 
+    var stats = { 
+        totalProperties: 0, 
+        totalViews: 0, 
+        totalFavorites: 0, 
+        totalInquiries: 0,
+        pendingFees: 0,
+        activeTiers: {
+            free: 0,
+            standard: 0,
+            premium: 0
+        }
+    }; 
+} 
+
+// Ensure properties exists
+if (typeof properties === 'undefined') { 
+    var properties = []; 
+} 
+
+// Ensure recentInquiries exists
+if (typeof recentInquiries === 'undefined') { 
+    var recentInquiries = []; 
+} 
+
+// Ensure pendingListingFees exists
+if (typeof pendingListingFees === 'undefined') { 
+    var pendingListingFees = []; 
+}
+
+// Helper function to get tier badge HTML
+function getTierBadge(tier) {
+    if (tier === 'premium') {
+        return '<span class="badge badge-warning"><i class="fas fa-crown"></i> Premium</span>';
+    } else if (tier === 'standard') {
+        return '<span class="badge badge-info"><i class="fas fa-star"></i> Featured</span>';
+    } else {
+        return '<span class="badge badge-secondary">Free</span>';
+    }
+}
+
+// Helper function to get status badge class
+function getStatusBadgeClass(status) {
+    switch(status) {
+        case 'available': return 'success';
+        case 'pending': return 'warning';
+        case 'sold': return 'secondary';
+        case 'rented': return 'info';
+        default: return 'primary';
+    }
+}
+
+// Helper function to format price in millions
+function formatPriceInMillions(price) {
+    return '₦' + (price / 1000000).toFixed(1) + 'M';
+}
+
+// Debug log
+console.log('Properties count:', properties ? properties.length : 0);
+%>
+
+<!-- Page Top -->
+<section>
+    <div class="w-100 pt-180 pb-110 black-layer opc45 position-relative">
+        <div class="fixed-bg" style="background-image: url(/assets/images/pg-tp-bg.jpg);"></div>
+        <div class="container">
+            <div class="pg-tp-wrp text-center w-100">
+                <h1 class="mb-0">Realtor Dashboard</h1>
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item"><a href="/" title="Home">Home</a></li>
+                    <li class="breadcrumb-item active">Dashboard</li>
+                </ol>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Dashboard Section -->
+<section>
+    <div class="w-100 gray-bg position-relative">
+        <div class="container">
+            <div class="row">
+                <!-- Sidebar -->
+                <div class="col-md-3">
+                    <div class="dashboard-sidebar">
+                        <div class="realtor-profile text-center">
+                            <div class="profile-image-wrapper">
+                                <img src="<%= user.profileImage ? '/uploads/profiles/' + user.profileImage : '/assets/images/default-avatar.jpg' %>" 
+                                     alt="<%= user.name %>" 
+                                     class="rounded-circle img-fluid profile-image">
+                                <button class="change-photo-btn" onclick="document.getElementById('profileImageInput').click();">
+                                    <i class="fas fa-camera"></i>
+                                </button>
+                                <form id="profileImageForm" action="/dashboard/update-profile-image" method="POST" enctype="multipart/form-data" style="display: none;">
+                                    <input type="file" id="profileImageInput" name="profileImage" accept="image/*" onchange="this.form.submit();">
+                                </form>
+                            </div>
+                            <h4 class="mt-3"><%= user.name %></h4>
+                            <p class="text-muted">
+                                <i class="fas fa-building"></i> <%= user.realtorProfile?.company || 'Independent Realtor' %>
+                            </p>
+                            <% if (user.realtorProfile?.verified) { %>
+                                <span class="badge badge-success p-2">
+                                    <i class="fas fa-check-circle"></i> Verified Realtor
+                                </span>
+                            <% } else { %>
+                                <span class="badge badge-warning p-2">
+                                    <i class="fas fa-clock"></i> Pending Verification
+                                </span>
+                            <% } %>
+                            <p class="mt-3">
+                                <i class="fas fa-calendar-alt"></i> Member since <%= new Date(user.createdAt).toLocaleDateString() %>
+                            </p>
+                        </div>
+                        
+                        <div class="sidebar-menu">
+                            <ul class="nav nav-pills flex-column">
+                                <li class="nav-item">
+                                    <a class="nav-link active" href="#dashboard" data-toggle="tab">
+                                        <i class="fas fa-tachometer-alt"></i> Dashboard
+                                    </a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link" href="#properties" data-toggle="tab">
+                                        <i class="fas fa-building"></i> My Properties
+                                        <span class="badge badge-primary float-right"><%= properties ? properties.length : 0 %></span>
+                                    </a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link" href="#add-property" data-toggle="tab">
+                                        <i class="fas fa-plus-circle"></i> Add New Property
+                                    </a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link" href="#inquiries" data-toggle="tab">
+                                        <i class="fas fa-envelope"></i> Inquiries
+                                        <span class="badge badge-danger float-right" id="inquiryCount">0</span>
+                                    </a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link" href="#transactions" data-toggle="tab">
+                                        <i class="fas fa-credit-card"></i> Transactions
+                                    </a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link" href="#earnings" data-toggle="tab">
+                                        <i class="fas fa-money-bill-wave"></i> Earnings
+                                    </a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link" href="#analytics" data-toggle="tab">
+                                        <i class="fas fa-chart-line"></i> Analytics
+                                    </a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link" href="#settings" data-toggle="tab">
+                                        <i class="fas fa-cog"></i> Settings
+                                    </a>
+                                </li>
+                            </ul>
+                        </div>
+                        
+                        <div class="sidebar-footer mt-4">
+                            <a href="/logout" class="btn btn-outline-danger btn-block">
+                                <i class="fas fa-sign-out-alt"></i> Logout
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Main Content -->
+                <div class="col-md-9">
+                    <div class="dashboard-content">
+                        <div class="tab-content">
+                            <!-- Dashboard Tab -->
+                            <div class="tab-pane active" id="dashboard">
+                                <div class="content-header">
+                                    <h2>Welcome back, <%= user.name %>!</h2>
+                                    <p>Here's what's happening with your properties today.</p>
+                                </div>
+                                
+                                <!-- Stats Cards -->
+                                <div class="row">
+                                    <div class="col-md-3">
+                                        <div class="stat-card">
+                                            <div class="stat-icon">
+                                                <i class="fas fa-building"></i>
+                                            </div>
+                                            <div class="stat-details">
+                                                <h3><%= stats.totalProperties %></h3>
+                                                <p>Total Properties</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="col-md-3">
+                                        <div class="stat-card">
+                                            <div class="stat-icon">
+                                                <i class="fas fa-eye"></i>
+                                            </div>
+                                            <div class="stat-details">
+                                                <h3><%= stats.totalViews %></h3>
+                                                <p>Total Views</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="col-md-3">
+                                        <div class="stat-card">
+                                            <div class="stat-icon">
+                                                <i class="fas fa-heart"></i>
+                                            </div>
+                                            <div class="stat-details">
+                                                <h3><%= stats.totalFavorites %></h3>
+                                                <p>Favorites</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="col-md-3">
+                                        <div class="stat-card">
+                                            <div class="stat-icon">
+                                                <i class="fas fa-envelope"></i>
+                                            </div>
+                                            <div class="stat-details">
+                                                <h3><%= stats.totalInquiries %></h3>
+                                                <p>Inquiries</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Tier Stats -->
+                                <div class="row mt-3">
+                                    <div class="col-md-4">
+                                        <div class="tier-stats-card free">
+                                            <h6>Free Listings</h6>
+                                            <h3><%= stats.activeTiers.free %></h3>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <div class="tier-stats-card standard">
+                                            <h6>Featured Listings</h6>
+                                            <h3><%= stats.activeTiers.standard %></h3>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <div class="tier-stats-card premium">
+                                            <h6>Premium Listings</h6>
+                                            <h3><%= stats.activeTiers.premium %></h3>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Pending Fees Alert -->
+                                <% if (stats.pendingFees > 0) { %>
+                                    <div class="alert alert-warning mt-3">
+                                        <i class="fas fa-exclamation-triangle"></i>
+                                        You have <strong>₦<%= stats.pendingFees.toLocaleString() %></strong> in pending listing fees. 
+                                        <a href="#properties" class="alert-link" onclick="$('#properties-tab').tab('show')">Complete payment</a> to activate your listings.
+                                    </div>
+                                <% } %>
+                                
+                                <!-- Recent Properties -->
+                                <div class="card mt-4">
+                                    <div class="card-header d-flex justify-content-between align-items-center">
+                                        <h5 class="mb-0">Recent Properties</h5>
+                                        <a href="#properties" class="btn btn-sm btn-primary" onclick="$('#properties-tab').tab('show')">View All</a>
+                                    </div>
+                                    <div class="card-body">
+                                        <div class="table-responsive">
+                                            <table class="table table-hover">
+                                                <thead>
+                                                    <tr>
+                                                        <th>Property</th>
+                                                        <th>Type</th>
+                                                        <th>Tier</th>
+                                                        <th>Price</th>
+                                                        <th>Status</th>
+                                                        <th>Views</th>
+                                                        <th>Actions</th>
+                                                     </thead>
+                                                <tbody>
+                                                    <% if (properties && properties.length > 0) { %>
+                                                        <% properties.slice(0, 5).forEach(property => { %>
+                                                            <tr>
+                                                                <td>
+                                                                    <img src="<%= property.images && property.images[0] ? property.images[0].url : '/assets/images/default-property.jpg' %>" 
+                                                                         alt="<%= property.title %>" 
+                                                                         style="width: 50px; height: 50px; object-fit: cover; border-radius: 5px;">
+                                                                    <span class="ml-2"><%= property.title.substring(0, 30) %>...</span>
+                                                                </td>
+                                                                <td><%= property.propertyType %></td>
+                                                                <td>
+                                                                    <%- getTierBadge(property.listingTier) %>
+                                                                </td>
+                                                                <td>₦<%= property.price.toLocaleString() %></td>
+                                                                <td>
+                                                                    <span class="badge badge-<%= getStatusBadgeClass(property.status) %>">
+                                                                        <%= property.status %>
+                                                                    </span>
+                                                                </td>
+                                                                <td><%= property.views || 0 %></td>
+                                                                <td>
+                                                                    <a href="/properties/<%= property.slug %>" class="btn btn-sm btn-info" title="View">
+                                                                        <i class="fas fa-eye"></i>
+                                                                    </a>
+                                                                    <a href="/properties/<%= property._id %>/edit" class="btn btn-sm btn-warning" title="Edit">
+                                                                        <i class="fas fa-edit"></i>
+                                                                    </a>
+                                                                    <button class="btn btn-sm btn-danger" onclick="deleteProperty('<%= property._id %>')" title="Delete">
+                                                                        <i class="fas fa-trash"></i>
+                                                                    </button>
+                                                                </td>
+                                                            </tr>
+                                                        <% }); %>
+                                                    <% } else { %>
+                                                        <tr>
+                                                            <td colspan="7" class="text-center">No properties found. <a href="#add-property">Add your first property</a></td>
+                                                        </tr>
+                                                    <% } %>
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <!-- Recent Inquiries -->
+                                <div class="card mt-4">
+                                    <div class="card-header d-flex justify-content-between align-items-center">
+                                        <h5 class="mb-0">Recent Inquiries</h5>
+                                        <a href="#inquiries" class="btn btn-sm btn-primary" onclick="$('#inquiries-tab').tab('show')">View All</a>
+                                    </div>
+                                    <div class="card-body">
+                                        <div class="inquiry-list">
+                                            <% if (recentInquiries && recentInquiries.length > 0) { %>
+                                                <% recentInquiries.forEach(inquiry => { %>
+                                                    <div class="inquiry-item d-flex align-items-start p-3 border-bottom">
+                                                        <div class="inquiry-avatar mr-3">
+                                                            <div class="avatar-circle">
+                                                                <%= inquiry.name.charAt(0).toUpperCase() %>
+                                                            </div>
+                                                        </div>
+                                                        <div class="inquiry-content flex-grow-1">
+                                                            <div class="d-flex justify-content-between">
+                                                                <h6 class="mb-1"><%= inquiry.name %></h6>
+                                                                <small class="text-muted"><%= new Date(inquiry.createdAt).toLocaleDateString() %></small>
+                                                            </div>
+                                                            <p class="mb-1"><%= inquiry.message.substring(0, 100) %>...</p>
+                                                            <small class="text-muted">
+                                                                <i class="fas fa-phone"></i> <%= inquiry.phone %> | 
+                                                                <i class="fas fa-envelope"></i> <%= inquiry.email %>
+                                                            </small>
+                                                            <div class="mt-2">
+                                                                <span class="badge badge-primary"><%= inquiry.propertyTitle %></span>
+                                                                <% if (!inquiry.read) { %>
+                                                                    <span class="badge badge-warning">New</span>
+                                                                <% } %>
+                                                            </div>
+                                                        </div>
+                                                        <div class="inquiry-actions">
+                                                            <button class="btn btn-sm btn-outline-primary" onclick="viewInquiry('<%= inquiry._id %>')">
+                                                                <i class="fas fa-reply"></i>
+                                                            </button>
+                                                        </div>
+                                                    </div>
+                                                <% }); %>
+                                            <% } else { %>
+                                                <p class="text-center py-4">No inquiries yet</p>
+                                            <% } %>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Properties Tab -->
+                            <div class="tab-pane" id="properties">
+                                <div class="content-header d-flex justify-content-between align-items-center">
+                                    <h2>My Properties</h2>
+                                    <a href="#add-property" class="thm-btn" onclick="$('#add-property-tab').tab('show')">
+                                        <i class="fas fa-plus"></i> Add New Property
+                                    </a>
+                                </div>
+                                
+                                <!-- Filter Bar -->
+                                <div class="filter-bar bg-white p-3 rounded mb-4">
+                                    <div class="row">
+                                        <div class="col-md-2">
+                                            <select class="form-control" id="propertyTypeFilter">
+                                                <option value="">All Types</option>
+                                                <option value="shortlet">Shortlet</option>
+                                                <option value="land">Land</option>
+                                                <option value="building">Building</option>
+                                                <option value="shop">Shop</option>
+                                                <option value="business_complex">Business Complex</option>
+                                            </select>
+                                        </div>
+                                        <div class="col-md-2">
+                                            <select class="form-control" id="propertyStatusFilter">
+                                                <option value="">All Status</option>
+                                                <option value="available">Available</option>
+                                                <option value="pending">Pending</option>
+                                                <option value="sold">Sold</option>
+                                                <option value="rented">Rented</option>
+                                            </select>
+                                        </div>
+                                        <div class="col-md-2">
+                                            <select class="form-control" id="propertyTierFilter">
+                                                <option value="">All Tiers</option>
+                                                <option value="free">Free</option>
+                                                <option value="standard">Featured</option>
+                                                <option value="premium">Premium</option>
+                                            </select>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <input type="text" class="form-control" id="propertySearch" placeholder="Search properties...">
+                                        </div>
+                                        <div class="col-md-2">
+                                            <button class="btn btn-primary btn-block" onclick="filterProperties()">
+                                                <i class="fas fa-filter"></i> Filter
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <!-- Pending Fees Section -->
+                                <% if (pendingListingFees && pendingListingFees.length > 0) { %>
+                                    <div class="pending-fees-section mb-4">
+                                        <h5>Pending Listing Fees</h5>
+                                        <div class="row">
+                                            <% pendingListingFees.forEach(fee => { %>
+                                                <div class="col-md-6">
+                                                    <div class="card mb-3 border-warning">
+                                                        <div class="card-body">
+                                                            <div class="d-flex justify-content-between">
+                                                                <h6><%= fee.property.title.substring(0, 40) %>...</h6>
+                                                                <span class="badge badge-warning">Pending</span>
+                                                            </div>
+                                                            <p class="mb-1">Tier: <strong><%= fee.tier %></strong></p>
+                                                            <p class="mb-1">Fee: <strong>₦<%= fee.feeAmount.toLocaleString() %></strong></p>
+                                                            <p class="mb-2">Your commission: <strong><%= fee.commissionSplit.promoter %>%</strong></p>
+                                                            <a href="/properties/pay-listing-fee/<%= fee.property._id %>?tier=<%= fee.tier %>" class="btn btn-sm btn-warning">
+                                                                <i class="fas fa-credit-card"></i> Pay Now
+                                                            </a>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            <% }); %>
+                                        </div>
+                                    </div>
+                                <% } %>
+                                
+                                <!-- Properties Grid -->
+                                <div class="properties-grid">
+                                    <div class="row" id="propertiesContainer">
+                                        <% if (properties && properties.length > 0) { %>
+                                            <% properties.forEach(property => { %>
+                                                <div class="col-md-6 col-lg-4 property-card mb-4" 
+                                                     data-type="<%= property.propertyType %>" 
+                                                     data-status="<%= property.status %>"
+                                                     data-tier="<%= property.listingTier || 'free' %>">
+                                                    <div class="list-post-box v2 brd-rd5 overflow-hidden position-relative w-100">
+                                                        <div class="list-post-img overflow-hidden position-relative w-100" style="height: 180px;">
+                                                            <img class="img-fluid w-100" style="height: 100%; object-fit: cover;" src="<%= property.images && property.images[0] ? property.images[0].url : '/assets/images/default-property.jpg' %>" 
+                                                                 alt="<%= property.title %>">
+                                                            <span class="list-post-cat2 position-absolute">
+                                                                <a class="rounded-pill" href="javascript:void(0);"><%= property.propertyType %></a>
+                                                            </span>
+                                                            <% if (property.listingTier === 'premium') { %>
+                                                                <span class="premium-badge position-absolute">
+                                                                    <i class="fas fa-crown"></i> Premium
+                                                                </span>
+                                                            <% } else if (property.listingTier === 'standard') { %>
+                                                                <span class="featured-badge position-absolute">
+                                                                    <i class="fas fa-star"></i> Featured
+                                                                </span>
+                                                            <% } %>
+                                                        </div>
+                                                        
+                                                        <div class="list-post-info w-100 p-3">
+                                                            <div class="list-post-inner w-100">
+                                                                <div class="list-post-info-top d-flex flex-wrap justify-content-between mb-2">
+                                                                    <span class="list-post-date small text-muted">
+                                                                        <i class="thm-clr far fa-clock"></i>
+                                                                        <%= new Date(property.createdAt).toLocaleDateString() %>
+                                                                    </span>
+                                                                    <span class="list-post-rate">
+                                                                        <span class="badge badge-<%= property.status === 'available' ? 'success' : (property.status === 'pending' ? 'warning' : 'secondary') %>">
+                                                                            <%= property.status %>
+                                                                        </span>
+                                                                    </span>
+                                                                </div>
+                                                                
+                                                                <h5 class="mb-2">
+                                                                    <a href="/properties/<%= property.slug %>" title="">
+                                                                        <%= property.title.length > 40 ? property.title.substring(0, 40) + '...' : property.title %>
+                                                                    </a>
+                                                                </h5>
+                                                                
+                                                                <div class="list-post-author-stats d-flex flex-wrap justify-content-between align-items-center mb-2">
+                                                                    <div class="list-post-author d-inline-flex align-items-center">
+                                                                        <span class="small text-muted"><%= property.transactionType %></span>
+                                                                    </div>
+                                                                    <span class="text-success font-weight-bold">₦<%= (property.price/1000000).toFixed(1) %>M</span>
+                                                                </div>
+                                                            </div>
+                                                            
+                                                            <ul class="list-post-meta mb-2 list-unstyled small">
+                                                                <li class="active d-inline-block mr-3">
+                                                                    <i class="thm-clr fas fa-map-marker-alt"></i>
+                                                                    <span><%= property.location.city %>, <%= property.location.state %></span>
+                                                                </li>
+                                                                <% if (property.features && property.features.bedrooms) { %>
+                                                                    <li class="d-inline-block">
+                                                                        <i class="thm-clr fas fa-bed"></i>
+                                                                        <span><%= property.features.bedrooms %> Beds</span>
+                                                                    </li>
+                                                                <% } %>
+                                                            </ul>
+                                                            
+                                                            <div class="property-actions mt-2">
+                                                                <a href="/properties/<%= property._id %>/edit" class="btn btn-sm btn-warning">
+                                                                    <i class="fas fa-edit"></i> Edit
+                                                                </a>
+                                                                <button class="btn btn-sm btn-danger" onclick="deleteProperty('<%= property._id %>')">
+                                                                    <i class="fas fa-trash"></i> Delete
+                                                                </button>
+                                                                <% if (property.status === 'available') { %>
+                                                                    <button class="btn btn-sm btn-success" onclick="markAsCompleted('<%= property._id %>')">
+                                                                        <i class="fas fa-check"></i> Mark <%= property.transactionType === 'sale' ? 'Sold' : 'Rented' %>
+                                                                    </button>
+                                                                <% } %>
+                                                                <% if (property.listingTier === 'free') { %>
+                                                                    <button class="btn btn-sm btn-info" onclick="upgradeTier('<%= property._id %>')">
+                                                                        <i class="fas fa-arrow-up"></i> Upgrade
+                                                                    </button>
+                                                                <% } %>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            <% }); %>
+                                        <% } else { %>
+                                            <div class="col-12 text-center py-5">
+                                                <i class="fas fa-building fa-4x text-muted mb-3"></i>
+                                                <h4>No properties yet</h4>
+                                                <p>Start by adding your first property listing</p>
+                                                <a href="#add-property" class="thm-btn" onclick="$('#add-property-tab').tab('show')">
+                                                    <i class="fas fa-plus"></i> Add Property
+                                                </a>
+                                            </div>
+                                        <% } %>
+                                    </div>
+                                </div>
+                                
+                                <!-- Pagination -->
+                                <% if (totalPages > 1) { %>
+                                    <div class="pagination-wrap text-center mt-4">
+                                        <ul class="pagination justify-content-center">
+                                            <% for (let i = 1; i <= totalPages; i++) { %>
+                                                <li class="page-item <%= currentPage === i ? 'active' : '' %>">
+                                                    <a class="page-link" href="?page=<%= i %>"><%= i %></a>
+                                                </li>
+                                            <% } %>
+                                        </ul>
+                                    </div>
+                                <% } %>
+                            </div>
+                            
+                            <!-- Add Property Tab -->
+                            <div class="tab-pane" id="add-property">
+                                <div class="content-header">
+                                    <h2>Add New Property</h2>
+                                    <p>Fill in the details below to list your property</p>
+                                </div>
+                                
+                                <%- include('partials/property-form', { property: null, listingTiers: listingTiers }) %>
+                            </div>
+                            
+                            <!-- Inquiries Tab -->
+                            <div class="tab-pane" id="inquiries">
+                                <div class="content-header">
+                                    <h2>Property Inquiries</h2>
+                                    <p>Manage messages from potential buyers and tenants</p>
+                                </div>
+                                
+                                <div class="inbox-container">
+                                    <div class="row">
+                                        <div class="col-md-4">
+                                            <div class="inbox-sidebar bg-white rounded p-3">
+                                                <div class="inbox-search mb-3">
+                                                    <input type="text" class="form-control" placeholder="Search inquiries...">
+                                                </div>
+                                                <div class="inbox-filters mb-3">
+                                                    <h6>Filter by</h6>
+                                                    <select class="form-control mb-2" id="inquiryPropertyFilter">
+                                                        <option value="">All Properties</option>
+                                                        <% if (properties && properties.length > 0) { %>
+                                                            <% properties.forEach(property => { %>
+                                                                <option value="<%= property._id %>"><%= property.title.substring(0, 30) %>...</option>
+                                                            <% }); %>
+                                                        <% } %>
+                                                    </select>
+                                                    <select class="form-control" id="inquiryStatusFilter">
+                                                        <option value="">All Status</option>
+                                                        <option value="unread">Unread</option>
+                                                        <option value="read">Read</option>
+                                                        <option value="replied">Replied</option>
+                                                    </select>
+                                                </div>
+                                                <div class="inbox-stats">
+                                                    <p><strong>Total:</strong> <span id="totalInquiries">0</span></p>
+                                                    <p><strong>Unread:</strong> <span id="unreadInquiries" class="text-danger">0</span></p>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-8">
+                                            <div class="inbox-content bg-white rounded p-3">
+                                                <div id="inquiriesList">
+                                                    <!-- Inquiries will be loaded here via AJAX -->
+                                                    <div class="text-center py-5">
+                                                        <div class="spinner-border text-primary" role="status">
+                                                            <span class="sr-only">Loading...</span>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Transactions Tab -->
+                            <div class="tab-pane" id="transactions">
+                                <div class="content-header">
+                                    <h2>Transaction History</h2>
+                                    <p>View all your property transactions</p>
+                                </div>
+                                
+                                <div class="card">
+                                    <div class="card-body">
+                                        <div class="table-responsive">
+                                            <table class="table table-hover">
+                                                <thead>
+                                                    <tr>
+                                                        <th>Date</th>
+                                                        <th>Property</th>
+                                                        <th>Transaction Type</th>
+                                                        <th>Amount</th>
+                                                        <th>Agency Fee</th>
+                                                        <th>Your Share</th>
+                                                        <th>Status</th>
+                                                        <th>Actions</th>
+                                                     </thead>
+                                                <tbody id="transactionsList">
+                                                    <!-- Transactions will be loaded via AJAX -->
+                                                    <tr>
+                                                        <td colspan="8" class="text-center py-4">
+                                                            <div class="spinner-border text-primary" role="status">
+                                                                <span class="sr-only">Loading...</span>
+                                                            </div>
+                                                        </td>
+                                                    </tr>
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Earnings Tab -->
+                            <div class="tab-pane" id="earnings">
+                                <div class="content-header">
+                                    <h2>Earnings Overview</h2>
+                                    <p>Track your commissions and earnings</p>
+                                </div>
+                                
+                                <div class="row">
+                                    <div class="col-md-4">
+                                        <div class="earnings-card bg-success text-white p-4 rounded">
+                                            <h6>Total Earned</h6>
+                                            <h3 class="mb-0">₦<span id="totalEarned">0</span></h3>
+                                            <small>All time</small>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <div class="earnings-card bg-info text-white p-4 rounded">
+                                            <h6>This Month</h6>
+                                            <h3 class="mb-0">₦<span id="monthlyEarned">0</span></h3>
+                                            <small><%= new Date().toLocaleString('default', { month: 'long' }) %></small>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <div class="earnings-card bg-warning text-white p-4 rounded">
+                                            <h6>Pending Fees</h6>
+                                            <h3 class="mb-0">₦<span id="pendingFees">0</span></h3>
+                                            <small>Awaiting payment</small>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="card mt-4">
+                                    <div class="card-header">
+                                        <h5 class="mb-0">Earnings History</h5>
+                                    </div>
+                                    <div class="card-body">
+                                        <canvas id="earningsChart" height="300"></canvas>
+                                    </div>
+                                </div>
+                                
+                                <div class="card mt-4">
+                                    <div class="card-header">
+                                        <h5 class="mb-0">Recent Payouts</h5>
+                                    </div>
+                                    <div class="card-body">
+                                        <div class="table-responsive">
+                                            <table class="table">
+                                                <thead>
+                                                    <tr>
+                                                        <th>Date</th>
+                                                        <th>Property</th>
+                                                        <th>Amount</th>
+                                                        <th>Status</th>
+                                                     </thead>
+                                                <tbody id="payoutsList">
+                                                    <tr>
+                                                        <td colspan="4" class="text-center py-3">No payouts yet</td>
+                                                    </tr>
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Analytics Tab -->
+                            <div class="tab-pane" id="analytics">
+                                <div class="content-header">
+                                    <h2>Analytics</h2>
+                                    <p>Insights into your property performance</p>
+                                </div>
+                                
+                                <div class="row mb-4">
+                                    <div class="col-md-3">
+                                        <div class="analytics-card">
+                                            <div class="card-body text-center">
+                                                <h3 id="avgViewsPerProperty">0</h3>
+                                                <p class="text-muted mb-0">Avg. Views per Property</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <div class="analytics-card">
+                                            <div class="card-body text-center">
+                                                <h3 id="inquiryConversion">0%</h3>
+                                                <p class="text-muted mb-0">Inquiry to Transaction</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <div class="analytics-card">
+                                            <div class="card-body text-center">
+                                                <h3 id="avgDaysOnMarket">0</h3>
+                                                <p class="text-muted mb-0">Avg. Days on Market</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <div class="analytics-card">
+                                            <div class="card-body text-center">
+                                                <h3 id="totalValue">₦0</h3>
+                                                <p class="text-muted mb-0">Total Property Value</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="card mb-4">
+                                    <div class="card-header">
+                                        <h5 class="mb-0">Views Over Time</h5>
+                                    </div>
+                                    <div class="card-body">
+                                        <canvas id="viewsChart" height="300"></canvas>
+                                    </div>
+                                </div>
+                                
+                                <div class="card mb-4">
+                                    <div class="card-header">
+                                        <h5 class="mb-0">Tier Distribution</h5>
+                                    </div>
+                                    <div class="card-body">
+                                        <canvas id="tierChart" height="300"></canvas>
+                                    </div>
+                                </div>
+                                
+                                <div class="card mb-4">
+                                    <div class="card-header">
+                                        <h5 class="mb-0">Property Type Distribution</h5>
+                                    </div>
+                                    <div class="card-body">
+                                        <canvas id="propertyTypeChart" height="300"></canvas>
+                                    </div>
+                                </div>
+                                
+                                <div class="card">
+                                    <div class="card-header">
+                                        <h5 class="mb-0">Top Performing Properties</h5>
+                                    </div>
+                                    <div class="card-body">
+                                        <div class="table-responsive">
+                                            <table class="table">
+                                                <thead>
+                                                    <tr>
+                                                        <th>Property</th>
+                                                        <th>Tier</th>
+                                                        <th>Views</th>
+                                                        <th>Inquiries</th>
+                                                        <th>Favorites</th>
+                                                        <th>Performance</th>
+                                                     </thead>
+                                                <tbody id="topPropertiesList">
+                                                    <!-- Will be populated via AJAX -->
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Settings Tab -->
+                            <div class="tab-pane" id="settings">
+                                <div class="content-header">
+                                    <h2>Account Settings</h2>
+                                    <p>Manage your profile and preferences</p>
+                                </div>
+                                
+                                <div class="card">
+                                    <div class="card-body">
+                                        <form action="/dashboard/update-profile" method="POST" id="profileForm">
+                                            <h5 class="mb-3">Personal Information</h5>
+                                            <div class="row">
+                                                <div class="col-md-6">
+                                                    <div class="form-group">
+                                                        <label>Full Name</label>
+                                                        <input type="text" class="form-control" name="name" value="<%= user.name %>" required>
+                                                    </div>
+                                                </div>
+                                                <div class="col-md-6">
+                                                    <div class="form-group">
+                                                        <label>Email Address</label>
+                                                        <input type="email" class="form-control" value="<%= user.email %>" disabled>
+                                                        <small class="text-muted">Email cannot be changed</small>
+                                                    </div>
+                                                </div>
+                                                <div class="col-md-6">
+                                                    <div class="form-group">
+                                                        <label>Phone Number</label>
+                                                        <input type="tel" class="form-control" name="phone" value="<%= user.phone %>" required>
+                                                    </div>
+                                                </div>
+                                                <div class="col-md-6">
+                                                    <div class="form-group">
+                                                        <label>Company Name</label>
+                                                        <input type="text" class="form-control" name="company" value="<%= user.realtorProfile?.company || '' %>">
+                                                    </div>
+                                                </div>
+                                                <div class="col-md-6">
+                                                    <div class="form-group">
+                                                        <label>RC Number</label>
+                                                        <input type="text" class="form-control" name="rcNumber" value="<%= user.realtorProfile?.rcNumber || '' %>">
+                                                    </div>
+                                                </div>
+                                                <div class="col-md-6">
+                                                    <div class="form-group">
+                                                        <label>Office Address</label>
+                                                        <input type="text" class="form-control" name="address" value="<%= user.realtorProfile?.address || '' %>">
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            
+                                            <hr>
+                                            
+                                            <h5 class="mb-3">Change Password</h5>
+                                            <div class="row">
+                                                <div class="col-md-4">
+                                                    <div class="form-group">
+                                                        <label>Current Password</label>
+                                                        <input type="password" class="form-control" name="currentPassword">
+                                                    </div>
+                                                </div>
+                                                <div class="col-md-4">
+                                                    <div class="form-group">
+                                                        <label>New Password</label>
+                                                        <input type="password" class="form-control" name="newPassword">
+                                                    </div>
+                                                </div>
+                                                <div class="col-md-4">
+                                                    <div class="form-group">
+                                                        <label>Confirm New Password</label>
+                                                        <input type="password" class="form-control" name="confirmPassword">
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            
+                                            <hr>
+                                            
+                                            <h5 class="mb-3">Notification Preferences</h5>
+                                            <div class="row">
+                                                <div class="col-md-6">
+                                                    <div class="form-check">
+                                                        <input class="form-check-input" type="checkbox" name="emailInquiries" id="emailInquiries" <%= user.preferences?.emailInquiries ? 'checked' : '' %>>
+                                                        <label class="form-check-label" for="emailInquiries">
+                                                            Email me when I receive new inquiries
+                                                        </label>
+                                                    </div>
+                                                    <div class="form-check">
+                                                        <input class="form-check-input" type="checkbox" name="emailTransactions" id="emailTransactions" <%= user.preferences?.emailTransactions ? 'checked' : '' %>>
+                                                        <label class="form-check-label" for="emailTransactions">
+                                                            Email me when a transaction is completed
+                                                        </label>
+                                                    </div>
+                                                </div>
+                                                <div class="col-md-6">
+                                                    <div class="form-check">
+                                                        <input class="form-check-input" type="checkbox" name="weeklyNewsletter" id="weeklyNewsletter" <%= user.preferences?.weeklyNewsletter ? 'checked' : '' %>>
+                                                        <label class="form-check-label" for="weeklyNewsletter">
+                                                            Receive weekly newsletter
+                                                        </label>
+                                                    </div>
+                                                    <div class="form-check">
+                                                        <input class="form-check-input" type="checkbox" name="marketingEmails" id="marketingEmails" <%= user.preferences?.marketingEmails ? 'checked' : '' %>>
+                                                        <label class="form-check-label" for="marketingEmails">
+                                                            Receive marketing emails
+                                                        </label>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            
+                                            <button type="submit" class="thm-btn mt-4">
+                                                <i class="fas fa-save"></i> Save Changes
+                                            </button>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Delete Property Modal -->
+<div class="modal fade" id="deleteModal" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Delete Property</h5>
+                <button type="button" class="close" data-dismiss="modal">
+                    <span>&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <p>Are you sure you want to delete this property? This action cannot be undone.</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                <form id="deleteForm" method="POST" style="display: inline;">
+                    <input type="hidden" name="_method" value="DELETE">
+                    <button type="submit" class="btn btn-danger">Delete</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Upgrade Tier Modal -->
+<div class="modal fade" id="upgradeModal" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Upgrade Listing Tier</h5>
+                <button type="button" class="close" data-dismiss="modal">
+                    <span>&times;</span>
+                </button>
+            </div>
+            <div class="modal-body" id="upgradeModalBody">
+                <!-- Will be populated via AJAX -->
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Custom CSS -->
+<style>
+.dashboard-sidebar {
+    background: white;
+    border-radius: 10px;
+    padding: 30px 20px;
+    box-shadow: 0 0 20px rgba(0,0,0,0.1);
+    position: sticky;
+    top: 100px;
+}
+
+.realtor-profile {
+    padding-bottom: 20px;
+    border-bottom: 1px solid #f0f0f0;
+    margin-bottom: 20px;
+}
+
+.profile-image-wrapper {
+    position: relative;
+    width: 120px;
+    height: 120px;
+    margin: 0 auto;
+}
+
+.profile-image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border: 3px solid #ff6b6b;
+}
+
+.change-photo-btn {
+    position: absolute;
+    bottom: 5px;
+    right: 5px;
+    width: 35px;
+    height: 35px;
+    border-radius: 50%;
+    background: #ff6b6b;
+    border: none;
+    color: white;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s ease;
+}
+
+.change-photo-btn:hover {
+    transform: scale(1.1);
+    background: #ff5252;
+}
+
+.sidebar-menu .nav-link {
+    color: #333;
+    padding: 12px 15px;
+    border-radius: 5px;
+    margin-bottom: 5px;
+    transition: all 0.3s ease;
+}
+
+.sidebar-menu .nav-link i {
+    margin-right: 10px;
+    width: 20px;
+}
+
+.sidebar-menu .nav-link:hover {
+    background: #f8f9fa;
+}
+
+.sidebar-menu .nav-link.active {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+}
+
+.sidebar-menu .nav-link.active i {
+    color: white;
+}
+
+.dashboard-content {
+    padding: 30px 0;
+}
+
+.content-header {
+    margin-bottom: 30px;
+}
+
+.content-header h2 {
+    font-size: 28px;
+    font-weight: 600;
+    color: #333;
+}
+
+.stat-card {
+    background: white;
+    border-radius: 10px;
+    padding: 20px;
+    box-shadow: 0 0 15px rgba(0,0,0,0.1);
+    display: flex;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.stat-icon {
+    width: 60px;
+    height: 60px;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-right: 15px;
+}
+
+.stat-icon i {
+    color: white;
+    font-size: 24px;
+}
+
+.stat-details h3 {
+    margin: 0;
+    font-size: 28px;
+    font-weight: bold;
+}
+
+.stat-details p {
+    margin: 0;
+    color: #666;
+}
+
+.tier-stats-card {
+    background: white;
+    border-radius: 10px;
+    padding: 15px;
+    text-align: center;
+    box-shadow: 0 0 15px rgba(0,0,0,0.1);
+    border-left: 4px solid;
+}
+
+.tier-stats-card.free {
+    border-left-color: #6c757d;
+}
+
+.tier-stats-card.standard {
+    border-left-color: #17a2b8;
+}
+
+.tier-stats-card.premium {
+    border-left-color: #ffc107;
+}
+
+.tier-stats-card h6 {
+    margin-bottom: 5px;
+    color: #666;
+}
+
+.tier-stats-card h3 {
+    margin: 0;
+    font-size: 24px;
+    font-weight: bold;
+}
+
+.property-card {
+    margin-bottom: 30px;
+}
+
+.property-actions {
+    display: flex;
+    gap: 5px;
+    flex-wrap: wrap;
+}
+
+.featured-badge {
+    top: 10px;
+    right: 10px;
+    background: #ffc107;
+    color: #333;
+    padding: 3px 10px;
+    border-radius: 20px;
+    font-size: 12px;
+}
+
+.premium-badge {
+    top: 10px;
+    right: 10px;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    padding: 3px 10px;
+    border-radius: 20px;
+    font-size: 12px;
+}
+
+.inquiry-item {
+    transition: all 0.3s ease;
+}
+
+.inquiry-item:hover {
+    background: #f8f9fa;
+}
+
+.avatar-circle {
+    width: 40px;
+    height: 40px;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-weight: bold;
+}
+
+.earnings-card {
+    margin-bottom: 20px;
+}
+
+.analytics-card {
+    background: white;
+    border-radius: 10px;
+    padding: 20px;
+    box-shadow: 0 0 15px rgba(0,0,0,0.1);
+    margin-bottom: 20px;
+}
+
+.pending-fees-section {
+    background: #fff3cd;
+    border-radius: 10px;
+    padding: 20px;
+    border: 1px solid #ffeeba;
+}
+
+/* Responsive */
+@media (max-width: 991px) {
+    .dashboard-sidebar {
+        position: relative;
+        top: 0;
+        margin-bottom: 30px;
+    }
+}
+
+@media (max-width: 768px) {
+    .stat-card {
+        padding: 15px;
+    }
+    
+    .stat-icon {
+        width: 50px;
+        height: 50px;
+    }
+    
+    .stat-icon i {
+        font-size: 20px;
+    }
+    
+    .stat-details h3 {
+        font-size: 20px;
+    }
+}
+</style>
+
+<!-- JavaScript -->
+<script>
+// Load inquiries
+function loadInquiries() {
+    $.get('/api/inquiries', function(data) {
+        let html = '';
+        if (data.length > 0) {
+            data.forEach(inquiry => {
+                html += `
+                    <div class="inquiry-item p-3 border-bottom">
+                        <div class="d-flex justify-content-between">
+                            <h6>${inquiry.name}</h6>
+                            <small class="text-muted">${new Date(inquiry.createdAt).toLocaleDateString()}</small>
+                        </div>
+                        <p>${inquiry.message}</p>
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <span class="badge badge-primary">${inquiry.propertyTitle}</span>
+                                ${!inquiry.read ? '<span class="badge badge-warning">New</span>' : ''}
+                            </div>
+                            <button class="btn btn-sm btn-outline-primary" onclick="replyToInquiry('${inquiry._id}')">
+                                <i class="fas fa-reply"></i> Reply
+                            </button>
+                        </div>
+                    </div>
+                `;
+            });
+        } else {
+            html = '<p class="text-center py-4">No inquiries yet</p>';
+        }
+        $('#inquiriesList').html(html);
+        $('#inquiryCount').text(data.filter(i => !i.read).length);
+    });
+}
+
+// Load transactions
+function loadTransactions() {
+    $.get('/api/transactions', function(data) {
+        let html = '';
+        if (data.length > 0) {
+            data.forEach(transaction => {
+                html += `
+                    <tr>
+                        <td>${new Date(transaction.transactionDate).toLocaleDateString()}</td>
+                        <td>${transaction.property?.title || 'N/A'}</td>
+                        <td>${transaction.transactionType}</td>
+                        <td>₦${transaction.amount.toLocaleString()}</td>
+                        <td>₦${transaction.agencyFee.toLocaleString()}</td>
+                        <td>₦${(transaction.commissionSplit?.promoter?.amount || 0).toLocaleString()}</td>
+                        <td><span class="badge badge-success">Completed</span></td>
+                        <td>
+                            <a href="/transactions/${transaction._id}" class="btn btn-sm btn-info">
+                                <i class="fas fa-eye"></i>
+                            </a>
+                        </td>
+                    </tr>
+                `;
+            });
+        } else {
+            html = '<tr><td colspan="8" class="text-center py-3">No transactions yet</td></tr>';
+        }
+        $('#transactionsList').html(html);
+    });
+}
+
+// Load earnings data
+function loadEarnings() {
+    $.get('/api/earnings', function(data) {
+        $('#totalEarned').text(data.totalEarned.toLocaleString());
+        $('#monthlyEarned').text(data.monthlyEarned.toLocaleString());
+        $('#pendingFees').text(data.pendingFees.toLocaleString());
+        
+        // Create earnings chart
+        if (data.chartData) {
+            createEarningsChart(data.chartData);
+        }
+    });
+}
+
+// Load analytics
+function loadAnalytics() {
+    $.get('/api/analytics', function(data) {
+        $('#avgViewsPerProperty').text(data.avgViewsPerProperty);
+        $('#inquiryConversion').text(data.inquiryConversion + '%');
+        $('#avgDaysOnMarket').text(data.avgDaysOnMarket);
+        $('#totalValue').text('₦' + data.totalValue.toLocaleString());
+        
+        // Create views chart
+        createViewsChart(data.viewsOverTime);
+        
+        // Create tier chart
+        createTierChart(data.tierDistribution);
+        
+        // Create property type chart
+        createPropertyTypeChart(data.propertyTypeDistribution);
+        
+        // Load top properties
+        let topHtml = '';
+        data.topProperties.forEach(prop => {
+            const performance = ((prop.inquiries / prop.views) * 100).toFixed(1);
+            topHtml += `
+                <tr>
+                    <td>${prop.title.substring(0, 30)}...</td>
+                    <td><span class="badge badge-${prop.tier === 'premium' ? 'warning' : (prop.tier === 'standard' ? 'info' : 'secondary')}">${prop.tier}</span></td>
+                    <td>${prop.views}</td>
+                    <td>${prop.inquiries}</td>
+                    <td>${prop.favorites}</td>
+                    <td>
+                        <div class="progress">
+                            <div class="progress-bar bg-success" style="width: ${performance}%">
+                                ${performance}%
+                            </div>
+                        </div>
+                    </td>
+                </tr>
+            `;
+        });
+        $('#topPropertiesList').html(topHtml);
+    });
+}
+
+// Create earnings chart
+function createEarningsChart(data) {
+    const ctx = document.getElementById('earningsChart').getContext('2d');
+    new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: data.labels,
+            datasets: [{
+                label: 'Earnings',
+                data: data.values,
+                borderColor: '#28a745',
+                backgroundColor: 'rgba(40, 167, 69, 0.1)',
+                tension: 0.4
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false
+        }
+    });
+}
+
+// Create views chart
+function createViewsChart(data) {
+    const ctx = document.getElementById('viewsChart').getContext('2d');
+    new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: data.labels,
+            datasets: [{
+                label: 'Views',
+                data: data.values,
+                backgroundColor: '#667eea'
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false
+        }
+    });
+}
+
+// Create tier chart
+function createTierChart(data) {
+    const ctx = document.getElementById('tierChart').getContext('2d');
+    new Chart(ctx, {
+        type: 'doughnut',
+        data: {
+            labels: data.labels,
+            datasets: [{
+                data: data.values,
+                backgroundColor: ['#6c757d', '#17a2b8', '#ffc107']
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false
+        }
+    });
+}
+
+// Create property type chart
+function createPropertyTypeChart(data) {
+    const ctx = document.getElementById('propertyTypeChart').getContext('2d');
+    new Chart(ctx, {
+        type: 'doughnut',
+        data: {
+            labels: data.labels,
+            datasets: [{
+                data: data.values,
+                backgroundColor: ['#667eea', '#764ba2', '#ff6b6b', '#20c997', '#ffc107']
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false
+        }
+    });
+}
+
+// Filter properties
+function filterProperties() {
+    const type = $('#propertyTypeFilter').val();
+    const status = $('#propertyStatusFilter').val();
+    const tier = $('#propertyTierFilter').val();
+    const search = $('#propertySearch').val().toLowerCase();
+    
+    $('.property-card').each(function() {
+        const card = $(this);
+        const cardType = card.data('type');
+        const cardStatus = card.data('status');
+        const cardTier = card.data('tier');
+        const title = card.find('h5 a').text().toLowerCase();
+        
+        let show = true;
+        if (type && cardType !== type) show = false;
+        if (status && cardStatus !== status) show = false;
+        if (tier && cardTier !== tier) show = false;
+        if (search && !title.includes(search)) show = false;
+        
+        card.toggle(show);
+    });
+}
+
+// Delete property
+function deleteProperty(id) {
+    $('#deleteForm').attr('action', `/properties/${id}?_method=DELETE`);
+    $('#deleteModal').modal('show');
+}
+
+// Mark property as completed
+function markAsCompleted(id) {
+    if (confirm('Mark this property as sold/rented? This will record the transaction.')) {
+        $.post(`/properties/${id}/complete`, function(response) {
+            if (response.success) {
+                alert('Property marked as completed!');
+                location.reload();
+            }
+        }).fail(function(xhr) {
+            alert('Error: ' + (xhr.responseJSON?.error || 'Unknown error'));
+        });
+    }
+}
+
+// Upgrade tier
+function upgradeTier(propertyId) {
+    $.get(`/properties/${propertyId}/upgrade-options`, function(data) {
+        let html = `
+            <p>Select a tier to upgrade your property:</p>
+            <div class="row">
+        `;
+        
+        data.tiers.forEach(tier => {
+            if (tier.name !== data.currentTier) {
+                html += `
+                    <div class="col-md-6">
+                        <div class="card mb-3 ${tier.name === 'premium' ? 'border-warning' : 'border-info'}">
+                            <div class="card-body">
+                                <h5 class="card-title">
+                                    ${tier.name === 'premium' ? '<i class="fas fa-crown text-warning"></i>' : '<i class="fas fa-star text-info"></i>'} 
+                                    ${tier.name.charAt(0).toUpperCase() + tier.name.slice(1)}
+                                </h5>
+                                <p class="card-text">
+                                    Upgrade Fee: <strong>₦${tier.upgradeFee.toLocaleString()}</strong><br>
+                                    Your Commission: <strong>${tier.commissionSplit.promoter}%</strong>
+                                </p>
+                                <button class="btn btn-sm btn-${tier.name === 'premium' ? 'warning' : 'info'}" 
+                                        onclick="processUpgrade('${propertyId}', '${tier.name}')">
+                                    Upgrade to ${tier.name}
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }
+        });
+        
+        html += '</div>';
+        $('#upgradeModalBody').html(html);
+        $('#upgradeModal').modal('show');
+    });
+}
+
+// Process upgrade
+function processUpgrade(propertyId, newTier) {
+    if (confirm(`Upgrade to ${newTier} tier? You will be redirected to payment.`)) {
+        $.post(`/properties/${propertyId}/upgrade`, { newTier: newTier }, function(response) {
+            if (response.paymentUrl) {
+                window.location.href = response.paymentUrl;
+            }
+        }).fail(function(xhr) {
+            alert('Error: ' + (xhr.responseJSON?.error || 'Unknown error'));
+        });
+    }
+}
+
+// Reply to inquiry
+function replyToInquiry(id) {
+    window.location.href = `/inquiries/${id}`;
+}
+
+// View inquiry details
+function viewInquiry(id) {
+    window.location.href = `/inquiries/${id}`;
+}
+
+// Initialize on page load
+$(document).ready(function() {
+    // Load data for active tabs
+    loadInquiries();
+    loadTransactions();
+    loadEarnings();
+    loadAnalytics();
+    
+    // Search on input
+    $('#propertySearch').on('keyup', function(e) {
+        if (e.key === 'Enter') {
+            filterProperties();
+        }
+    });
+    
+    // Handle tab changes
+    $('a[data-toggle="tab"]').on('shown.bs.tab', function(e) {
+        const target = $(e.target).attr('href');
+        
+        if (target === '#inquiries') {
+            loadInquiries();
+        } else if (target === '#transactions') {
+            loadTransactions();
+        } else if (target === '#earnings') {
+            loadEarnings();
+        } else if (target === '#analytics') {
+            loadAnalytics();
+        }
+    });
+});
+</script>
+
+<%- include('partials/footer') %>

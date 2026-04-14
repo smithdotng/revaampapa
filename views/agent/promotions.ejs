@@ -1,0 +1,621 @@
+<%- include('../partials/header') %>
+
+<%
+// Ensure user object exists
+if (typeof user === 'undefined') {
+    var user = {
+        name: 'Agent',
+        profileImage: null,
+        email: 'agent@found.ng',
+        phone: '',
+        agentProfile: {
+            isApproved: true,
+            uniqueLink: ''
+        }
+    };
+}
+
+function formatDate(date) {
+    if (!date) return 'N/A';
+    return new Date(date).toLocaleDateString('en-NG', {
+        year: 'numeric',
+        month: 'short',
+        day: 'numeric'
+    });
+}
+
+function formatPrice(price) {
+    if (!price) return 'Contact for pricing';
+    if (price >= 1000000000) {
+        return '₦' + (price / 1000000000).toFixed(1) + 'B';
+    }
+    if (price >= 1000000) {
+        return '₦' + (price / 1000000).toFixed(1) + 'M';
+    }
+    return '₦' + price.toLocaleString();
+}
+%>
+
+<!-- Page Top -->
+<section>
+    <div class="w-100 pt-180 pb-110 black-layer opc45 position-relative">
+        <div class="fixed-bg" style="background-image: url(/assets/images/pg-tp-bg.jpg);"></div>
+        <div class="container">
+            <div class="pg-tp-wrp text-center w-100">
+                <h1 class="mb-0">My Promotions</h1>
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item"><a href="/agent/dashboard">Dashboard</a></li>
+                    <li class="breadcrumb-item active">Promotions</li>
+                </ol>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Promotions Section -->
+<section>
+    <div class="w-100 pt-120 pb-90 position-relative">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-3">
+                    <div class="admin-sidebar">
+                        <div class="admin-profile text-center mb-4">
+                            <img src="<%= user.profileImage ? '/uploads/profiles/' + user.profileImage : '/assets/images/default-avatar.jpg' %>" 
+                                 alt="<%= user.name %>" 
+                                 class="rounded-circle img-fluid" style="width: 80px; height: 80px; object-fit: cover;">
+                            <h6 class="mt-2"><%= user.name %></h6>
+                            <p class="text-muted small">Agent</p>
+                        </div>
+                        <ul class="list-unstyled">
+                            <li><a href="/agent/dashboard"><i class="fas fa-tachometer-alt"></i> Dashboard</a></li>
+                            <li><a href="/agent/referral-link"><i class="fas fa-link"></i> Referral Link</a></li>
+                            <li><a href="/agent/available-properties"><i class="fas fa-building"></i> Available Properties</a></li>
+                            <li class="active"><a href="/agent/promotions"><i class="fas fa-bullhorn"></i> My Promotions</a></li>
+                            <li><a href="/agent/earnings"><i class="fas fa-money-bill-wave"></i> Earnings</a></li>
+                            <li><a href="/agent/analytics"><i class="fas fa-chart-line"></i> Analytics</a></li>
+                            <li><a href="/agent/settings"><i class="fas fa-cog"></i> Settings</a></li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="col-md-9">
+                    <div class="admin-content">
+                        <div class="d-flex justify-content-between align-items-center mb-4">
+                            <h2>My Promotions</h2>
+                            <a href="/agent/available-properties" class="thm-btn">
+                                <i class="fas fa-plus"></i> Create New Promotion
+                            </a>
+                        </div>
+
+                        <div id="promotionsContainer">
+                            <!-- Promotions will be loaded via AJAX -->
+                            <div class="text-center py-5">
+                                <div class="spinner-border text-primary" role="status">
+                                    <span class="sr-only">Loading...</span>
+                                </div>
+                                <p class="mt-2">Loading your promotions...</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Promotion Details Modal -->
+<div class="modal fade" id="promotionModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="promotionModalTitle">Promotion Details</h5>
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+            </div>
+            <div class="modal-body" id="promotionModalBody">
+                <!-- Will be populated via AJAX -->
+                <div class="text-center py-4">
+                    <div class="spinner-border text-primary" role="status">
+                        <span class="sr-only">Loading...</span>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- QR Code Modal -->
+<div class="modal fade" id="qrCodeModal" tabindex="-1">
+    <div class="modal-dialog modal-sm">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Promotion QR Code</h5>
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+            </div>
+            <div class="modal-body text-center">
+                <div id="qrCodeContainer"></div>
+                <p class="mt-3"><small>Scan this code to share the property link</small></p>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" data-dismiss="modal">Close</button>
+                <button class="btn btn-primary" id="downloadQRCodeBtn">Download</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.admin-sidebar {
+    background: white;
+    border-radius: 10px;
+    padding: 30px 20px;
+    box-shadow: 0 0 20px rgba(0,0,0,0.1);
+    position: sticky;
+    top: 100px;
+}
+
+.admin-sidebar ul li {
+    margin-bottom: 10px;
+}
+
+.admin-sidebar ul li a {
+    display: block;
+    padding: 12px 15px;
+    border-radius: 5px;
+    color: #333;
+    transition: all 0.3s ease;
+    text-decoration: none;
+}
+
+.admin-sidebar ul li a i {
+    margin-right: 10px;
+    width: 20px;
+}
+
+.admin-sidebar ul li a:hover {
+    background: #f8f9fa;
+}
+
+.admin-sidebar ul li.active a {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+}
+
+.admin-content {
+    background: white;
+    border-radius: 10px;
+    padding: 30px;
+    box-shadow: 0 0 20px rgba(0,0,0,0.1);
+    min-height: 600px;
+}
+
+.promotion-card {
+    background: white;
+    border-radius: 10px;
+    overflow: hidden;
+    box-shadow: 0 5px 20px rgba(0,0,0,0.05);
+    margin-bottom: 30px;
+    transition: all 0.3s ease;
+}
+
+.promotion-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 15px 30px rgba(0,0,0,0.1);
+}
+
+.promotion-image {
+    height: 200px;
+    overflow: hidden;
+    position: relative;
+}
+
+.promotion-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.promotion-badge {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    background: #ff6b6b;
+    color: white;
+    padding: 5px 12px;
+    border-radius: 20px;
+    font-size: 12px;
+}
+
+.promotion-info {
+    padding: 20px;
+}
+
+.promotion-code {
+    background: #f8f9fa;
+    padding: 10px;
+    border-radius: 5px;
+    font-family: monospace;
+    font-size: 12px;
+    margin-bottom: 15px;
+    word-break: break-all;
+}
+
+.stats-row {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 15px;
+}
+
+.stat-item {
+    text-align: center;
+    flex: 1;
+}
+
+.stat-value {
+    font-size: 20px;
+    font-weight: bold;
+    color: #ff6b6b;
+}
+
+.stat-label {
+    font-size: 11px;
+    color: #666;
+}
+
+.share-buttons {
+    display: flex;
+    gap: 8px;
+    justify-content: center;
+    margin-top: 15px;
+    flex-wrap: wrap;
+}
+
+.share-btn {
+    width: 35px;
+    height: 35px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s ease;
+    cursor: pointer;
+    border: none;
+    font-size: 14px;
+}
+
+.share-btn:hover {
+    transform: translateY(-3px);
+}
+
+.share-btn.facebook {
+    background: #3b5999;
+    color: white;
+}
+
+.share-btn.twitter {
+    background: #55acee;
+    color: white;
+}
+
+.share-btn.whatsapp {
+    background: #25d366;
+    color: white;
+}
+
+.share-btn.linkedin {
+    background: #0077b5;
+    color: white;
+}
+
+.share-btn.copy {
+    background: #6c757d;
+    color: white;
+}
+
+.share-btn.qr {
+    background: #17a2b8;
+    color: white;
+}
+</style>
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+
+<script>
+let currentPromotionLink = '';
+let currentPromotionCode = '';
+
+// Load promotions
+function loadPromotions() {
+    $.get('/api/agent/promotions')
+        .done(function(data) {
+            let html = '';
+            
+            if (data.promotions && data.promotions.length > 0) {
+                html = '<div class="row">';
+                data.promotions.forEach(promo => {
+                    const conversionRate = promo.clicks > 0 ? ((promo.transactions / promo.clicks) * 100).toFixed(1) : 0;
+                    
+                    html += `
+                        <div class="col-md-6 col-lg-4">
+                            <div class="promotion-card">
+                                <div class="promotion-image">
+                                    <img src="${promo.property?.images && promo.property.images[0] ? promo.property.images[0].url : '/assets/images/default-property.jpg'}" 
+                                         alt="${promo.property?.title || 'Property'}">
+                                    <span class="promotion-badge">${promo.clicks || 0} clicks</span>
+                                </div>
+                                <div class="promotion-info">
+                                    <h5>${promo.property?.title ? promo.property.title.substring(0, 40) : 'N/A'}${promo.property?.title && promo.property.title.length > 40 ? '...' : ''}</h5>
+                                    <p class="text-muted small">${promo.property?.location?.city || ''}, ${promo.property?.location?.state || ''}</p>
+                                    <p class="text-success font-weight-bold">${formatPrice(promo.property?.price)}</p>
+                                    
+                                    <div class="promotion-code">
+                                        <small>Referral Code:</small><br>
+                                        <strong>${promo.referralCode || 'N/A'}</strong>
+                                    </div>
+                                    
+                                    <div class="stats-row">
+                                        <div class="stat-item">
+                                            <div class="stat-value">${promo.clicks || 0}</div>
+                                            <div class="stat-label">Clicks</div>
+                                        </div>
+                                        <div class="stat-item">
+                                            <div class="stat-value">${promo.inquiries || 0}</div>
+                                            <div class="stat-label">Inquiries</div>
+                                        </div>
+                                        <div class="stat-item">
+                                            <div class="stat-value">${promo.transactions || 0}</div>
+                                            <div class="stat-label">Sales</div>
+                                        </div>
+                                        <div class="stat-item">
+                                            <div class="stat-value">${conversionRate}%</div>
+                                            <div class="stat-label">Conv. Rate</div>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="share-buttons">
+                                        <button class="share-btn facebook" onclick="shareOnFacebook('${promo.referralLink}')">
+                                            <i class="fab fa-facebook-f"></i>
+                                        </button>
+                                        <button class="share-btn twitter" onclick="shareOnTwitter('${promo.referralLink}', '${promo.property?.title}')">
+                                            <i class="fab fa-twitter"></i>
+                                        </button>
+                                        <button class="share-btn whatsapp" onclick="shareOnWhatsApp('${promo.referralLink}', '${promo.property?.title}')">
+                                            <i class="fab fa-whatsapp"></i>
+                                        </button>
+                                        <button class="share-btn linkedin" onclick="shareOnLinkedIn('${promo.referralLink}', '${promo.property?.title}')">
+                                            <i class="fab fa-linkedin-in"></i>
+                                        </button>
+                                        <button class="share-btn copy" onclick="copyPromotionLink('${promo.referralLink}')">
+                                            <i class="fas fa-copy"></i>
+                                        </button>
+                                        <button class="share-btn qr" onclick="showQRCode('${promo.referralLink}', '${promo.referralCode}')">
+                                            <i class="fas fa-qrcode"></i>
+                                        </button>
+                                    </div>
+                                    
+                                    <button class="btn btn-sm btn-outline-primary btn-block mt-3" onclick="viewPromotionDetails('${promo._id}')">
+                                        <i class="fas fa-chart-line"></i> View Details
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                });
+                html += '</div>';
+            } else {
+                html = `
+                    <div class="text-center py-5">
+                        <i class="fas fa-bullhorn fa-4x text-muted mb-3"></i>
+                        <h4>No Promotions Yet</h4>
+                        <p>Start promoting properties to earn commissions.</p>
+                        <a href="/agent/available-properties" class="thm-btn">Create Your First Promotion</a>
+                    </div>
+                `;
+            }
+            
+            $('#promotionsContainer').html(html);
+        })
+        .fail(function(xhr) {
+            console.error('Error loading promotions:', xhr);
+            $('#promotionsContainer').html('<p class="text-center text-danger py-4">Error loading promotions. Please refresh the page.</p>');
+        });
+}
+
+// View promotion details
+function viewPromotionDetails(id) {
+    $('#promotionModal').modal('show');
+    $('#promotionModalBody').html('<div class="text-center py-4"><div class="spinner-border text-primary"></div><p class="mt-2">Loading details...</p></div>');
+    
+    $.get(`/api/agent/promotion/${id}/stats`)
+        .done(function(data) {
+            let html = `
+                <div class="row">
+                    <div class="col-md-6">
+                        <h6>Property Information</h6>
+                        <p><strong>${data.promotion.property.title}</strong></p>
+                        <p class="text-muted">${data.promotion.property.location.city}, ${data.promotion.property.location.state}</p>
+                        <p class="text-success font-weight-bold">${formatPrice(data.promotion.property.price)}</p>
+                    </div>
+                    <div class="col-md-6">
+                        <h6>Referral Code</h6>
+                        <div class="alert alert-info">
+                            <code>${data.promotion.referralCode}</code>
+                        </div>
+                        <h6>Referral Link</h6>
+                        <div class="input-group">
+                            <input type="text" class="form-control" id="referralLinkInput" value="${data.promotion.referralLink}" readonly>
+                            <div class="input-group-append">
+                                <button class="btn btn-primary" onclick="copyToClipboard()">
+                                    <i class="fas fa-copy"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <hr>
+                <h6>Performance Stats</h6>
+                <div class="row">
+                    <div class="col-3 text-center">
+                        <h3>${data.stats.totalClicks}</h3>
+                        <small>Total Clicks</small>
+                    </div>
+                    <div class="col-3 text-center">
+                        <h3>${data.stats.inquiries}</h3>
+                        <small>Inquiries</small>
+                    </div>
+                    <div class="col-3 text-center">
+                        <h3>${data.stats.transactions}</h3>
+                        <small>Transactions</small>
+                    </div>
+                    <div class="col-3 text-center">
+                        <h3>${data.stats.conversionRate}%</h3>
+                        <small>Conversion Rate</small>
+                    </div>
+                </div>
+                <div class="row mt-3">
+                    <div class="col-6 text-center">
+                        <h5>₦${(data.stats.earnings || 0).toLocaleString()}</h5>
+                        <small>Total Earnings</small>
+                    </div>
+                    <div class="col-6 text-center">
+                        <h5>${data.stats.avgTimeToConvert || 0} days</h5>
+                        <small>Avg. Time to Convert</small>
+                    </div>
+                </div>
+                <hr>
+                <h6>Clicks Over Time</h6>
+                <canvas id="clicksChart" height="200"></canvas>
+            `;
+            
+            $('#promotionModalBody').html(html);
+            
+            // Create chart
+            if (data.stats.clicksOverTime && data.stats.clicksOverTime.length > 0) {
+                const ctx = document.getElementById('clicksChart').getContext('2d');
+                new Chart(ctx, {
+                    type: 'line',
+                    data: {
+                        labels: data.stats.clicksOverTime.map(item => item._id),
+                        datasets: [{
+                            label: 'Clicks',
+                            data: data.stats.clicksOverTime.map(item => item.count),
+                            borderColor: '#ff6b6b',
+                            backgroundColor: 'rgba(255, 107, 107, 0.1)',
+                            tension: 0.4,
+                            fill: true
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false
+                    }
+                });
+            }
+        })
+        .fail(function(xhr) {
+            $('#promotionModalBody').html('<p class="text-center text-danger py-4">Error loading promotion details</p>');
+        });
+}
+
+// Social sharing functions
+function shareOnFacebook(link) {
+    if (!link) return;
+    const url = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(link)}`;
+    window.open(url, '_blank', 'width=600,height=400');
+}
+
+function shareOnTwitter(link, title) {
+    if (!link) return;
+    const text = title ? `Check out this property: ${title}` : 'Check out this amazing property!';
+    const url = `https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}&url=${encodeURIComponent(link)}`;
+    window.open(url, '_blank', 'width=600,height=400');
+}
+
+function shareOnWhatsApp(link, title) {
+    if (!link) return;
+    const text = title ? `${title} - ${link}` : `Check out this property! ${link}`;
+    const url = `https://wa.me/?text=${encodeURIComponent(text)}`;
+    window.open(url, '_blank');
+}
+
+function shareOnLinkedIn(link, title) {
+    if (!link) return;
+    const url = `https://www.linkedin.com/shareArticle?mini=true&url=${encodeURIComponent(link)}&title=${encodeURIComponent(title || 'Property')}`;
+    window.open(url, '_blank', 'width=600,height=400');
+}
+
+function copyPromotionLink(link) {
+    if (!link) return;
+    navigator.clipboard.writeText(link).then(() => {
+        alert('Promotion link copied to clipboard!');
+    }).catch(() => {
+        alert('Could not copy link. Please copy manually.');
+    });
+}
+
+function copyToClipboard() {
+    const input = document.getElementById('referralLinkInput');
+    if (input) {
+        input.select();
+        document.execCommand('copy');
+        alert('Link copied to clipboard!');
+    }
+}
+
+// Show QR code modal
+function showQRCode(link, code) {
+    if (!link) return;
+    
+    currentPromotionLink = link;
+    currentPromotionCode = code;
+    
+    const qrContainer = document.getElementById('qrCodeContainer');
+    if (qrContainer) {
+        qrContainer.innerHTML = '';
+        new QRCode(qrContainer, {
+            text: link,
+            width: 200,
+            height: 200,
+            colorDark: '#ff6b6b',
+            colorLight: '#ffffff',
+            correctLevel: QRCode.CorrectLevel.H
+        });
+    }
+    
+    $('#qrCodeModal').modal('show');
+}
+
+// Download QR code
+$('#downloadQRCodeBtn').click(function() {
+    const canvas = document.querySelector('#qrCodeContainer canvas');
+    if (canvas) {
+        const link = document.createElement('a');
+        link.download = `promotion-${currentPromotionCode || 'qrcode'}.png`;
+        link.href = canvas.toDataURL();
+        link.click();
+    } else {
+        alert('QR code not found');
+    }
+});
+
+function formatPrice(price) {
+    if (!price) return 'Contact for pricing';
+    if (price >= 1000000000) {
+        return '₦' + (price / 1000000000).toFixed(1) + 'B';
+    }
+    if (price >= 1000000) {
+        return '₦' + (price / 1000000).toFixed(1) + 'M';
+    }
+    return '₦' + price.toLocaleString();
+}
+
+// Initialize on page load
+$(document).ready(function() {
+    loadPromotions();
+});
+</script>
+
+<%- include('../partials/footer') %>

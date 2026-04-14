@@ -1,0 +1,796 @@
+<%- include('../partials/header') %>
+
+<%
+// Ensure user object exists
+if (typeof user === 'undefined') {
+    var user = {
+        name: 'Admin',
+        profileImage: null,
+        email: 'admin@found.ng'
+    };
+}
+
+// Helper function to format date for input
+function formatDateForInput(date) {
+    if (!date) return '';
+    return new Date(date).toISOString().split('T')[0];
+}
+
+// Helper function to format amenities for display
+function formatAmenities(amenities) {
+    if (!amenities || amenities.length === 0) return '';
+    return amenities.join(', ');
+}
+
+// Helper function to format includes/excludes
+function formatArray(arr) {
+    if (!arr || arr.length === 0) return '';
+    return arr.join(', ');
+}
+
+// Helper function to format investment highlights
+function formatHighlights(highlights) {
+    if (!highlights || highlights.length === 0) return '';
+    return highlights.join(', ');
+}
+%>
+
+<!-- Page Top -->
+<section>
+    <div class="w-100 pt-180 pb-110 black-layer opc45 position-relative">
+        <div class="fixed-bg" style="background-image: url(/assets/images/pg-tp-bg.jpg);"></div>
+        <div class="container">
+            <div class="pg-tp-wrp text-center w-100">
+                <h1 class="mb-0"><%= project ? 'Edit' : 'Create' %> Project</h1>
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item"><a href="/admin/dashboard">Dashboard</a></li>
+                    <li class="breadcrumb-item"><a href="/admin/projects">Projects</a></li>
+                    <li class="breadcrumb-item active"><%= project ? 'Edit' : 'Create' %></li>
+                </ol>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Project Form Section -->
+<section>
+    <div class="w-100 pt-120 pb-90 position-relative">
+        <div class="container">
+            <div class="row">
+                <!-- Sidebar -->
+                <div class="col-md-3">
+                    <div class="admin-sidebar">
+                        <div class="admin-profile text-center mb-4">
+                            <img src="<%= user.profileImage ? '/uploads/profiles/' + user.profileImage : '/assets/images/default-avatar.jpg' %>" 
+                                 alt="<%= user.name %>" 
+                                 class="rounded-circle img-fluid" style="width: 80px; height: 80px; object-fit: cover;">
+                            <h6 class="mt-2"><%= user.name %></h6>
+                            <p class="text-muted small">Administrator</p>
+                        </div>
+                        <ul class="list-unstyled">
+                            <li><a href="/admin/dashboard"><i class="fas fa-tachometer-alt"></i> Dashboard</a></li>
+                            <li><a href="/admin/users"><i class="fas fa-users"></i> Users</a></li>
+                            <li><a href="/admin/agents"><i class="fas fa-user-tie"></i> Agents</a></li>
+                            <li><a href="/admin/properties"><i class="fas fa-building"></i> Properties</a></li>
+                            <li><a href="/admin/blogs"><i class="fas fa-newspaper"></i> Blogs</a></li>
+                            <li class="active"><a href="/admin/projects"><i class="fas fa-city"></i> Projects</a></li>
+                            <li><a href="/admin/settings"><i class="fas fa-cog"></i> Settings</a></li>
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Main Content -->
+                <div class="col-md-9">
+                    <div class="admin-content">
+                        <form action="<%= project ? '/admin/projects/' + project._id + '?_method=PUT' : '/admin/projects/create' %>" 
+                              method="POST" 
+                              enctype="multipart/form-data"
+                              id="projectForm">
+                            
+                            <!-- Basic Information -->
+                            <div class="card mb-4">
+                                <div class="card-header">
+                                    <h5 class="mb-0">Basic Information</h5>
+                                </div>
+                                <div class="card-body">
+                                    <div class="form-group">
+                                        <label>Project Name <span class="text-danger">*</span></label>
+                                        <input type="text" class="form-control" name="name" 
+                                               value="<%= project ? project.name : '' %>" 
+                                               placeholder="Enter project name" required>
+                                    </div>
+                                    
+                                    <div class="form-group">
+                                        <label>Short Description <span class="text-danger">*</span></label>
+                                        <textarea class="form-control" name="shortDescription" rows="3" 
+                                                  placeholder="Brief summary (max 300 characters)" 
+                                                  maxlength="300" required><%= project ? project.description.short : '' %></textarea>
+                                        <small class="text-muted">This will appear in project listings</small>
+                                    </div>
+                                    
+                                    <div class="form-group">
+                                        <label>Long Description <span class="text-danger">*</span></label>
+                                        <textarea class="form-control" name="longDescription" rows="10" 
+                                                  placeholder="Detailed project description (supports HTML)"><%= project ? project.description.long : '' %></textarea>
+                                        <small class="text-muted">You can use HTML for formatting</small>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Developer Information -->
+                            <div class="card mb-4">
+                                <div class="card-header">
+                                    <h5 class="mb-0">Developer Information</h5>
+                                </div>
+                                <div class="card-body">
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <div class="form-group">
+                                                <label>Developer Name <span class="text-danger">*</span></label>
+                                                <input type="text" class="form-control" name="developerName" 
+                                                       value="<%= project ? project.developer.name : '' %>" required>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <div class="form-group">
+                                                <label>Developer Website</label>
+                                                <input type="url" class="form-control" name="developerWebsite" 
+                                                       value="<%= project ? project.developer.website : '' %>" 
+                                                       placeholder="https://...">
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <div class="form-group">
+                                                <label>Contact Email</label>
+                                                <input type="email" class="form-control" name="developerEmail" 
+                                                       value="<%= project ? project.developer.contactEmail : '' %>">
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <div class="form-group">
+                                                <label>Contact Phone</label>
+                                                <input type="tel" class="form-control" name="developerPhone" 
+                                                       value="<%= project ? project.developer.contactPhone : '' %>">
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Location Information -->
+                            <div class="card mb-4">
+                                <div class="card-header">
+                                    <h5 class="mb-0">Location Information</h5>
+                                </div>
+                                <div class="card-body">
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <div class="form-group">
+                                                <label>Address</label>
+                                                <input type="text" class="form-control" name="address" 
+                                                       value="<%= project ? project.location.address : '' %>">
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <div class="form-group">
+                                                <label>City <span class="text-danger">*</span></label>
+                                                <input type="text" class="form-control" name="city" 
+                                                       value="<%= project ? project.location.city : '' %>" required>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <div class="form-group">
+                                                <label>State <span class="text-danger">*</span></label>
+                                                <input type="text" class="form-control" name="state" 
+                                                       value="<%= project ? project.location.state : '' %>" required>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <div class="form-group">
+                                                <label>LGA</label>
+                                                <input type="text" class="form-control" name="lga" 
+                                                       value="<%= project ? project.location.lga : '' %>">
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <div class="form-group">
+                                                <label>Latitude</label>
+                                                <input type="number" step="any" class="form-control" name="lat" 
+                                                       value="<%= project && project.location.coordinates ? project.location.coordinates.lat : '' %>">
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <div class="form-group">
+                                                <label>Longitude</label>
+                                                <input type="number" step="any" class="form-control" name="lng" 
+                                                       value="<%= project && project.location.coordinates ? project.location.coordinates.lng : '' %>">
+                                            </div>
+                                        </div>
+                                        <div class="col-md-12">
+                                            <div class="form-group">
+                                                <label>Google Earth URL</label>
+                                                <input type="url" class="form-control" name="googleEarthUrl" 
+                                                       value="<%= project ? project.location.googleEarthUrl : '' %>" 
+                                                       placeholder="https://earth.google.com/...">
+                                                <small class="text-muted">Link to Google Earth view of the property</small>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Project Features - Dynamic Fields Version -->
+                            <div class="card mb-4">
+                                <div class="card-header d-flex justify-content-between align-items-center">
+                                    <h5 class="mb-0">Project Features</h5>
+                                    <button type="button" class="btn btn-sm btn-primary" onclick="addFeatureField()">
+                                        <i class="fas fa-plus"></i> Add Feature
+                                    </button>
+                                </div>
+                                <div class="card-body">
+                                    <div id="features-container">
+                                        <% if (project && project.features && project.features.length > 0) { %>
+                                            <% project.features.forEach((feature, index) => { %>
+                                                <div class="feature-item mb-3 p-3 border rounded" data-index="<%= index %>">
+                                                    <div class="row">
+                                                        <div class="col-md-3">
+                                                            <div class="form-group">
+                                                                <label>Icon Class</label>
+                                                                <input type="text" class="form-control" name="features[<%= index %>][icon]" 
+                                                                       value="<%= feature.icon || 'fas fa-check-circle' %>" 
+                                                                       placeholder="fas fa-building">
+                                                                <small class="text-muted">Font Awesome icon class</small>
+                                                            </div>
+                                                        </div>
+                                                        <div class="col-md-4">
+                                                            <div class="form-group">
+                                                                <label>Title <span class="text-danger">*</span></label>
+                                                                <input type="text" class="form-control" name="features[<%= index %>][title]" 
+                                                                       value="<%= feature.title %>" required>
+                                                            </div>
+                                                        </div>
+                                                        <div class="col-md-4">
+                                                            <div class="form-group">
+                                                                <label>Description <span class="text-danger">*</span></label>
+                                                                <input type="text" class="form-control" name="features[<%= index %>][description]" 
+                                                                       value="<%= feature.description %>" required>
+                                                            </div>
+                                                        </div>
+                                                        <div class="col-md-1">
+                                                            <div class="form-group">
+                                                                <label>&nbsp;</label>
+                                                                <button type="button" class="btn btn-danger btn-block" onclick="removeFeature(this)">
+                                                                    <i class="fas fa-trash"></i>
+                                                                </button>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            <% }); %>
+                                        <% } else { %>
+                                            <div class="feature-item mb-3 p-3 border rounded" data-index="0">
+                                                <div class="row">
+                                                    <div class="col-md-3">
+                                                        <div class="form-group">
+                                                            <label>Icon Class</label>
+                                                            <input type="text" class="form-control" name="features[0][icon]" 
+                                                                   value="fas fa-check-circle" placeholder="fas fa-building">
+                                                            <small class="text-muted">Font Awesome icon class</small>
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-md-4">
+                                                        <div class="form-group">
+                                                            <label>Title <span class="text-danger">*</span></label>
+                                                            <input type="text" class="form-control" name="features[0][title]" required>
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-md-4">
+                                                        <div class="form-group">
+                                                            <label>Description <span class="text-danger">*</span></label>
+                                                            <input type="text" class="form-control" name="features[0][description]" required>
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-md-1">
+                                                        <div class="form-group">
+                                                            <label>&nbsp;</label>
+                                                            <button type="button" class="btn btn-danger btn-block" onclick="removeFeature(this)">
+                                                                <i class="fas fa-trash"></i>
+                                                            </button>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        <% } %>
+                                    </div>
+                                    <small class="text-muted">Add key features of the project. Each feature will be displayed with an icon, title, and description.</small>
+                                </div>
+                            </div>
+                            
+                            <!-- Amenities -->
+                            <div class="card mb-4">
+                                <div class="card-header">
+                                    <h5 class="mb-0">Amenities</h5>
+                                </div>
+                                <div class="card-body">
+                                    <div class="form-group">
+                                        <label>Amenities (comma-separated)</label>
+                                        <input type="text" class="form-control" name="amenities" 
+                                               value="<%= project ? formatAmenities(project.amenities) : '' %>" 
+                                               placeholder="Swimming pool, Gym, 24/7 Security, Parking">
+                                        <small class="text-muted">Separate amenities with commas</small>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Specifications -->
+                            <div class="card mb-4">
+                                <div class="card-header">
+                                    <h5 class="mb-0">Specifications</h5>
+                                </div>
+                                <div class="card-body">
+                                    <div class="row">
+                                        <div class="col-md-4">
+                                            <div class="form-group">
+                                                <label>Total Units</label>
+                                                <input type="number" class="form-control" name="totalUnits" 
+                                                       value="<%= project && project.specifications ? project.specifications.totalUnits : '' %>">
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <div class="form-group">
+                                                <label>Land Area</label>
+                                                <input type="text" class="form-control" name="landArea" 
+                                                       value="<%= project && project.specifications ? project.specifications.landArea : '' %>" 
+                                                       placeholder="e.g., 5,000 sqm">
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <div class="form-group">
+                                                <label>Completion Date</label>
+                                                <input type="date" class="form-control" name="completionDate" 
+                                                       value="<%= project && project.specifications ? formatDateForInput(project.specifications.completionDate) : '' %>">
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <div class="form-group">
+                                                <label>Project Status</label>
+                                                <select class="form-control" name="specStatus">
+                                                    <option value="upcoming" <%= project && project.specifications && project.specifications.status === 'upcoming' ? 'selected' : '' %>>Upcoming</option>
+                                                    <option value="ongoing" <%= project && project.specifications && project.specifications.status === 'ongoing' ? 'selected' : '' %>>Ongoing</option>
+                                                    <option value="completed" <%= project && project.specifications && project.specifications.status === 'completed' ? 'selected' : '' %>>Completed</option>
+                                                    <option value="sold_out" <%= project && project.specifications && project.specifications.status === 'sold_out' ? 'selected' : '' %>>Sold Out</option>
+                                                </select>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Media -->
+                            <div class="card mb-4">
+                                <div class="card-header">
+                                    <h5 class="mb-0">Media</h5>
+                                </div>
+                                <div class="card-body">
+                                    <div class="form-group">
+                                        <label>Featured Image URL <span class="text-danger">*</span></label>
+                                        <input type="url" class="form-control" name="featuredImage" 
+                                               value="<%= project ? project.media.featuredImage : '' %>" 
+                                               placeholder="https://..." required>
+                                        <small class="text-muted">Full URL to the featured image</small>
+                                    </div>
+                                    
+                                    <div class="form-group">
+                                        <label>Gallery Images (JSON Format)</label>
+                                        <textarea class="form-control" name="gallery" rows="5" 
+                                                  placeholder='[{"url": "https://...", "caption": "Image caption"}]'><%= project && project.media.gallery ? JSON.stringify(project.media.gallery, null, 2) : '' %></textarea>
+                                        <small class="text-muted">Format: [{"url": "image-url", "caption": "Optional caption"}]</small>
+                                    </div>
+                                    
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <div class="form-group">
+                                                <label>Virtual Tour URL</label>
+                                                <input type="url" class="form-control" name="virtualTour" 
+                                                       value="<%= project ? project.media.virtualTour : '' %>" 
+                                                       placeholder="https://...">
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <div class="form-group">
+                                                <label>Video Tour URL</label>
+                                                <input type="url" class="form-control" name="videoTour" 
+                                                       value="<%= project ? project.media.videoTour : '' %>" 
+                                                       placeholder="https://youtube.com/...">
+                                            </div>
+                                        </div>
+                                        <div class="col-md-12">
+                                            <div class="form-group">
+                                                <label>Brochure Download URL</label>
+                                                <input type="url" class="form-control" name="brochure" 
+                                                       value="<%= project ? project.media.brochure : '' %>" 
+                                                       placeholder="https://...">
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Pricing -->
+                            <div class="card mb-4">
+                                <div class="card-header">
+                                    <h5 class="mb-0">Pricing</h5>
+                                </div>
+                                <div class="card-body">
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <div class="form-group">
+                                                <label>Starting Price (₦)</label>
+                                                <input type="number" class="form-control" name="startingPrice" 
+                                                       value="<%= project && project.pricing ? project.pricing.startingPrice : '' %>">
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <div class="form-group">
+                                                <label>Minimum Price (₦)</label>
+                                                <input type="number" class="form-control" name="priceMin" 
+                                                       value="<%= project && project.pricing && project.pricing.priceRange ? project.pricing.priceRange.min : '' %>">
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <div class="form-group">
+                                                <label>Maximum Price (₦)</label>
+                                                <input type="number" class="form-control" name="priceMax" 
+                                                       value="<%= project && project.pricing && project.pricing.priceRange ? project.pricing.priceRange.max : '' %>">
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="form-group">
+                                        <label>Payment Plan (JSON Format)</label>
+                                        <textarea class="form-control" name="paymentPlan" rows="5" 
+                                                  placeholder='[{"title": "Deposit", "description": "10% upon reservation", "percentage": 10}]'><%= project && project.pricing.paymentPlan ? JSON.stringify(project.pricing.paymentPlan, null, 2) : '' %></textarea>
+                                        <small class="text-muted">Format: [{"title": "Stage", "description": "Description", "percentage": 10}]</small>
+                                    </div>
+                                    
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <div class="form-group">
+                                                <label>What's Included (comma-separated)</label>
+                                                <input type="text" class="form-control" name="includes" 
+                                                       value="<%= project && project.pricing && project.pricing.includes ? formatArray(project.pricing.includes) : '' %>" 
+                                                       placeholder="Parking, Finishing, Cabinet">
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <div class="form-group">
+                                                <label>What's Not Included (comma-separated)</label>
+                                                <input type="text" class="form-control" name="excludes" 
+                                                       value="<%= project && project.pricing && project.pricing.excludes ? formatArray(project.pricing.excludes) : '' %>" 
+                                                       placeholder="Furniture, Appliances">
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Investment Opportunity -->
+                            <div class="card mb-4">
+                                <div class="card-header">
+                                    <h5 class="mb-0">Investment Opportunity</h5>
+                                </div>
+                                <div class="card-body">
+                                    <div class="row">
+                                        <div class="col-md-4">
+                                            <div class="form-group">
+                                                <label>Expected ROI</label>
+                                                <input type="text" class="form-control" name="roi" 
+                                                       value="<%= project && project.investment ? project.investment.roi : '' %>" 
+                                                       placeholder="e.g., 25% over 5 years">
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <div class="form-group">
+                                                <label>Rental Yield</label>
+                                                <input type="text" class="form-control" name="rentalYield" 
+                                                       value="<%= project && project.investment ? project.investment.rentalYield : '' %>" 
+                                                       placeholder="e.g., 8-10% annually">
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <div class="form-group">
+                                                <label>Capital Appreciation</label>
+                                                <input type="text" class="form-control" name="capitalAppreciation" 
+                                                       value="<%= project && project.investment ? project.investment.capitalAppreciation : '' %>" 
+                                                       placeholder="e.g., 15% expected">
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="form-group">
+                                        <label>Investment Highlights (comma-separated)</label>
+                                        <input type="text" class="form-control" name="investmentHighlights" 
+                                               value="<%= project && project.investment && project.investment.highlights ? formatHighlights(project.investment.highlights) : '' %>" 
+                                               placeholder="Prime location, High demand area, Excellent infrastructure">
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- SEO Settings -->
+                            <div class="card mb-4">
+                                <div class="card-header">
+                                    <h5 class="mb-0">SEO Settings</h5>
+                                </div>
+                                <div class="card-body">
+                                    <div class="form-group">
+                                        <label>Meta Title</label>
+                                        <input type="text" class="form-control" name="metaTitle" 
+                                               value="<%= project && project.seo ? project.seo.metaTitle : '' %>" 
+                                               placeholder="Leave blank to use project name">
+                                    </div>
+                                    
+                                    <div class="form-group">
+                                        <label>Meta Description</label>
+                                        <textarea class="form-control" name="metaDescription" rows="2" 
+                                                  placeholder="Leave blank to use short description"><%= project && project.seo ? project.seo.metaDescription : '' %></textarea>
+                                    </div>
+                                    
+                                    <div class="form-group">
+                                        <label>Meta Keywords</label>
+                                        <input type="text" class="form-control" name="metaKeywords" 
+                                               value="<%= project && project.seo ? project.seo.metaKeywords : '' %>" 
+                                               placeholder="real estate, luxury homes, property investment">
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Publishing Options -->
+                            <div class="card mb-4">
+                                <div class="card-header">
+                                    <h5 class="mb-0">Publishing Options</h5>
+                                </div>
+                                <div class="card-body">
+                                    <div class="row">
+                                        <div class="col-md-4">
+                                            <div class="form-group">
+                                                <label>Status</label>
+                                                <select class="form-control" name="projectStatus">
+                                                    <option value="draft" <%= project && project.status === 'draft' ? 'selected' : '' %>>Draft</option>
+                                                    <option value="published" <%= project && project.status === 'published' ? 'selected' : '' %>>Published</option>
+                                                    <option value="archived" <%= project && project.status === 'archived' ? 'selected' : '' %>>Archived</option>
+                                                </select>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <div class="form-group">
+                                                <label>&nbsp;</label>
+                                                <div class="form-check mt-2">
+                                                    <input type="checkbox" class="form-check-input" name="featured" id="featured" 
+                                                           <%= project && project.featured ? 'checked' : '' %>>
+                                                    <label class="form-check-label" for="featured">Feature this project</label>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <div class="form-group">
+                                                <label>Display Order</label>
+                                                <input type="number" class="form-control" name="order" 
+                                                       value="<%= project ? project.order : '0' %>">
+                                                <small class="text-muted">Lower numbers appear first</small>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Form Actions -->
+                            <div class="text-center">
+                                <button type="submit" class="thm-btn">
+                                    <i class="fas fa-save"></i> <%= project ? 'Update' : 'Create' %> Project
+                                </button>
+                                <a href="/admin/projects" class="thm-btn brd-btn ml-2">
+                                    <i class="fas fa-times"></i> Cancel
+                                </a>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<style>
+.admin-sidebar {
+    background: white;
+    border-radius: 10px;
+    padding: 30px 20px;
+    box-shadow: 0 0 20px rgba(0,0,0,0.1);
+    position: sticky;
+    top: 100px;
+}
+
+.admin-sidebar ul li {
+    margin-bottom: 10px;
+}
+
+.admin-sidebar ul li a {
+    display: block;
+    padding: 12px 15px;
+    border-radius: 5px;
+    color: #333;
+    transition: all 0.3s ease;
+    text-decoration: none;
+}
+
+.admin-sidebar ul li a i {
+    margin-right: 10px;
+    width: 20px;
+}
+
+.admin-sidebar ul li a:hover {
+    background: #f8f9fa;
+}
+
+.admin-sidebar ul li.active a {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+}
+
+.admin-content {
+    background: white;
+    border-radius: 10px;
+    padding: 30px;
+    box-shadow: 0 0 20px rgba(0,0,0,0.1);
+}
+
+.card {
+    border: 1px solid #f0f0f0;
+    border-radius: 10px;
+    margin-bottom: 20px;
+}
+
+.card-header {
+    background: #f8f9fa;
+    border-bottom: 1px solid #f0f0f0;
+    padding: 15px 20px;
+    font-weight: 600;
+}
+
+.card-body {
+    padding: 20px;
+}
+
+.form-control {
+    border: 1px solid #e0e0e0;
+    border-radius: 5px;
+    padding: 10px 15px;
+    font-size: 14px;
+}
+
+.form-control:focus {
+    border-color: #ff6b6b;
+    box-shadow: none;
+}
+
+textarea.form-control {
+    font-family: monospace;
+}
+
+.thm-btn {
+    padding: 12px 30px;
+    font-size: 16px;
+}
+
+@media (max-width: 991px) {
+    .admin-sidebar {
+        position: relative;
+        top: 0;
+        margin-bottom: 30px;
+    }
+}
+</style>
+
+<script>
+// Dynamic feature fields
+let featureCount = <%= project && project.features ? project.features.length : 1 %>;
+
+function addFeatureField() {
+    const container = document.getElementById('features-container');
+    const newIndex = featureCount;
+    
+    const featureHtml = `
+        <div class="feature-item mb-3 p-3 border rounded" data-index="${newIndex}">
+            <div class="row">
+                <div class="col-md-3">
+                    <div class="form-group">
+                        <label>Icon Class</label>
+                        <input type="text" class="form-control" name="features[${newIndex}][icon]" 
+                               value="fas fa-check-circle" placeholder="fas fa-building">
+                        <small class="text-muted">Font Awesome icon class</small>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="form-group">
+                        <label>Title <span class="text-danger">*</span></label>
+                        <input type="text" class="form-control" name="features[${newIndex}][title]" required>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="form-group">
+                        <label>Description <span class="text-danger">*</span></label>
+                        <input type="text" class="form-control" name="features[${newIndex}][description]" required>
+                    </div>
+                </div>
+                <div class="col-md-1">
+                    <div class="form-group">
+                        <label>&nbsp;</label>
+                        <button type="button" class="btn btn-danger btn-block" onclick="removeFeature(this)">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    `;
+    
+    container.insertAdjacentHTML('beforeend', featureHtml);
+    featureCount++;
+}
+
+function removeFeature(button) {
+    button.closest('.feature-item').remove();
+}
+
+// Form validation and preview
+const form = document.getElementById('projectForm');
+let formChanged = false;
+
+form.addEventListener('input', function() {
+    formChanged = true;
+});
+
+window.addEventListener('beforeunload', function(e) {
+    if (formChanged) {
+        e.preventDefault();
+        e.returnValue = 'You have unsaved changes. Are you sure you want to leave?';
+    }
+});
+
+form.addEventListener('submit', function() {
+    formChanged = false;
+});
+
+// JSON validation for gallery and paymentPlan
+function validateJSON(textareaId, errorMessage) {
+    const textarea = document.getElementById(textareaId);
+    if (textarea && textarea.value.trim()) {
+        try {
+            JSON.parse(textarea.value);
+            textarea.classList.remove('is-invalid');
+            return true;
+        } catch(e) {
+            textarea.classList.add('is-invalid');
+            if (!textarea.nextElementSibling || !textarea.nextElementSibling.classList.contains('invalid-feedback')) {
+                const feedback = document.createElement('div');
+                feedback.className = 'invalid-feedback';
+                feedback.textContent = errorMessage;
+                textarea.parentNode.appendChild(feedback);
+            }
+            return false;
+        }
+    }
+    return true;
+}
+
+// Add JSON validation listeners
+document.querySelector('textarea[name="gallery"]')?.addEventListener('blur', function() {
+    validateJSON('gallery', 'Invalid JSON format');
+});
+
+document.querySelector('textarea[name="paymentPlan"]')?.addEventListener('blur', function() {
+    validateJSON('paymentPlan', 'Invalid JSON format');
+});
+</script>
+
+<%- include('../partials/footer') %>

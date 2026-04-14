@@ -1,0 +1,76 @@
+<!-- Start Responsive Navbar Area -->
+<div class="responsive-navbar offcanvas offcanvas-end" data-bs-backdrop="static" tabindex="-1" id="navbarOffcanvas">
+    <div class="offcanvas-header">
+        <a href="/" class="logo d-inline-block">
+            <img class="logo-light" src="/assets/img/logo/logo.png" alt="RevaampAP">
+        </a>
+        <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+    </div>
+    <div class="offcanvas-body">
+        <div class="accordion" id="navbarAccordion">
+            <div class="accordion-item">
+                <a href="/" class="accordion-link without-icon <%= currentPath === '/' ? 'active' : '' %>">Home</a>
+            </div>
+            <div class="accordion-item">
+                <a href="/properties" class="accordion-link without-icon <%= currentPath === '/properties' ? 'active' : '' %>">Properties</a>
+            </div>
+            <div class="accordion-item">
+                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseOwners" aria-expanded="false" aria-controls="collapseOwners">
+                    For Owners
+                </button>
+                <div id="collapseOwners" class="accordion-collapse collapse" data-bs-parent="#navbarAccordion">
+                    <div class="accordion-body">
+                        <div class="accordion" id="navbarAccordionOwners">
+                            <div class="accordion-item"><a href="/register" class="accordion-link">List Your Property</a></div>
+                            <div class="accordion-item"><a href="/how-it-works#verification" class="accordion-link">Verification Process</a></div>
+                            <div class="accordion-item"><a href="/how-it-works#fees" class="accordion-link">Pricing & Fees</a></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="accordion-item">
+                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapsePromoters" aria-expanded="false" aria-controls="collapsePromoters">
+                    For Promoters
+                </button>
+                <div id="collapsePromoters" class="accordion-collapse collapse" data-bs-parent="#navbarAccordion">
+                    <div class="accordion-body">
+                        <div class="accordion" id="navbarAccordionPromoters">
+                            <div class="accordion-item"><a href="/promoter/register" class="accordion-link">Become a Promoter</a></div>
+                            <div class="accordion-item"><a href="/how-it-works#promoter" class="accordion-link">How It Works</a></div>
+                            <div class="accordion-item"><a href="/how-it-works#commission" class="accordion-link">Commission Structure</a></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="accordion-item">
+                <a href="/about" class="accordion-link without-icon <%= currentPath === '/about' ? 'active' : '' %>">About</a>
+            </div>
+            <div class="accordion-item">
+                <a href="/contact" class="accordion-link without-icon <%= currentPath === '/contact' ? 'active' : '' %>">Contact</a>
+            </div>
+        </div>
+        <div class="offcanvas-contact-info">
+            <h4>Contact Info</h4>
+            <ul class="contact-info list-style">
+                <li><i class="bx bxs-envelope"></i> <a href="mailto:info@revaampap.com">info@revaampap.com</a></li>
+                <li><i class="bx bxs-time"></i> <p>Mon - Fri: 9:00 - 18:00</p></li>
+            </ul>
+            <ul class="social-profile list-style">
+                <li><a href="#"><i class='bx bxl-facebook'></i></a></li>
+                <li><a href="#"><i class='bx bxl-instagram'></i></a></li>
+                <li><a href="#"><i class='bx bxl-linkedin'></i></a></li>
+                <li><a href="#"><i class='bx bxl-twitter'></i></a></li>
+            </ul>
+        </div>
+        <div class="offcanvas-other-options">
+            <% if (!user) { %>
+                <div class="option-item"><a href="/login" class="default-btn w-100 text-center">Login</a></div>
+                <div class="option-item mt-2"><a href="/register" class="default-btn black w-100 text-center">List Property</a></div>
+            <% } else { %>
+                <div class="option-item"><a href="/dashboard" class="default-btn w-100 text-center">Dashboard</a></div>
+                <div class="option-item mt-2"><a href="/logout" class="default-btn black w-100 text-center">Logout</a></div>
+            <% } %>
+        </div>
+    </div>
+</div>
+<!-- End Responsive Navbar Area -->

@@ -1,0 +1,911 @@
+<%- include('../partials/header') %>
+
+<%
+// Helper function to format price
+function formatPrice(price) {
+    if (!price || price === 0) return 'Contact for pricing';
+    if (price >= 1000000000) {
+        return '₦' + (price / 1000000000).toFixed(1) + 'B';
+    }
+    if (price >= 1000000) {
+        return '₦' + (price / 1000000).toFixed(1) + 'M';
+    }
+    return '₦' + price.toLocaleString();
+}
+
+// Helper function to format date
+function formatDate(date) {
+    if (!date) return 'TBA';
+    return new Date(date).toLocaleDateString('en-NG', {
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric'
+    });
+}
+
+// Helper function to get status badge class
+function getStatusBadge(status) {
+    switch(status) {
+        case 'upcoming': return 'warning';
+        case 'ongoing': return 'info';
+        case 'completed': return 'success';
+        case 'sold_out': return 'secondary';
+        default: return 'primary';
+    }
+}
+
+// Helper function to get status text
+function getStatusText(status) {
+    switch(status) {
+        case 'upcoming': return 'Upcoming';
+        case 'ongoing': return 'Ongoing';
+        case 'completed': return 'Completed';
+        case 'sold_out': return 'Sold Out';
+        default: return status;
+    }
+}
+%>
+
+<!-- Override meta tags for this project -->
+<% 
+title = project.name + ' - Found Projects';
+metaDescription = project.description.short;
+ogTitle = project.seo?.metaTitle || project.name;
+ogDescription = project.seo?.metaDescription || project.description.short;
+ogImage = project.media.featuredImage;
+ogType = 'article';
+%>
+
+<!-- Hero Section with Featured Image Carousel -->
+<section>
+    <div class="w-100 position-relative">
+        <div class="feat-wrap2 w-100 position-relative">
+            <div class="feat-caro" id="project-slider">
+                <!-- First slide - Featured Image -->
+                <div class="feat-item">
+                    <div class="feat-img" style="background-image: url(<%= project.media.featuredImage || '/assets/images/default-project.jpg' %>); background-size: cover; background-position: center; height: 500px;"></div>
+                </div>
+                <!-- Additional gallery images -->
+                <% if (project.media.gallery && project.media.gallery.length > 0) { 
+                    for (var i = 0; i < project.media.gallery.length; i++) { 
+                        var img = project.media.gallery[i]; %>
+                        <div class="feat-item">
+                            <div class="feat-img" style="background-image: url(<%= img.url %>); background-size: cover; background-position: center; height: 500px;"></div>
+                        </div>
+                    <% } %>
+                <% } %>
+            </div>
+            <div class="reviewer-info-wrap w-100 position-absolute">
+                <div class="container">
+                    <div class="reviewer-info d-flex flex-wrap align-items-center w-100">
+                        <div class="reviewer-info-img">
+                            <img class="img-fluid rounded-circle" src="<%= project.media.featuredImage || '/assets/images/default-project.jpg' %>" alt="<%= project.name %>" style="width: 80px; height: 80px; object-fit: cover;">
+                            <span class="rounded-pill reviewer-rate text-color2">
+                                <i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="far fa-star"></i>
+                                <span>4.5/5</span>
+                            </span>
+                        </div>
+                        <div class="reviewer-info-inner">
+                            <h2 class="mb-0"><%= project.name %></h2>
+                            <p class="mb-0"><%= project.location.city %>, <%= project.location.state %></p>
+                            <ul class="reviewer-meta d-inline-flex mb-0 list-unstyled">
+                                <li><i class="fas fa-building"></i> <%= project.developer.name %></li>
+                                <li><i class="fas fa-tag"></i> <%= formatPrice(project.pricing.startingPrice) %></li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Navigation Tabs -->
+<section>
+    <div class="w-100 pb-100 gray-bg position-relative">
+        <div class="reviewer-review-top bg-white w-100">
+            <div class="container">
+                <div class="reviewer-review-top-inner d-flex flex-wrap justify-content-between align-items-center">
+                    <ul class="reviewer-review-links mb-0 list-unstyled d-inline-flex">
+                        <li><a href="#description" title=""><i class="thm-clr fas fa-file-alt"></i>Description</a></li>
+                        <li><a href="#features" title=""><i class="thm-clr fas fa-list"></i>Key Features</a></li>
+                        <li><a href="#amenities" title=""><i class="thm-clr fas fa-concierge-bell"></i>Amenities</a></li>
+                        <li><a href="#gallery" title=""><i class="thm-clr far fa-file-image"></i>Gallery</a></li>
+                        <li><a href="#location" title=""><i class="thm-clr fas fa-map-marker-alt"></i>Location</a></li>
+                        <li><a href="#investment" title=""><i class="thm-clr fas fa-chart-line"></i>Investment</a></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <div class="place-layout-detail-wrap w-100">
+            <div class="container">
+                <div class="row">
+                    <div class="col-md-12 col-sm-12 col-lg-8">
+                        <div class="place-layout-detail-content2 mt-65 bg-white w-100">
+                            <!-- Description Section -->
+                            <div class="place-layout-detail-inner2 w-100" id="description">
+                                <h3><i class="far fa-file-alt"></i> Description</h3>
+                                <div class="place-layout-detail-content-inner w-100">
+                                    <p class="mb-0"><%= project.description.short %></p>
+                                    <div class="mt-3">
+                                        <%- project.description.long %>
+                                    </div>
+                                    <a class="thm-btn mt-3" href="/inquiry?project=<%= project.slug %>" title="">Request More Information</a>
+                                </div>
+                            </div>
+
+                            <!-- Key Features Section -->
+                            <% if (project.features && project.features.length > 0) { %>
+                                <div class="place-layout-detail-inner2 w-100" id="features">
+                                    <h3><i class="fas fa-list"></i> Key Features</h3>
+                                    <div class="place-layout-detail-content-inner w-100">
+                                        <div class="row">
+                                            <% for (var i = 0; i < project.features.length; i++) { 
+                                                var feature = project.features[i]; %>
+                                                <div class="col-md-6 col-sm-6 col-lg-6 mb-4">
+                                                    <div class="feature-item d-flex">
+                                                        <div class="feature-icon mr-3">
+                                                            <i class="<%= feature.icon || 'fas fa-check-circle' %> fa-2x thm-clr"></i>
+                                                        </div>
+                                                        <div class="feature-content">
+                                                            <h5 class="mb-2"><%= feature.title %></h5>
+                                                            <p class="mb-0 text-muted"><%= feature.description %></p>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            <% } %>
+                                        </div>
+                                    </div>
+                                </div>
+                            <% } %>
+
+                            <!-- General Amenities Section -->
+                            <% if (project.amenities && project.amenities.length > 0) { %>
+                                <div class="place-layout-detail-inner2 w-100" id="amenities">
+                                    <h3><i class="fas fa-concierge-bell"></i> Amenities</h3>
+                                    <div class="place-layout-detail-content-inner w-100">
+                                        <ul class="aminetis-list d-flex flex-wrap mb-0 list-unstyled">
+                                            <% for (var i = 0; i < project.amenities.length; i++) { 
+                                                var amenity = project.amenities[i]; %>
+                                                <li><i class="rounded-circle fas fa-check"></i><%= amenity %></li>
+                                            <% } %>
+                                        </ul>
+                                    </div>
+                                </div>
+                            <% } %>
+
+                            <!-- Gallery Section -->
+                            <div class="place-layout-detail-inner2 w-100" id="gallery">
+                                <h3><i class="far fa-file-image"></i> Project Gallery</h3>
+                                <div class="place-layout-detail-content-inner w-100">
+                                    <div class="place-layout-detail-gal w-100">
+                                        <div class="row mrg10">
+                                            <% if (project.media.gallery && project.media.gallery.length > 0) { 
+                                                for (var i = 0; i < project.media.gallery.length; i++) { 
+                                                    var img = project.media.gallery[i]; %>
+                                                    <div class="col-md-4 col-sm-4 col-sm-4">
+                                                        <a href="<%= img.url %>" data-fancybox="gallery" title="<%= img.caption || project.name %>">
+                                                            <img class="img-fluid w-100" src="<%= img.url %>" alt="<%= img.caption || project.name %>">
+                                                        </a>
+                                                    </div>
+                                                <% } %>
+                                            <% } else { %>
+                                                <div class="col-md-4 col-sm-4 col-sm-4">
+                                                    <a href="<%= project.media.featuredImage %>" data-fancybox="gallery" title="<%= project.name %>">
+                                                        <img class="img-fluid w-100" src="<%= project.media.featuredImage %>" alt="<%= project.name %>">
+                                                    </a>
+                                                </div>
+                                            <% } %>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Video Tour Section -->
+                            <% if (project.media.videoTour) { %>
+                                <div class="place-layout-detail-inner2 w-100" id="video">
+                                    <h3><i class="far fa-file-video"></i> Video Tour</h3>
+                                    <div class="place-layout-detail-content-inner w-100">
+                                        <div class="place-video w-100 position-relative">
+                                            <a class="d-inline-block" href="<%= project.media.videoTour %>" data-fancybox title=""><i class="fas fa-play"></i></a>
+                                            <img class="img-fluid w-100" src="<%= project.media.featuredImage || '/assets/images/default-project.jpg' %>" alt="Video Tour">
+                                        </div>
+                                    </div>
+                                </div>
+                            <% } %>
+
+                            <!-- Location Section -->
+                            <div class="place-layout-detail-inner2 w-100" id="location">
+                                <h3><i class="fas fa-map-marker-alt"></i> Location</h3>
+                                <div class="place-layout-detail-content-inner w-100">
+                                    <!-- <div class="listing-loc-map place-map" id="listing-loc-map" style="height: 350px;"></div> -->
+                                    <ul class="location-add-list mb-0 list-unstyled d-flex flex-wrap">
+                                        <li><span><i class="rounded-circle fas fa-map-marker-alt"></i><%= project.location.address || project.location.city %>, <%= project.location.state %></span></li>
+                                        <% if (project.developer.contactPhone) { %>
+                                            <li><span><i class="rounded-circle fas fa-phone-alt"></i><%= project.developer.contactPhone %></span></li>
+                                        <% } %>
+                                        <% if (project.developer.contactEmail) { %>
+                                            <li><span><i class="rounded-circle far fa-envelope"></i><%= project.developer.contactEmail %></span></li>
+                                        <% } %>
+                                        <% if (project.developer.website) { %>
+                                            <li><span><i class="rounded-circle fas fa-globe"></i><%= project.developer.website %></span></li>
+                                        <% } %>
+                                        <% if (project.location.googleEarthUrl) { %>
+                                            <li><span><i class="rounded-circle fas fa-globe-americas"></i><a href="<%= project.location.googleEarthUrl %>" target="_blank">View on Google Earth</a></span></li>
+                                        <% } %>
+                                    </ul>
+                                </div>
+                            </div>
+
+                            <!-- Investment Section -->
+                            <div class="place-layout-detail-inner2 w-100" id="investment">
+                                <h3><i class="fas fa-chart-line"></i> Investment Opportunity</h3>
+                                <div class="place-layout-detail-content-inner w-100">
+                                    <div class="row">
+                                        <% if (project.investment.roi) { %>
+                                            <div class="col-md-4 text-center mb-3">
+                                                <h4 class="text-success"><%= project.investment.roi %></h4>
+                                                <p class="mb-0">Expected ROI</p>
+                                            </div>
+                                        <% } %>
+                                        <% if (project.investment.rentalYield) { %>
+                                            <div class="col-md-4 text-center mb-3">
+                                                <h4 class="text-success"><%= project.investment.rentalYield %></h4>
+                                                <p class="mb-0">Rental Yield</p>
+                                            </div>
+                                        <% } %>
+                                        <% if (project.investment.capitalAppreciation) { %>
+                                            <div class="col-md-4 text-center mb-3">
+                                                <h4 class="text-success"><%= project.investment.capitalAppreciation %></h4>
+                                                <p class="mb-0">Capital Appreciation</p>
+                                            </div>
+                                        <% } %>
+                                    </div>
+                                    <% if (project.investment.highlights && project.investment.highlights.length > 0) { %>
+                                        <ul class="mt-3">
+                                            <% for (var i = 0; i < project.investment.highlights.length; i++) { 
+                                                var highlight = project.investment.highlights[i]; %>
+                                                <li><i class="fas fa-star text-warning"></i> <%= highlight %></li>
+                                            <% } %>
+                                        </ul>
+                                    <% } %>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Sidebar -->
+                    <div class="col-md-6 col-sm-6 col-lg-4">
+                        <div class="sidebar-wrap mt-20 d-inline-block w-100">
+                            <!-- Project Status Card -->
+                            <div class="wdgt2 style2 w-100">
+                                <h4>Project Status</h4>
+                                <ul class="hours-list mb-0 list-unstyled w-100">
+                                    <li><span>Status</span><span class="badge badge-<%= getStatusBadge(project.specifications.status) %>"><%= getStatusText(project.specifications.status) %></span></li>
+                                    <li><span>Developer</span><span><%= project.developer.name %></span></li>
+                                    <li><span>Total Units</span><span><%= project.specifications.totalUnits || 'TBA' %></span></li>
+                                    <li><span>Land Area</span><span><%= project.specifications.landArea || 'TBA' %></span></li>
+                                    <li><span>Est. Completion</span><span><%= formatDate(project.specifications.completionDate) %></span></li>
+                                </ul>
+                            </div>
+
+                            <!-- Pricing Card -->
+                            <div class="wdgt2 style2 w-100">
+                                <h4>Pricing</h4>
+                                <ul class="hours-list mb-0 list-unstyled w-100">
+                                    <li><span>Starting Price</span><span class="text-success font-weight-bold"><%= formatPrice(project.pricing.startingPrice) %></span></li>
+                                    <% if (project.pricing.priceRange.min && project.pricing.priceRange.max) { %>
+                                        <li><span>Price Range</span><span><%= formatPrice(project.pricing.priceRange.min) %> - <%= formatPrice(project.pricing.priceRange.max) %></span></li>
+                                    <% } %>
+                                </ul>
+                            </div>
+
+                            <!-- Payment Plan Card -->
+                            <% if (project.pricing.paymentPlan && project.pricing.paymentPlan.length > 0) { %>
+                                <div class="wdgt2 style2 w-100">
+                                    <h4>Payment Plan</h4>
+                                    <ul class="hours-list mb-0 list-unstyled w-100">
+                                        <% for (var i = 0; i < project.pricing.paymentPlan.length; i++) { 
+                                            var plan = project.pricing.paymentPlan[i]; %>
+                                            <li><span><%= plan.title %></span><span><%= plan.percentage %>%</span></li>
+                                            <li class="small text-muted"><%= plan.description %></li>
+                                        <% } %>
+                                    </ul>
+                                </div>
+                            <% } %>
+
+                            <!-- What's Included Card -->
+                            <% if (project.pricing.includes && project.pricing.includes.length > 0) { %>
+                                <div class="wdgt2 style2 w-100">
+                                    <h4>What's Included</h4>
+                                    <ul class="hours-list mb-0 list-unstyled w-100">
+                                        <% for (var i = 0; i < project.pricing.includes.length; i++) { 
+                                            var item = project.pricing.includes[i]; %>
+                                            <li><i class="fas fa-check text-success"></i> <%= item %></li>
+                                        <% } %>
+                                    </ul>
+                                </div>
+                            <% } %>
+
+                            <!-- Inquiry Form -->
+                            <div class="wdgt2 style2 w-100">
+                                <h4>Request Information</h4>
+                                <form class="book-place-form w-100" action="/inquiries/project" method="POST">
+                                    <input type="hidden" name="projectId" value="<%= project._id %>">
+                                    <div class="row mrg15">
+                                        <div class="col-md-12 col-sm-12 col-lg-12">
+                                            <div class="field w-100 position-relative">
+                                                <i class="far fa-user"></i>
+                                                <input type="text" name="name" placeholder="Your name" required>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-12 col-sm-12 col-lg-12">
+                                            <div class="field w-100 position-relative">
+                                                <i class="far fa-envelope"></i>
+                                                <input type="email" name="email" placeholder="Email" required>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-12 col-sm-12 col-lg-12">
+                                            <div class="field w-100 position-relative">
+                                                <i class="fas fa-phone"></i>
+                                                <input type="tel" name="phone" placeholder="Phone Number">
+                                            </div>
+                                        </div>
+                                        <div class="col-md-12 col-sm-12 col-lg-12">
+                                            <div class="field w-100 position-relative">
+                                                <textarea name="message" placeholder="Your message or questions about this project..."></textarea>
+                                                <button class="thm-btn mt-3" type="submit">Send Inquiry</button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </form>
+                            </div>
+
+                            <!-- Brochure Download -->
+                            <% if (project.media.brochure) { %>
+                                <div class="wdgt2 style2 w-100">
+                                    <h4>Download Brochure</h4>
+                                    <a href="<%= project.media.brochure %>" download class="thm-btn btn-block text-center">
+                                        <i class="fas fa-download"></i> Download PDF
+                                    </a>
+                                </div>
+                            <% } %>
+
+                            <!-- Virtual Tour -->
+                            <% if (project.media.virtualTour) { %>
+                                <div class="wdgt2 style2 w-100">
+                                    <h4>Virtual Tour</h4>
+                                    <a href="<%= project.media.virtualTour %>" target="_blank" class="thm-btn btn-block text-center">
+                                        <i class="fas fa-vr-cardboard"></i> Take a Virtual Tour
+                                    </a>
+                                </div>
+                            <% } %>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<style>
+/* Navigation Tabs */
+.reviewer-review-top {
+    border-bottom: 1px solid #f0f0f0;
+    position: relative;
+    z-index: 9;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+}
+
+.reviewer-review-links li {
+    margin-right: 25px;
+}
+
+.reviewer-review-links li a {
+    display: inline-block;
+    padding: 20px 0;
+    font-weight: 500;
+    color: #333;
+    transition: all 0.3s ease;
+    text-decoration: none;
+}
+
+.reviewer-review-links li a i {
+    margin-right: 8px;
+}
+
+.reviewer-review-links li a:hover,
+.reviewer-review-links li a.active {
+    color: #ff6b6b;
+    position: relative;
+}
+
+.reviewer-review-links li a.active:after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 2px;
+    background: #ff6b6b;
+}
+
+/* Slick carousel custom styles */
+.feat-caro {
+    position: relative;
+}
+
+.feat-caro .slick-list {
+    overflow: hidden;
+}
+
+.feat-caro .slick-track {
+    display: flex;
+}
+
+.feat-caro .slick-slide {
+    float: left;
+    height: 100%;
+    min-height: 1px;
+}
+
+.feat-caro .slick-prev,
+.feat-caro .slick-next {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    z-index: 10;
+    width: 40px;
+    height: 40px;
+    background: rgba(255,255,255,0.8);
+    border-radius: 50%;
+    display: flex !important;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    border: none;
+    font-size: 18px;
+    color: #333;
+}
+
+.feat-caro .slick-prev {
+    left: 20px;
+}
+
+.feat-caro .slick-next {
+    right: 20px;
+}
+
+.feat-caro .slick-prev:hover,
+.feat-caro .slick-next:hover {
+    background: #ff6b6b;
+    color: white;
+}
+
+.feat-caro .slick-dots {
+    position: absolute;
+    bottom: 20px;
+    left: 0;
+    right: 0;
+    display: flex !important;
+    justify-content: center;
+    gap: 10px;
+    z-index: 10;
+    padding: 0;
+    margin: 0;
+}
+
+.feat-caro .slick-dots li {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+
+.feat-caro .slick-dots li button {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.5);
+    border: none;
+    text-indent: -9999px;
+    cursor: pointer;
+    padding: 0;
+}
+
+.feat-caro .slick-dots li.slick-active button {
+    background: #ff6b6b;
+    width: 12px;
+    height: 12px;
+}
+
+/* Sidebar Widgets */
+.wdgt2 {
+    background: white;
+    border-radius: 10px;
+    padding: 25px;
+    margin-bottom: 30px;
+    box-shadow: 0 5px 20px rgba(0,0,0,0.05);
+}
+
+.wdgt2 h4 {
+    font-size: 18px;
+    font-weight: 600;
+    margin-bottom: 20px;
+    padding-bottom: 10px;
+    border-bottom: 2px solid #f0f0f0;
+}
+
+.hours-list {
+    margin: 0;
+    padding: 0;
+}
+
+.hours-list li {
+    display: flex;
+    justify-content: space-between;
+    padding: 10px 0;
+    border-bottom: 1px solid #f0f0f0;
+}
+
+.hours-list li:last-child {
+    border-bottom: none;
+}
+
+.aminetis-list {
+    margin: 0;
+    padding: 0;
+}
+
+.aminetis-list li {
+    width: 50%;
+    margin-bottom: 12px;
+    display: flex;
+    align-items: center;
+}
+
+.aminetis-list li i {
+    margin-right: 10px;
+    width: 30px;
+    height: 30px;
+    line-height: 30px;
+    text-align: center;
+    background: #f8f9fa;
+    color: #ff6b6b;
+    border-radius: 50%;
+}
+
+.field {
+    position: relative;
+    margin-bottom: 15px;
+}
+
+.field i {
+    position: absolute;
+    left: 15px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #999;
+    z-index: 1;
+}
+
+.field input,
+.field textarea {
+    width: 100%;
+    height: 50px;
+    border: 1px solid #e0e0e0;
+    border-radius: 5px;
+    padding: 0 15px 0 45px;
+    font-size: 14px;
+    transition: all 0.3s ease;
+}
+
+.field textarea {
+    height: 100px;
+    padding: 10px 15px 10px 45px;
+    resize: vertical;
+}
+
+.field input:focus,
+.field textarea:focus {
+    border-color: #ff6b6b;
+    outline: none;
+}
+
+.location-add-list {
+    margin: 20px 0 0;
+    padding: 0;
+}
+
+.location-add-list li {
+    width: 100%;
+    margin-bottom: 12px;
+}
+
+.location-add-list li span {
+    display: flex;
+    align-items: center;
+}
+
+.location-add-list li span i {
+    width: 35px;
+    height: 35px;
+    line-height: 35px;
+    text-align: center;
+    background: #ff6b6b;
+    color: white;
+    border-radius: 50%;
+    margin-right: 12px;
+    flex-shrink: 0;
+}
+
+.place-video {
+    position: relative;
+    border-radius: 10px;
+    overflow: hidden;
+}
+
+.place-video a {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 80px;
+    height: 80px;
+    background: white;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 24px;
+    color: #ff6b6b;
+    transition: all 0.3s ease;
+    z-index: 2;
+    text-decoration: none;
+}
+
+.place-video a:hover {
+    transform: translate(-50%, -50%) scale(1.1);
+}
+
+.feature-item {
+    display: flex;
+    gap: 15px;
+    align-items: flex-start;
+}
+
+.feature-item .feature-icon {
+    flex-shrink: 0;
+}
+
+.feature-item .feature-content {
+    flex: 1;
+}
+
+.place-layout-detail-inner2 {
+    padding: 30px;
+    border-bottom: 1px solid #f0f0f0;
+}
+
+.place-layout-detail-inner2:last-child {
+    border-bottom: none;
+}
+
+.place-layout-detail-inner2 h3 {
+    font-size: 22px;
+    font-weight: 600;
+    margin-bottom: 20px;
+    color: #333;
+}
+
+.place-layout-detail-inner2 h3 i {
+    margin-right: 10px;
+    color: #ff6b6b;
+}
+
+.mt-65 {
+    margin-top: -65px;
+}
+
+@media (max-width: 991px) {
+    .reviewer-review-links {
+        flex-wrap: wrap;
+    }
+    .reviewer-review-links li {
+        margin-right: 15px;
+    }
+    .reviewer-review-links li a {
+        padding: 12px 0;
+    }
+    .mt-65 {
+        margin-top: 0;
+    }
+}
+
+@media (max-width: 768px) {
+    .reviewer-info {
+        flex-direction: column;
+        text-align: center;
+    }
+    .reviewer-info-img {
+        margin-bottom: 15px;
+    }
+    .feature-item {
+        flex-direction: column;
+        text-align: center;
+    }
+    .feature-item .feature-icon {
+        margin-bottom: 10px;
+    }
+    .aminetis-list li {
+        width: 100%;
+    }
+    .place-layout-detail-inner2 {
+        padding: 20px;
+    }
+    .wdgt2 {
+        padding: 20px;
+    }
+}
+</style>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/slick-carousel/1.8.1/slick.min.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/slick-carousel/1.8.1/slick.min.css" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/slick-carousel/1.8.1/slick-theme.min.css" />
+
+<script>
+$(document).ready(function() {
+    var $slider = $('#project-slider');
+    var slideCount = $slider.find('.feat-item').length;
+    
+    console.log('Slide count:', slideCount);
+    
+    // If only one slide, just show it without slider functionality
+    if (slideCount <= 1) {
+        $slider.css('opacity', '1');
+        return;
+    }
+    
+    // Initialize slider
+    function initSlider() {
+        if ($slider.hasClass('slick-initialized')) {
+            $slider.slick('unslick');
+        }
+        
+        $slider.slick({
+            dots: true,
+            arrows: true,
+            infinite: true,
+            speed: 500,
+            fade: true,
+            autoplay: true,
+            autoplaySpeed: 5000,
+            slidesToShow: 1,
+            slidesToScroll: 1,
+            prevArrow: '<button type="button" class="slick-prev"><i class="fas fa-chevron-left"></i></button>',
+            nextArrow: '<button type="button" class="slick-next"><i class="fas fa-chevron-right"></i></button>'
+        });
+        
+        $slider.slick('slickGoTo', 0, true);
+    }
+    
+    // Check if all images are loaded
+    var imagesLoaded = 0;
+    var totalImages = slideCount;
+    
+    $slider.find('.feat-img').each(function() {
+        var imgUrl = $(this).css('background-image');
+        imgUrl = imgUrl.replace(/^url\(["']?/, '').replace(/["']?\)$/, '');
+        
+        var img = new Image();
+        img.onload = function() {
+            imagesLoaded++;
+            if (imagesLoaded === totalImages) {
+                initSlider();
+            }
+        };
+        img.onerror = function() {
+            imagesLoaded++;
+            if (imagesLoaded === totalImages) {
+                initSlider();
+            }
+        };
+        img.src = imgUrl;
+    });
+    
+    // Fallback initialization
+    setTimeout(function() {
+        if (!$slider.hasClass('slick-initialized')) {
+            initSlider();
+        }
+    }, 3000);
+    
+    // Initialize fancybox gallery
+    $('[data-fancybox="gallery"]').fancybox({
+        loop: true,
+        thumbs: {
+            autoStart: true
+        },
+        toolbar: true
+    });
+    
+    // Smooth scroll for anchor links
+    $('a[href*="#"]').on('click', function(e) {
+        if (this.hash !== '' && $(this.hash).length) {
+            e.preventDefault();
+            var hash = this.hash;
+            $('html, body').animate({
+                scrollTop: $(hash).offset().top - 100
+            }, 800, function() {
+                window.location.hash = hash;
+            });
+        }
+    });
+    
+    // Highlight active tab on scroll
+    $(window).on('scroll', function() {
+        var scrollPos = $(window).scrollTop() + 120;
+        $('.place-layout-detail-inner2').each(function() {
+            var currLink = $(this);
+            var refElement = $(currLink.attr('id'));
+            if (refElement.length) {
+                var refTop = refElement.offset().top;
+                if (refTop <= scrollPos && refTop + refElement.height() > scrollPos) {
+                    $('.reviewer-review-links a').removeClass('active');
+                    $('.reviewer-review-links a[href="#' + currLink.attr('id') + '"]').addClass('active');
+                }
+            }
+        });
+    });
+    
+    $(window).trigger('scroll');
+    
+    $(window).on('resize', function() {
+        if ($slider.hasClass('slick-initialized')) {
+            $slider.slick('refresh');
+        }
+    });
+});
+
+// Initialize map if coordinates exist
+<% if (project.location.coordinates.lat && project.location.coordinates.lng) { %>
+    function initMap() {
+        var location = { lat: <%= project.location.coordinates.lat %>, lng: <%= project.location.coordinates.lng %> };
+        var map = new google.maps.Map(document.getElementById('listing-loc-map'), {
+            zoom: 15,
+            center: location,
+            styles: [
+                {
+                    featureType: "all",
+                    elementType: "geometry",
+                    stylers: [{ color: "#f5f5f5" }]
+                },
+                {
+                    featureType: "water",
+                    elementType: "geometry",
+                    stylers: [{ color: "#c9c9c9" }]
+                }
+            ]
+        });
+        var marker = new google.maps.Marker({
+            position: location,
+            map: map,
+            title: '<%= project.name %>'
+        });
+    }
+<% } else { %>
+    function initMap() {
+        var location = { lat: 9.0819, lng: 7.4679 };
+        var map = new google.maps.Map(document.getElementById('listing-loc-map'), {
+            zoom: 12,
+            center: location
+        });
+    }
+<% } %>
+</script>
+
+<script async defer src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCYc537bQom7ajFpWE5sQaVyz1SQa9_tuY&callback=initMap"></script>
+
+<%- include('../partials/footer') %>

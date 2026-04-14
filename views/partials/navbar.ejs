@@ -1,0 +1,95 @@
+<!-- Start Navbar Area Start -->
+<div class="navbar-area style-2" id="navbar">
+    <div class="container-fluid">
+        <nav class="navbar navbar-expand-lg">
+            <a class="navbar-brand" href="/">
+                <img class="logo-light" src="/assets/img/logo/white-logo.png" alt="RevaampAP">
+                <img class="logo-dark" src="/assets/img/logo/logo.png" alt="RevaampAP">
+            </a>
+            <div class="other-option d-lg-none">
+                <div class="option-item">
+                    <button type="button" class="search-btn" data-bs-toggle="offcanvas" data-bs-target="#staticBackdrop">
+                        <i class='bx bx-search'></i>
+                    </button>
+                </div>
+            </div>
+            <a class="navbar-toggler" data-bs-toggle="offcanvas" href="#navbarOffcanvas" role="button" aria-controls="navbarOffcanvas">
+                <i class='bx bx-menu'></i>
+            </a>
+            <div class="collapse navbar-collapse justify-content-between">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item">
+                        <a href="/" class="nav-link <%= currentPath === '/' ? 'active' : '' %>">Home</a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="/properties" class="nav-link <%= currentPath === '/properties' ? 'active' : '' %>">Properties</a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="javascript:void(0)" class="dropdown-toggle nav-link">
+                            For Owners
+                        </a>
+                        <ul class="dropdown-menu">
+                            <li class="nav-item"><a href="/register" class="nav-link">List Your Property</a></li>
+                            <li class="nav-item"><a href="/how-it-works#verification" class="nav-link">Verification Process</a></li>
+                            <li class="nav-item"><a href="/how-it-works#fees" class="nav-link">Pricing & Fees</a></li>
+                        </ul>
+                    </li>
+                    <li class="nav-item">
+                        <a href="javascript:void(0)" class="dropdown-toggle nav-link">
+                            For Promoters
+                        </a>
+                        <ul class="dropdown-menu">
+                            <li class="nav-item"><a href="/promoter/register" class="nav-link">Become a Promoter</a></li>
+                            <li class="nav-item"><a href="/how-it-works#promoter" class="nav-link">How It Works</a></li>
+                            <li class="nav-item"><a href="/how-it-works#commission" class="nav-link">Commission Structure</a></li>
+                        </ul>
+                    </li>
+                    <li class="nav-item">
+                        <a href="/about" class="nav-link <%= currentPath === '/about' ? 'active' : '' %>">About</a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="/contact" class="nav-link <%= currentPath === '/contact' ? 'active' : '' %>">Contact</a>
+                    </li>
+                </ul>
+                <div class="others-option d-flex align-items-center">
+                    <% if (user) { %>
+                        <div class="option-item dropdown">
+                            <a href="#" class="dropdown-toggle d-flex align-items-center" data-bs-toggle="dropdown">
+                                <% if (currentUser && currentUser.profileImage && currentUser.profileImage !== 'default-avatar.jpg') { %>
+                                    <img src="/uploads/profiles/<%= currentUser.profileImage %>" alt="Avatar" class="rounded-circle" width="40" height="40" style="object-fit: cover;">
+                                <% } else { %>
+                                    <div class="avatar-placeholder rounded-circle" style="width: 40px; height: 40px; background: #ff6b6b; color: white; display: flex; align-items: center; justify-content: center; font-weight: bold;">
+                                        <%= user.name ? user.name.charAt(0).toUpperCase() : 'U' %>
+                                    </div>
+                                <% } %>
+                            </a>
+                            <ul class="dropdown-menu">
+                                <li><a class="dropdown-item" href="/dashboard"><i class='bx bx-home'></i> Dashboard</a></li>
+                                <li><hr class="dropdown-divider"></li>
+                                <li><a class="dropdown-item" href="/dashboard/settings"><i class='bx bx-cog'></i> Settings</a></li>
+                                <li><a class="dropdown-item" href="/logout"><i class='bx bx-log-out'></i> Logout</a></li>
+                            </ul>
+                        </div>
+                    <% } else { %>
+                        <div class="option-item">
+                            <div class="nav-btn">
+                                <a href="/login" class="default-btn">Login</a>
+                            </div>
+                        </div>
+                        <div class="option-item">
+                            <div class="nav-btn ms-2">
+                                <a href="/register" class="default-btn black">List Property</a>
+                            </div>
+                        </div>
+                    <% } %>
+                    <div class="option-item">
+                        <div class="nav-search">
+                            <a href="#" data-bs-toggle="offcanvas" data-bs-target="#staticBackdrop" aria-controls="staticBackdrop" class="search-button"><i class='bx bx-search'></i></a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </nav>
+    </div>
+</div>
+<!-- End Navbar Area Start -->

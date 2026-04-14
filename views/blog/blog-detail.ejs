@@ -1,0 +1,394 @@
+<%- include('../partials/header') %>
+
+<%
+// Helper function to format date
+function formatDate(date) {
+    if (!date) return 'N/A';
+    return new Date(date).toLocaleDateString('en-NG', {
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric'
+    });
+}
+
+// Override meta tags for this blog post
+// This ensures the blog post uses its own title, excerpt, and featured image for OG
+const pageTitle = blog.title + ' - Found Blog';
+const pageDescription = blog.metaDescription || blog.excerpt;
+const pageOgImage = blog.ogImage || blog.featuredImage;
+
+// Override the default meta tags from header
+// These will be used by the header partial
+metaTitle = pageTitle;
+metaDescription = pageDescription;
+ogTitle = blog.metaTitle || blog.title;
+ogDescription = blog.metaDescription || blog.excerpt;
+ogImage = blog.ogImage || blog.featuredImage;
+ogType = 'article';
+%>
+
+<!-- Page Top -->
+<section>
+    <div class="w-100 pt-180 pb-110 black-layer opc45 position-relative">
+        <div class="fixed-bg" style="background-image: url(/assets/images/pg-tp-bg.jpg);"></div>
+        <div class="container">
+            <div class="pg-tp-wrp text-center w-100">
+                <h1 class="mb-0"><%= blog.title %></h1>
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item"><a href="/" title="Home">Home</a></li>
+                    <li class="breadcrumb-item"><a href="/blog" title="Blog">Blog</a></li>
+                    <li class="breadcrumb-item active">Post</li>
+                </ol>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Blog Detail Section -->
+<section>
+    <div class="w-100 pt-80 pb-80 gray-bg position-relative">
+        <div class="container">
+            <div class="row">
+                <!-- Main Content -->
+                <div class="col-lg-8">
+                    <div class="blog-detail-wrap w-100">
+                        <!-- Blog Header -->
+                        <div class="blog-detail-header mb-4">
+                            <div class="blog-meta d-flex flex-wrap mb-3">
+                                <span class="mr-4 text-muted">
+                                    <i class="far fa-calendar-alt thm-clr"></i> <%= formatDate(blog.publishedAt || blog.createdAt) %>
+                                </span>
+                                <span class="mr-4 text-muted">
+                                    <i class="far fa-user thm-clr"></i> <%= blog.authorName || 'Found' %>
+                                </span>
+                                <span class="mr-4 text-muted">
+                                    <i class="far fa-clock thm-clr"></i> <%= blog.readingTime || 5 %> min read
+                                </span>
+                                <span class="text-muted">
+                                    <i class="far fa-eye thm-clr"></i> <%= blog.views || 0 %> views
+                                </span>
+                            </div>
+                            
+                            <% if (blog.categories && blog.categories.length > 0) { %>
+                                <div class="blog-categories mb-3">
+                                    <% blog.categories.forEach(category => { %>
+                                        <a href="/blog?category=<%= encodeURIComponent(category) %>" class="badge badge-primary p-2 mr-2">
+                                            <%= category %>
+                                        </a>
+                                    <% }); %>
+                                </div>
+                            <% } %>
+                        </div>
+
+                        <!-- Featured Image -->
+                        <% if (blog.featuredImage) { %>
+                        <div class="blog-detail-img mb-4">
+                            <img class="img-fluid w-100" src="<%= blog.featuredImage %>" alt="<%= blog.title %>" style="border-radius: 10px; max-height: 500px; object-fit: cover;">
+                        </div>
+                        <% } %>
+
+                        <!-- Blog Content -->
+                        <div class="blog-detail-content w-100 bg-white p-5 rounded mb-4">
+                            <% if (blog.excerpt) { %>
+                                <div class="blog-excerpt lead mb-4 font-italic border-left pl-4" style="border-left-color: #ff6b6b !important;">
+                                    <%= blog.excerpt %>
+                                </div>
+                            <% } %>
+                            
+                            <div class="blog-body">
+                                <%- blog.content %>
+                            </div>
+
+                            <!-- Tags -->
+                            <% if (blog.tags && blog.tags.length > 0) { %>
+                                <div class="blog-tags mt-4 pt-4 border-top">
+                                    <span class="font-weight-bold mr-2">Tags:</span>
+                                    <% blog.tags.forEach(tag => { %>
+                                        <a href="/blog?tag=<%= encodeURIComponent(tag) %>" class="badge badge-light p-2 mr-2">
+                                            #<%= tag %>
+                                        </a>
+                                    <% }); %>
+                                </div>
+                            <% } %>
+                        </div>
+
+                        <!-- Share Section -->
+                        <div class="share w-100 bg-white p-4 rounded d-flex flex-wrap justify-content-between align-items-center">
+                            <span class="font-weight-bold">Share this post:</span>
+                            <div class="social-links3">
+                                <a class="facebook rounded-circle" href="https://www.facebook.com/sharer/sharer.php?u=<%= encodeURIComponent(req.protocol + '://' + req.get('host') + req.originalUrl) %>" target="_blank" title="Facebook">
+                                    <i class="fab fa-facebook-f"></i>
+                                </a>
+                                <a class="twitter rounded-circle" href="https://twitter.com/intent/tweet?url=<%= encodeURIComponent(req.protocol + '://' + req.get('host') + req.originalUrl) %>&text=<%= encodeURIComponent(blog.title) %>" target="_blank" title="Twitter">
+                                    <i class="fab fa-twitter"></i>
+                                </a>
+                                <a class="linkedin rounded-circle" href="https://www.linkedin.com/shareArticle?mini=true&url=<%= encodeURIComponent(req.protocol + '://' + req.get('host') + req.originalUrl) %>" target="_blank" title="LinkedIn">
+                                    <i class="fab fa-linkedin-in"></i>
+                                </a>
+                                <a class="whatsapp rounded-circle" href="https://wa.me/?text=<%= encodeURIComponent(blog.title + ' ' + req.protocol + '://' + req.get('host') + req.originalUrl) %>" target="_blank" title="WhatsApp">
+                                    <i class="fab fa-whatsapp"></i>
+                                </a>
+                            </div>
+                        </div>
+
+                        <!-- Author Bio -->
+                        <div class="author-bio bg-white p-4 rounded mt-4 d-flex flex-wrap align-items-center">
+                            <img src="<%= blog.author?.profileImage ? '/uploads/profiles/' + blog.author.profileImage : '/assets/images/default-avatar.jpg' %>" 
+                                 alt="<%= blog.authorName || 'Found' %>" 
+                                 class="rounded-circle mr-4" 
+                                 style="width: 80px; height: 80px; object-fit: cover;">
+                            <div class="flex-grow-1">
+                                <h5 class="mb-2">About <%= blog.authorName || 'Found' %></h5>
+                                <p class="text-muted mb-0"><%= blog.author?.bio || 'Sharing insights and expertise to help you navigate the Nigerian real estate market with confidence.' %></p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Sidebar -->
+                <div class="col-lg-4">
+                    <!-- Search Widget -->
+                    <div class="sidebar-widget search-widget mb-4">
+                        <h5 class="widget-title">Search Blog</h5>
+                        <form action="/blog" method="GET">
+                            <div class="input-group">
+                                <input type="text" class="form-control" name="search" placeholder="Search posts...">
+                                <div class="input-group-append">
+                                    <button class="btn btn-primary" type="submit">
+                                        <i class="fas fa-search"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+
+                    <!-- Related Posts -->
+                    <% if (relatedBlogs && relatedBlogs.length > 0) { %>
+                        <div class="sidebar-widget related-posts mb-4">
+                            <h5 class="widget-title">Related Posts</h5>
+                            <% relatedBlogs.slice(0, 3).forEach(related => { %>
+                                <div class="related-post d-flex mb-3">
+                                    <img src="<%= related.featuredImage || '/assets/images/default-blog.jpg' %>" alt="<%= related.title %>" style="width: 80px; height: 60px; object-fit: cover; border-radius: 5px;" class="mr-3">
+                                    <div>
+                                        <h6 class="mb-1">
+                                            <a href="/blog/<%= related.slug %>" class="text-dark"><%= related.title.length > 40 ? related.title.substring(0, 40) + '...' : related.title %></a>
+                                        </h6>
+                                        <small class="text-muted"><%= formatDate(related.publishedAt || related.createdAt) %></small>
+                                    </div>
+                                </div>
+                            <% }); %>
+                        </div>
+                    <% } %>
+
+                    <!-- Newsletter Widget -->
+                    <div class="sidebar-widget newsletter-widget p-4" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border-radius: 10px;">
+                        <h5 class="text-white mb-3">Subscribe to Our Newsletter</h5>
+                        <p class="text-white mb-3">Get the latest real estate insights delivered to your inbox.</p>
+                        <form action="/newsletter/subscribe" method="POST">
+                            <div class="form-group">
+                                <input type="email" class="form-control" name="email" placeholder="Your Email Address" required>
+                            </div>
+                            <button type="submit" class="btn btn-light btn-block">Subscribe</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<style>
+.blog-detail-content {
+    font-size: 16px;
+    line-height: 1.8;
+    color: #555;
+}
+
+.blog-detail-content p {
+    margin-bottom: 20px;
+}
+
+.blog-detail-content h2,
+.blog-detail-content h3,
+.blog-detail-content h4 {
+    margin: 30px 0 20px;
+    color: #333;
+    font-weight: 600;
+}
+
+.blog-detail-content h2 {
+    font-size: 28px;
+}
+
+.blog-detail-content h3 {
+    font-size: 24px;
+}
+
+.blog-detail-content h4 {
+    font-size: 20px;
+}
+
+.blog-detail-content img {
+    max-width: 100%;
+    height: auto;
+    border-radius: 10px;
+    margin: 20px 0;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+}
+
+.blog-detail-content blockquote {
+    border-left: 4px solid #ff6b6b;
+    padding: 20px;
+    background: #f8f9fa;
+    font-style: italic;
+    margin: 20px 0;
+    border-radius: 0 10px 10px 0;
+}
+
+.blog-detail-content ul,
+.blog-detail-content ol {
+    margin-bottom: 20px;
+    padding-left: 20px;
+}
+
+.blog-detail-content li {
+    margin-bottom: 10px;
+}
+
+.blog-detail-content ul li {
+    list-style-type: disc;
+}
+
+.blog-detail-content ol li {
+    list-style-type: decimal;
+}
+
+.blog-excerpt {
+    font-size: 18px;
+    color: #666;
+    background: #f8f9fa;
+    padding: 20px;
+    border-radius: 0 10px 10px 0;
+}
+
+.social-links3 a {
+    display: inline-block;
+    width: 40px;
+    height: 40px;
+    line-height: 40px;
+    text-align: center;
+    border-radius: 50%;
+    margin-left: 5px;
+    color: white;
+    transition: all 0.3s ease;
+}
+
+.social-links3 a.facebook {
+    background: #3b5999;
+}
+
+.social-links3 a.twitter {
+    background: #55acee;
+}
+
+.social-links3 a.linkedin {
+    background: #0077b5;
+}
+
+.social-links3 a.whatsapp {
+    background: #25d366;
+}
+
+.social-links3 a:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 5px 10px rgba(0,0,0,0.2);
+}
+
+.author-bio {
+    border-left: 4px solid #ff6b6b;
+    background: #f8f9fa;
+}
+
+.related-post a:hover {
+    color: #ff6b6b !important;
+    text-decoration: none;
+}
+
+.related-post img {
+    transition: transform 0.3s ease;
+}
+
+.related-post:hover img {
+    transform: scale(1.05);
+}
+
+.sidebar-widget {
+    background: white;
+    border-radius: 10px;
+    padding: 25px;
+    box-shadow: 0 5px 20px rgba(0,0,0,0.05);
+    margin-bottom: 30px;
+}
+
+.widget-title {
+    font-size: 20px;
+    font-weight: 600;
+    margin-bottom: 20px;
+    padding-bottom: 10px;
+    border-bottom: 2px solid #f0f0f0;
+}
+
+.newsletter-widget .form-control {
+    height: 45px;
+    border: none;
+    border-radius: 5px;
+}
+
+.newsletter-widget .btn-light {
+    height: 45px;
+    font-weight: 600;
+    transition: all 0.3s ease;
+}
+
+.newsletter-widget .btn-light:hover {
+    background: #f8f9fa;
+    transform: translateY(-2px);
+    box-shadow: 0 5px 10px rgba(0,0,0,0.1);
+}
+
+@media (max-width: 768px) {
+    .blog-detail-content {
+        font-size: 15px;
+    }
+    
+    .blog-detail-content .p-5 {
+        padding: 20px !important;
+    }
+    
+    .blog-excerpt {
+        font-size: 16px;
+        padding: 15px;
+    }
+    
+    .social-links3 {
+        margin-top: 10px;
+    }
+    
+    .social-links3 a {
+        margin-left: 0;
+        margin-right: 5px;
+    }
+    
+    .author-bio {
+        flex-direction: column;
+        text-align: center;
+    }
+    
+    .author-bio img {
+        margin-right: 0 !important;
+        margin-bottom: 15px;
+    }
+}
+</style>
+
+<%- include('../partials/footer') %>

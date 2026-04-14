@@ -1,0 +1,740 @@
+<%- include('../partials/header') %>
+
+<%
+// Ensure user object exists
+if (typeof user === 'undefined') {
+    var user = {
+        name: 'Admin',
+        profileImage: null,
+        email: 'admin@foundproperties.ng'
+    };
+}
+
+// Ensure properties array exists
+if (typeof properties === 'undefined') {
+    var properties = [];
+}
+
+// Ensure stats object exists
+if (typeof stats === 'undefined') {
+    var stats = {
+        total: 0,
+        available: 0,
+        pending: 0,
+        sold: 0
+    };
+}
+
+// Ensure propertyTypes array exists
+if (typeof propertyTypes === 'undefined') {
+    var propertyTypes = [];
+}
+
+// Ensure tierDistribution array exists
+if (typeof tierDistribution === 'undefined') {
+    var tierDistribution = [];
+}
+
+// Helper function to format currency
+function formatNaira(amount) {
+    return '₦' + parseFloat(amount).toLocaleString(undefined, {
+        minimumFractionDigits: 0,
+        maximumFractionDigits: 0
+    });
+}
+
+// Helper function to format date
+function formatDate(date) {
+    if (!date) return 'N/A';
+    return new Date(date).toLocaleDateString('en-NG', {
+        year: 'numeric',
+        month: 'short',
+        day: 'numeric'
+    });
+}
+
+// Helper function to get status badge class
+function getStatusBadge(status) {
+    switch(status) {
+        case 'available': return 'success';
+        case 'pending': return 'warning';
+        case 'sold': return 'secondary';
+        case 'rented': return 'info';
+        case 'rejected': return 'danger';
+        default: return 'secondary';
+    }
+}
+
+// Helper function to get tier badge class
+function getTierBadge(tier) {
+    switch(tier) {
+        case 'premium': return 'warning';
+        case 'standard': return 'info';
+        default: return 'secondary';
+    }
+}
+%>
+
+<!-- Page Top -->
+<section>
+    <div class="w-100 pt-180 pb-110 black-layer opc45 position-relative">
+        <div class="fixed-bg" style="background-image: url(/assets/images/pg-tp-bg.jpg);"></div>
+        <div class="container">
+            <div class="pg-tp-wrp text-center w-100">
+                <h1 class="mb-0">Property Management</h1>
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item"><a href="/admin/dashboard" title="Admin Dashboard">Dashboard</a></li>
+                    <li class="breadcrumb-item active">Properties</li>
+                </ol>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Properties Section -->
+<section>
+    <div class="w-100 pt-120 pb-90 position-relative">
+        <div class="container">
+            <div class="row">
+                <!-- Sidebar -->
+                <div class="col-md-3">
+                    <div class="admin-sidebar">
+                        <div class="admin-profile text-center mb-4">
+                            <img src="<%= user.profileImage ? '/uploads/profiles/' + user.profileImage : '/assets/images/default-avatar.jpg' %>" 
+                                 alt="<%= user.name %>" 
+                                 class="rounded-circle img-fluid" style="width: 80px; height: 80px; object-fit: cover;">
+                            <h6 class="mt-2"><%= user.name %></h6>
+                            <p class="text-muted small">Administrator</p>
+                        </div>
+                        <ul class="list-unstyled">
+                            <li><a href="/admin/dashboard"><i class="fas fa-tachometer-alt"></i> Dashboard</a></li>
+                            <li><a href="/admin/users"><i class="fas fa-users"></i> Users</a></li>
+                            <li><a href="/admin/agents"><i class="fas fa-user-tie"></i> All Agents</a></li>
+                            <li><a href="/admin/agents/pending"><i class="fas fa-clock"></i> Pending Approvals</a></li>
+                            <li class="active"><a href="/admin/properties"><i class="fas fa-building"></i> Properties</a></li>
+                            <li><a href="/admin/properties/pending"><i class="fas fa-hourglass-half"></i> Pending Properties</a></li>
+                            <li><a href="/admin/featured"><i class="fas fa-star"></i> Featured</a></li>
+                            <li><a href="/admin/transactions"><i class="fas fa-credit-card"></i> Transactions</a></li>
+                            <li><a href="/admin/withdrawals"><i class="fas fa-money-bill-wave"></i> Withdrawals</a></li>
+                            <li><a href="/admin/analytics"><i class="fas fa-chart-line"></i> Analytics</a></li>
+                            <li><a href="/admin/settings"><i class="fas fa-cog"></i> Settings</a></li>
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Main Content -->
+                <div class="col-md-9">
+                    <div class="admin-content">
+                        <!-- Header -->
+                        <div class="d-flex justify-content-between align-items-center mb-4">
+                            <h2>Properties</h2>
+                            <div>
+                                <a href="/admin/properties/pending" class="btn btn-warning mr-2">
+                                    <i class="fas fa-hourglass-half"></i> Pending (<%= stats.pending %>)
+                                </a>
+                                <span class="badge badge-primary p-2">Total: <%= stats.total %></span>
+                            </div>
+                        </div>
+
+                        <!-- Stats Cards -->
+                        <div class="row mb-4">
+                            <div class="col-md-3">
+                                <div class="stat-card small">
+                                    <div class="stat-icon bg-primary">
+                                        <i class="fas fa-building"></i>
+                                    </div>
+                                    <div class="stat-details">
+                                        <h4><%= stats.total %></h4>
+                                        <p>Total Properties</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="stat-card small">
+                                    <div class="stat-icon bg-success">
+                                        <i class="fas fa-check-circle"></i>
+                                    </div>
+                                    <div class="stat-details">
+                                        <h4><%= stats.available %></h4>
+                                        <p>Available</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="stat-card small">
+                                    <div class="stat-icon bg-warning">
+                                        <i class="fas fa-clock"></i>
+                                    </div>
+                                    <div class="stat-details">
+                                        <h4><%= stats.pending %></h4>
+                                        <p>Pending</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="stat-card small">
+                                    <div class="stat-icon bg-secondary">
+                                        <i class="fas fa-check-double"></i>
+                                    </div>
+                                    <div class="stat-details">
+                                        <h4><%= stats.sold %></h4>
+                                        <p>Sold/Rented</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Filter Bar -->
+                        <div class="filter-bar mb-4">
+                            <form method="GET" action="/admin/properties" id="filterForm">
+                                <div class="row">
+                                    <div class="col-md-2">
+                                        <select class="form-control" name="status">
+                                            <option value="all">All Status</option>
+                                            <option value="available" <%= filters.status === 'available' ? 'selected' : '' %>>Available</option>
+                                            <option value="pending" <%= filters.status === 'pending' ? 'selected' : '' %>>Pending</option>
+                                            <option value="sold" <%= filters.status === 'sold' ? 'selected' : '' %>>Sold</option>
+                                            <option value="rented" <%= filters.status === 'rented' ? 'selected' : '' %>>Rented</option>
+                                            <option value="rejected" <%= filters.status === 'rejected' ? 'selected' : '' %>>Rejected</option>
+                                        </select>
+                                    </div>
+                                    <div class="col-md-2">
+                                        <select class="form-control" name="type">
+                                            <option value="all">All Types</option>
+                                            <option value="shortlet" <%= filters.type === 'shortlet' ? 'selected' : '' %>>Shortlet</option>
+                                            <option value="land" <%= filters.type === 'land' ? 'selected' : '' %>>Land</option>
+                                            <option value="building" <%= filters.type === 'building' ? 'selected' : '' %>>Building</option>
+                                            <option value="shop" <%= filters.type === 'shop' ? 'selected' : '' %>>Shop</option>
+                                            <option value="business_complex" <%= filters.type === 'business_complex' ? 'selected' : '' %>>Business Complex</option>
+                                        </select>
+                                    </div>
+                                    <div class="col-md-2">
+                                        <select class="form-control" name="tier">
+                                            <option value="all">All Tiers</option>
+                                            <option value="free" <%= filters.tier === 'free' ? 'selected' : '' %>>Free</option>
+                                            <option value="standard" <%= filters.tier === 'standard' ? 'selected' : '' %>>Featured</option>
+                                            <option value="premium" <%= filters.tier === 'premium' ? 'selected' : '' %>>Premium</option>
+                                        </select>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <input type="text" class="form-control" name="search" placeholder="Search by title, location..." value="<%= filters.search || '' %>">
+                                    </div>
+                                    <div class="col-md-2">
+                                        <button type="submit" class="btn btn-primary btn-block">
+                                            <i class="fas fa-filter"></i> Filter
+                                        </button>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+
+                        <!-- Properties Table -->
+                        <% if (properties && properties.length > 0) { %>
+                            <div class="table-responsive">
+                                <table class="table table-hover">
+                                    <thead>
+                                        <tr>
+                                            <th>Property</th>
+                                            <th>Owner</th>
+                                            <th>Type</th>
+                                            <th>Price</th>
+                                            <th>Status</th>
+                                            <th>Tier</th>
+                                            <th>Listed</th>
+                                            <th>Actions</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <% properties.forEach(property => { %>
+                                            <tr>
+                                                <td>
+                                                    <div class="d-flex align-items-center">
+                                                        <img src="<%= property.images && property.images[0] ? property.images[0].url : '/assets/images/default-property.jpg' %>" 
+                                                             class="rounded mr-2" style="width: 50px; height: 40px; object-fit: cover;">
+                                                        <div>
+                                                            <strong><%= property.title.length > 30 ? property.title.substring(0, 30) + '...' : property.title %></strong><br>
+                                                            <small class="text-muted"><%= property.location.city %>, <%= property.location.state %></small>
+                                                        </div>
+                                                    </div>
+                                                </td>
+                                                <td>
+                                                    <%= property.owner?.name || 'N/A' %><br>
+                                                    <small class="text-muted"><%= property.owner?.email || '' %></small>
+                                                </td>
+                                                <td><%= property.propertyType.replace('_', ' ') %></td>
+                                                <td><%= formatNaira(property.price) %></td>
+                                                <td>
+                                                    <span class="badge badge-<%= getStatusBadge(property.status) %>">
+                                                        <%= property.status %>
+                                                    </span>
+                                                </td>
+                                                <td>
+                                                    <span class="badge badge-<%= getTierBadge(property.listingTier) %>">
+                                                        <%= property.listingTier || 'free' %>
+                                                    </span>
+                                                </td>
+                                                <td><%= formatDate(property.createdAt) %></td>
+                                                <td>
+                                                    <a href="/properties/<%= property.slug %>" class="btn btn-sm btn-info" target="_blank" title="View">
+                                                        <i class="fas fa-eye"></i>
+                                                    </a>
+                                                    <a href="/admin/properties/<%= property._id %>" class="btn btn-sm btn-primary" title="Details">
+                                                        <i class="fas fa-info-circle"></i>
+                                                    </a>
+                                                    <% if (property.status === 'pending') { %>
+                                                        <button class="btn btn-sm btn-success" onclick="approveProperty('<%= property._id %>')" title="Approve">
+                                                            <i class="fas fa-check"></i>
+                                                        </button>
+                                                        <button class="btn btn-sm btn-danger" onclick="rejectProperty('<%= property._id %>')" title="Reject">
+                                                            <i class="fas fa-times"></i>
+                                                        </button>
+                                                    <% } %>
+                                                    <button class="btn btn-sm btn-warning" onclick="toggleFeature('<%= property._id %>', <%= property.featured %>)" title="<%= property.featured ? 'Remove Featured' : 'Make Featured' %>">
+                                                        <i class="fas fa-star"></i>
+                                                    </button>
+                                                    <button class="btn btn-sm btn-danger" onclick="deleteProperty('<%= property._id %>')" title="Delete">
+                                                        <i class="fas fa-trash"></i>
+                                                    </button>
+                                                </td>
+                                            </tr>
+                                        <% }); %>
+                                    </tbody>
+                                </table>
+                            </div>
+
+                            <!-- Pagination -->
+                            <% if (totalPages > 1) { %>
+                                <div class="pagination-wrap text-center mt-4">
+                                    <ul class="pagination justify-content-center">
+                                        <% if (currentPage > 1) { %>
+                                            <li class="page-item">
+                                                <a class="page-link" href="?page=<%= currentPage - 1 %><%= filters.status ? '&status=' + filters.status : '' %><%= filters.type ? '&type=' + filters.type : '' %><%= filters.tier ? '&tier=' + filters.tier : '' %><%= filters.search ? '&search=' + filters.search : '' %>">
+                                                    <i class="fas fa-chevron-left"></i>
+                                                </a>
+                                            </li>
+                                        <% } %>
+                                        
+                                        <% for (let i = 1; i <= totalPages; i++) { %>
+                                            <li class="page-item <%= currentPage === i ? 'active' : '' %>">
+                                                <a class="page-link" href="?page=<%= i %><%= filters.status ? '&status=' + filters.status : '' %><%= filters.type ? '&type=' + filters.type : '' %><%= filters.tier ? '&tier=' + filters.tier : '' %><%= filters.search ? '&search=' + filters.search : '' %>">
+                                                    <%= i %>
+                                                </a>
+                                            </li>
+                                        <% } %>
+                                        
+                                        <% if (currentPage < totalPages) { %>
+                                            <li class="page-item">
+                                                <a class="page-link" href="?page=<%= currentPage + 1 %><%= filters.status ? '&status=' + filters.status : '' %><%= filters.type ? '&type=' + filters.type : '' %><%= filters.tier ? '&tier=' + filters.tier : '' %><%= filters.search ? '&search=' + filters.search : '' %>">
+                                                    <i class="fas fa-chevron-right"></i>
+                                                </a>
+                                            </li>
+                                        <% } %>
+                                    </ul>
+                                </div>
+                            <% } %>
+                        <% } else { %>
+                            <div class="text-center py-5">
+                                <i class="fas fa-building fa-4x text-muted mb-3"></i>
+                                <h4>No Properties Found</h4>
+                                <p class="text-muted">There are no properties matching your criteria.</p>
+                                <a href="/admin/properties" class="btn btn-primary">Clear Filters</a>
+                            </div>
+                        <% } %>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Property Stats Sidebar (hidden by default) -->
+<div class="stats-sidebar" id="statsSidebar">
+    <div class="stats-header">
+        <h5>Property Statistics</h5>
+        <button class="close-stats" onclick="closeStats()">&times;</button>
+    </div>
+    <div class="stats-body">
+        <h6>Property Types</h6>
+        <ul class="list-unstyled">
+            <% propertyTypes.forEach(type => { %>
+                <li class="d-flex justify-content-between mb-2">
+                    <span><%= type._id.replace('_', ' ') %></span>
+                    <span class="badge badge-primary"><%= type.count %></span>
+                </li>
+            <% }); %>
+        </ul>
+        
+        <h6 class="mt-4">Tier Distribution</h6>
+        <ul class="list-unstyled">
+            <% tierDistribution.forEach(tier => { %>
+                <li class="d-flex justify-content-between mb-2">
+                    <span><%= tier._id || 'free' %></span>
+                    <span class="badge badge-<%= getTierBadge(tier._id) %>"><%= tier.count %></span>
+                </li>
+            <% }); %>
+        </ul>
+        
+        <h6 class="mt-4">Quick Actions</h6>
+        <a href="/admin/properties/pending" class="btn btn-warning btn-sm btn-block mb-2">
+            <i class="fas fa-hourglass-half"></i> Review Pending (<%= stats.pending %>)
+        </a>
+        <a href="/admin/featured/add" class="btn btn-primary btn-sm btn-block">
+            <i class="fas fa-star"></i> Add Featured
+        </a>
+    </div>
+</div>
+
+<!-- Toggle Stats Button -->
+<button class="toggle-stats-btn" onclick="toggleStats()">
+    <i class="fas fa-chart-pie"></i>
+</button>
+
+<style>
+.admin-sidebar {
+    background: white;
+    border-radius: 10px;
+    padding: 30px 20px;
+    box-shadow: 0 0 20px rgba(0,0,0,0.1);
+    position: sticky;
+    top: 100px;
+}
+
+.admin-sidebar ul li {
+    margin-bottom: 10px;
+}
+
+.admin-sidebar ul li a {
+    display: block;
+    padding: 12px 15px;
+    border-radius: 5px;
+    color: #333;
+    transition: all 0.3s ease;
+    text-decoration: none;
+}
+
+.admin-sidebar ul li a i {
+    margin-right: 10px;
+    width: 20px;
+}
+
+.admin-sidebar ul li a:hover {
+    background: #f8f9fa;
+}
+
+.admin-sidebar ul li.active a {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+}
+
+.admin-content {
+    background: white;
+    border-radius: 10px;
+    padding: 30px;
+    box-shadow: 0 0 20px rgba(0,0,0,0.1);
+    min-height: 600px;
+}
+
+.stat-card {
+    background: white;
+    border-radius: 10px;
+    padding: 15px;
+    box-shadow: 0 0 15px rgba(0,0,0,0.1);
+    display: flex;
+    align-items: center;
+    height: 100%;
+}
+
+.stat-card.small .stat-icon {
+    width: 40px;
+    height: 40px;
+    font-size: 16px;
+}
+
+.stat-card.small .stat-icon i {
+    font-size: 18px;
+}
+
+.stat-card.small .stat-details h4 {
+    font-size: 20px;
+    margin-bottom: 0;
+}
+
+.stat-card.small .stat-details p {
+    font-size: 12px;
+}
+
+.stat-icon {
+    width: 50px;
+    height: 50px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-right: 15px;
+}
+
+.stat-icon.bg-primary {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+}
+
+.stat-icon.bg-success {
+    background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+}
+
+.stat-icon.bg-warning {
+    background: linear-gradient(135deg, #ffc107 0%, #fd7e14 100%);
+}
+
+.stat-icon.bg-secondary {
+    background: linear-gradient(135deg, #6c757d 0%, #495057 100%);
+}
+
+.stat-icon i {
+    color: white;
+    font-size: 20px;
+}
+
+.stat-details {
+    flex: 1;
+}
+
+.stat-details h4 {
+    margin: 0;
+    font-size: 20px;
+    font-weight: bold;
+}
+
+.stat-details p {
+    margin: 0;
+    color: #666;
+    font-size: 12px;
+}
+
+.filter-bar {
+    background: #f8f9fa;
+    padding: 20px;
+    border-radius: 10px;
+}
+
+.table th {
+    border-top: none;
+    font-weight: 600;
+    color: #555;
+    font-size: 13px;
+    text-transform: uppercase;
+}
+
+.table td {
+    vertical-align: middle;
+    font-size: 14px;
+}
+
+.badge {
+    padding: 5px 10px;
+    font-weight: 500;
+}
+
+.btn-sm {
+    padding: 5px 8px;
+    font-size: 12px;
+    margin: 0 2px;
+}
+
+/* Stats Sidebar */
+.stats-sidebar {
+    position: fixed;
+    right: -350px;
+    top: 0;
+    width: 350px;
+    height: 100vh;
+    background: white;
+    box-shadow: -5px 0 15px rgba(0,0,0,0.1);
+    z-index: 1000;
+    transition: right 0.3s ease;
+    padding: 20px;
+    overflow-y: auto;
+}
+
+.stats-sidebar.active {
+    right: 0;
+}
+
+.stats-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding-bottom: 15px;
+    border-bottom: 1px solid #f0f0f0;
+    margin-bottom: 20px;
+}
+
+.stats-header h5 {
+    margin: 0;
+    font-weight: 600;
+}
+
+.close-stats {
+    background: none;
+    border: none;
+    font-size: 24px;
+    cursor: pointer;
+    color: #666;
+}
+
+.close-stats:hover {
+    color: #ff6b6b;
+}
+
+.stats-body h6 {
+    font-size: 14px;
+    font-weight: 600;
+    color: #555;
+    margin-bottom: 15px;
+}
+
+.toggle-stats-btn {
+    position: fixed;
+    right: 20px;
+    bottom: 20px;
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border: none;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 20px;
+    box-shadow: 0 2px 10px rgba(102, 126, 234, 0.4);
+    z-index: 999;
+    transition: all 0.3s ease;
+}
+
+.toggle-stats-btn:hover {
+    transform: scale(1.1);
+}
+
+/* Responsive */
+@media (max-width: 991px) {
+    .admin-sidebar {
+        position: relative;
+        top: 0;
+        margin-bottom: 30px;
+    }
+    
+    .stats-sidebar {
+        width: 300px;
+    }
+}
+
+@media (max-width: 768px) {
+    .admin-content {
+        padding: 20px;
+    }
+    
+    .filter-bar .row > div {
+        margin-bottom: 10px;
+    }
+    
+    .table {
+        font-size: 13px;
+    }
+    
+    .btn-sm {
+        padding: 3px 5px;
+        font-size: 11px;
+    }
+}
+</style>
+
+<script>
+// Toggle stats sidebar
+function toggleStats() {
+    document.getElementById('statsSidebar').classList.toggle('active');
+}
+
+function closeStats() {
+    document.getElementById('statsSidebar').classList.remove('active');
+}
+
+// Approve property
+function approveProperty(id) {
+    if (confirm('Are you sure you want to approve this property?')) {
+        $.post('/admin/properties/' + id + '/approve', function(data) {
+            if (data.success) {
+                alert('Property approved successfully!');
+                location.reload();
+            }
+        }).fail(function(xhr) {
+            alert('Error: ' + (xhr.responseJSON?.error || 'Unknown error'));
+        });
+    }
+}
+
+// Reject property
+function rejectProperty(id) {
+    if (confirm('Are you sure you want to reject this property?')) {
+        $.post('/admin/properties/' + id + '/reject', function(data) {
+            if (data.success) {
+                alert('Property rejected');
+                location.reload();
+            }
+        }).fail(function(xhr) {
+            alert('Error: ' + (xhr.responseJSON?.error || 'Unknown error'));
+        });
+    }
+}
+
+// Toggle featured status
+function toggleFeature(id, currentStatus) {
+    const action = currentStatus ? 'remove from featured' : 'make featured';
+    if (confirm(`Are you sure you want to ${action}?`)) {
+        $.post('/admin/properties/' + id + '/feature', function(data) {
+            if (data.success) {
+                alert(`Property ${data.featured ? 'featured' : 'unfeatured'} successfully`);
+                location.reload();
+            }
+        }).fail(function(xhr) {
+            alert('Error: ' + (xhr.responseJSON?.error || 'Unknown error'));
+        });
+    }
+}
+
+// Delete property
+function deleteProperty(id) {
+    if (confirm('Are you sure you want to permanently delete this property? This action cannot be undone.')) {
+        $.ajax({
+            url: '/admin/properties/' + id,
+            type: 'DELETE',
+            success: function(data) {
+                if (data.success) {
+                    alert('Property deleted successfully');
+                    location.reload();
+                }
+            },
+            error: function(xhr) {
+                alert('Error: ' + (xhr.responseJSON?.error || 'Unknown error'));
+            }
+        });
+    }
+}
+
+// Auto-submit filter on change
+$('#filterForm select').change(function() {
+    $('#filterForm').submit();
+});
+
+// Close stats sidebar when clicking outside
+$(document).click(function(event) {
+    const sidebar = $('#statsSidebar');
+    const toggleBtn = $('.toggle-stats-btn');
+    
+    if (!sidebar.is(event.target) && !toggleBtn.is(event.target) && sidebar.has(event.target).length === 0 && sidebar.hasClass('active')) {
+        sidebar.removeClass('active');
+    }
+});
+</script>
+
+<%- include('../partials/footer') %>

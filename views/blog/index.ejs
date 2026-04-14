@@ -1,0 +1,355 @@
+<%- include('../partials/header') %>
+
+<%
+// Helper function to format date
+function formatDate(date) {
+    return new Date(date).toLocaleDateString('en-NG', {
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric'
+    });
+}
+
+// Helper function to get category color
+function getCategoryColor(category) {
+    const colors = {
+        'Market News': 'primary',
+        'Buying Guide': 'success',
+        'Selling Tips': 'info',
+        'Renting Advice': 'warning',
+        'Investment': 'danger',
+        'Legal Guide': 'secondary',
+        'Agent Tips': 'dark',
+        'Property Spotlight': 'light',
+        'Industry Insights': 'info'
+    };
+    return colors[category] || 'primary';
+}
+%>
+
+<!-- Page Top -->
+<section>
+    <div class="w-100 pt-180 pb-110 black-layer opc45 position-relative">
+        <div class="fixed-bg" style="background-image: url(/assets/images/pg-tp-bg.jpg);"></div>
+        <div class="container">
+            <div class="pg-tp-wrp text-center w-100">
+                <h1 class="mb-0">Found Properties Blog</h1>
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item"><a href="/" title="Home">Home</a></li>
+                    <li class="breadcrumb-item active">Blog</li>
+                </ol>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Blog Section -->
+<section>
+    <div class="w-100 pt-120 pb-90 position-relative">
+        <div class="container">
+            <div class="row">
+                <!-- Main Content -->
+                <div class="col-lg-8">
+                    <!-- Featured Posts (if any) -->
+                    <% if (featuredBlogs && featuredBlogs.length > 0 && currentPage === 1) { %>
+                        <div class="featured-posts mb-5">
+                            <h3 class="mb-4">Featured Posts</h3>
+                            <div class="row">
+                                <% featuredBlogs.forEach(blog => { %>
+                                    <div class="col-md-4 mb-4">
+                                        <div class="featured-post-card">
+                                            <a href="/blog/<%= blog.slug %>">
+                                                <img src="<%= blog.featuredImage %>" alt="<%= blog.title %>" class="img-fluid w-100" style="height: 150px; object-fit: cover; border-radius: 10px 10px 0 0;">
+                                                <div class="p-3 bg-white">
+                                                    <h6 class="mb-2"><%= blog.title.length > 50 ? blog.title.substring(0, 50) + '...' : blog.title %></h6>
+                                                    <small class="text-muted"><%= formatDate(blog.publishedAt) %></small>
+                                                </div>
+                                            </a>
+                                        </div>
+                                    </div>
+                                <% }); %>
+                            </div>
+                        </div>
+                    <% } %>
+
+                    <!-- Blog Posts Grid -->
+                    <% if (blogs && blogs.length > 0) { %>
+                        <div class="row">
+                            <% blogs.forEach(blog => { %>
+                                <div class="col-md-6 mb-4">
+                                    <div class="blog-card">
+                                        <a href="/blog/<%= blog.slug %>" class="blog-image-link">
+                                            <img src="<%= blog.featuredImage %>" alt="<%= blog.title %>" class="img-fluid w-100" style="height: 220px; object-fit: cover; border-radius: 10px 10px 0 0;">
+                                        </a>
+                                        <div class="blog-content p-4 bg-white">
+                                            <div class="blog-meta mb-2">
+                                                <span class="text-muted mr-3">
+                                                    <i class="far fa-calendar-alt"></i> <%= formatDate(blog.publishedAt) %>
+                                                </span>
+                                                <span class="text-muted">
+                                                    <i class="far fa-clock"></i> <%= blog.readingTime %> min read
+                                                </span>
+                                            </div>
+                                            <h4 class="blog-title mb-3">
+                                                <a href="/blog/<%= blog.slug %>" class="text-dark"><%= blog.title %></a>
+                                            </h4>
+                                            <p class="blog-excerpt text-muted mb-3"><%= blog.excerpt %></p>
+                                            <div class="blog-footer d-flex justify-content-between align-items-center">
+                                                <div class="blog-categories">
+                                                    <% blog.categories.slice(0, 2).forEach(category => { %>
+                                                        <a href="/blog?category=<%= category %>" class="badge badge-<%= getCategoryColor(category) %> mr-1 p-2">
+                                                            <%= category %>
+                                                        </a>
+                                                    <% }); %>
+                                                </div>
+                                                <a href="/blog/<%= blog.slug %>" class="thm-clr">Read More <i class="fas fa-arrow-right"></i></a>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            <% }); %>
+                        </div>
+
+                        <!-- Pagination -->
+                        <% if (totalPages > 1) { %>
+                            <div class="pagination-wrap text-center mt-5">
+                                <ul class="pagination justify-content-center">
+                                    <% if (currentPage > 1) { %>
+                                        <li class="page-item">
+                                            <a class="page-link" href="?page=<%= currentPage - 1 %><%= filters.category ? '&category=' + filters.category : '' %><%= filters.tag ? '&tag=' + filters.tag : '' %><%= filters.search ? '&search=' + filters.search : '' %>">
+                                                <i class="fas fa-chevron-left"></i>
+                                            </a>
+                                        </li>
+                                    <% } %>
+                                    
+                                    <% for (let i = 1; i <= totalPages; i++) { %>
+                                        <li class="page-item <%= currentPage === i ? 'active' : '' %>">
+                                            <a class="page-link" href="?page=<%= i %><%= filters.category ? '&category=' + filters.category : '' %><%= filters.tag ? '&tag=' + filters.tag : '' %><%= filters.search ? '&search=' + filters.search : '' %>">
+                                                <%= i %>
+                                            </a>
+                                        </li>
+                                    <% } %>
+                                    
+                                    <% if (currentPage < totalPages) { %>
+                                        <li class="page-item">
+                                            <a class="page-link" href="?page=<%= currentPage + 1 %><%= filters.category ? '&category=' + filters.category : '' %><%= filters.tag ? '&tag=' + filters.tag : '' %><%= filters.search ? '&search=' + filters.search : '' %>">
+                                                <i class="fas fa-chevron-right"></i>
+                                            </a>
+                                        </li>
+                                    <% } %>
+                                </ul>
+                            </div>
+                        <% } %>
+                    <% } else { %>
+                        <div class="text-center py-5">
+                            <i class="fas fa-newspaper fa-4x text-muted mb-3"></i>
+                            <h4>No Blog Posts Found</h4>
+                            <p class="text-muted">Check back soon for new content!</p>
+                        </div>
+                    <% } %>
+                </div>
+
+                <!-- Sidebar -->
+                <div class="col-lg-4">
+                    <!-- Search Widget -->
+                    <div class="sidebar-widget search-widget mb-4">
+                        <h5 class="widget-title">Search Blog</h5>
+                        <form action="/blog" method="GET" class="search-form">
+                            <div class="input-group">
+                                <input type="text" class="form-control" name="search" placeholder="Search posts..." value="<%= filters.search || '' %>">
+                                <div class="input-group-append">
+                                    <button class="btn btn-primary" type="submit">
+                                        <i class="fas fa-search"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+
+                    <!-- Categories Widget -->
+                    <div class="sidebar-widget categories-widget mb-4">
+                        <h5 class="widget-title">Categories</h5>
+                        <ul class="list-unstyled">
+                            <li class="mb-2">
+                                <a href="/blog" class="d-flex justify-content-between <%= !filters.category ? 'font-weight-bold thm-clr' : '' %>">
+                                    All Categories
+                                    <span class="badge badge-primary"><%= total %></span>
+                                </a>
+                            </li>
+                            <% categories.forEach(cat => { %>
+                                <li class="mb-2">
+                                    <a href="/blog?category=<%= cat._id %>" class="d-flex justify-content-between <%= filters.category === cat._id ? 'font-weight-bold thm-clr' : '' %>">
+                                        <%= cat._id %>
+                                        <span class="badge badge-primary"><%= cat.count %></span>
+                                    </a>
+                                </li>
+                            <% }); %>
+                        </ul>
+                    </div>
+
+                    <!-- Popular Tags Widget -->
+                    <div class="sidebar-widget tags-widget mb-4">
+                        <h5 class="widget-title">Popular Tags</h5>
+                        <div class="tags-cloud">
+                            <% tags.forEach(tag => { %>
+                                <a href="/blog?tag=<%= tag._id %>" class="badge badge-light p-2 m-1 <%= filters.tag === tag._id ? 'active-tag' : '' %>">
+                                    <%= tag._id %>
+                                </a>
+                            <% }); %>
+                        </div>
+                    </div>
+
+                    <!-- Newsletter Widget -->
+                    <div class="sidebar-widget newsletter-widget p-4" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border-radius: 10px;">
+                        <h5 class="text-white mb-3">Subscribe to Our Newsletter</h5>
+                        <p class="text-white mb-3">Get the latest real estate insights delivered to your inbox.</p>
+                        <form action="/newsletter/subscribe" method="POST">
+                            <div class="form-group">
+                                <input type="email" class="form-control" name="email" placeholder="Your Email Address" required>
+                            </div>
+                            <button type="submit" class="btn btn-light btn-block">Subscribe</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<style>
+.blog-card {
+    background: white;
+    border-radius: 10px;
+    overflow: hidden;
+    box-shadow: 0 5px 20px rgba(0,0,0,0.05);
+    transition: all 0.3s ease;
+    height: 100%;
+}
+
+.blog-card:hover {
+    transform: translateY(-10px);
+    box-shadow: 0 15px 30px rgba(0,0,0,0.1);
+}
+
+.blog-image-link {
+    display: block;
+    overflow: hidden;
+}
+
+.blog-card img {
+    transition: transform 0.3s ease;
+}
+
+.blog-card:hover img {
+    transform: scale(1.05);
+}
+
+.blog-title {
+    font-size: 20px;
+    font-weight: 600;
+    line-height: 1.4;
+}
+
+.blog-title a:hover {
+    color: #ff6b6b !important;
+}
+
+.blog-excerpt {
+    font-size: 14px;
+    line-height: 1.6;
+}
+
+.featured-post-card {
+    background: white;
+    border-radius: 10px;
+    overflow: hidden;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+    transition: all 0.3s ease;
+}
+
+.featured-post-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+}
+
+.featured-post-card a {
+    text-decoration: none;
+    color: inherit;
+}
+
+.sidebar-widget {
+    background: white;
+    border-radius: 10px;
+    padding: 25px;
+    box-shadow: 0 5px 20px rgba(0,0,0,0.05);
+}
+
+.widget-title {
+    font-size: 20px;
+    font-weight: 600;
+    margin-bottom: 20px;
+    padding-bottom: 10px;
+    border-bottom: 2px solid #f0f0f0;
+}
+
+.categories-widget ul li a {
+    color: #666;
+    transition: all 0.3s ease;
+    text-decoration: none;
+    padding: 5px 0;
+}
+
+.categories-widget ul li a:hover {
+    color: #ff6b6b;
+    padding-left: 5px;
+}
+
+.tags-cloud .badge {
+    font-size: 13px;
+    font-weight: 400;
+    transition: all 0.3s ease;
+}
+
+.tags-cloud .badge:hover,
+.tags-cloud .badge.active-tag {
+    background: #ff6b6b !important;
+    color: white !important;
+}
+
+.newsletter-widget .form-control {
+    height: 45px;
+    border: none;
+    border-radius: 5px;
+}
+
+.newsletter-widget .btn-light {
+    height: 45px;
+    font-weight: 600;
+    transition: all 0.3s ease;
+}
+
+.newsletter-widget .btn-light:hover {
+    background: #f8f9fa;
+    transform: translateY(-2px);
+}
+
+.pagination .page-link {
+    color: #ff6b6b;
+    border: none;
+    margin: 0 3px;
+    border-radius: 5px;
+}
+
+.pagination .page-item.active .page-link {
+    background: #ff6b6b;
+    color: white;
+}
+
+@media (max-width: 768px) {
+    .blog-title {
+        font-size: 18px;
+    }
+}
+</style>
+
+<%- include('../partials/footer') %>
