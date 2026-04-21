@@ -11,7 +11,7 @@ router.post('/login', authController.postLogin);
 
 // ============= PROPERTY OWNER REGISTRATION =============
 router.get('/register', authController.getRegister);
-router.post('/register', upload.uploadPaymentProofDoc, authController.postRegister);
+router.post('/register', authController.postRegister);
 
 // ============= PROMOTER REGISTRATION (FREE) =============
 router.get('/promoter/register', authController.getPromoterRegister);

@@ -37,13 +37,11 @@ exports.postLogin = async (req, res) => {
         let userType = 'user';
         
         if (!user) {
-            // Check in Solicitor model
             user = await Solicitor.findOne({ email: email.toLowerCase() });
             userType = 'solicitor';
         }
         
         if (!user) {
-            // Check in HectareSolicitor model
             user = await HectareSolicitor.findOne({ email: email.toLowerCase() });
             userType = 'hectare_solicitor';
         }
@@ -127,7 +125,7 @@ exports.postLogin = async (req, res) => {
     }
 };
 
-// ============= PROPERTY OWNER REGISTRATION HANDLERS =============
+// ============= PROPERTY OWNER REGISTRATION (FREE) =============
 
 // Property Owner registration page
 exports.getRegister = (req, res) => {
@@ -140,10 +138,11 @@ exports.getRegister = (req, res) => {
     });
 };
 
-// Property Owner registration handler
+// Property Owner registration handler - FREE registration, no payment required
+// Property Owner registration handler - FREE registration, no payment required
 exports.postRegister = async (req, res) => {
     try {
-        const { name, email, phone, password, confirmPassword, company, rcNumber, newsletter, paymentReference, paymentAmount, paymentDate } = req.body;
+        const { name, email, phone, password, confirmPassword, company, rcNumber, newsletter } = req.body;
         
         console.log('Property Owner registration attempt:', { name, email, phone });
         
@@ -153,11 +152,13 @@ exports.postRegister = async (req, res) => {
             return res.redirect('/register');
         }
         
+        // Check if passwords match
         if (password !== confirmPassword) {
             req.flash('error', 'Passwords do not match');
             return res.redirect('/register');
         }
         
+        // Check password length
         if (password.length < 8) {
             req.flash('error', 'Password must be at least 8 characters long');
             return res.redirect('/register');
@@ -177,18 +178,8 @@ exports.postRegister = async (req, res) => {
             return res.redirect('/register');
         }
         
-        // Validate payment proof
-        if (!paymentReference || !paymentAmount || !req.file) {
-            req.flash('error', 'Please provide payment proof (reference number, amount, and upload receipt)');
-            return res.redirect('/register');
-        }
-        
-        if (parseFloat(paymentAmount) !== 20000) {
-            req.flash('error', 'Payment amount must be ₦20,000');
-            return res.redirect('/register');
-        }
-        
-        // Create new property owner with pending payment
+        // Create new property owner - FREE registration, no payment required
+        // Let the default values handle paymentStatus (default is 'not_required')
         const user = new User({
             name: name.trim(),
             email: email.toLowerCase().trim(),
@@ -199,11 +190,9 @@ exports.postRegister = async (req, res) => {
                 company: company || '',
                 rcNumber: rcNumber || '',
                 verified: false,
-                paymentStatus: 'pending',
-                paymentReference: paymentReference,
-                paymentAmount: 20000,
-                paymentDate: paymentDate || new Date(),
-                paymentProofUrl: '/uploads/payments/' + req.file.filename
+                totalProperties: 0,
+                totalPropertiesValue: 0
+                // paymentStatus will default to 'not_required' from schema
             },
             preferences: {
                 emailInquiries: true,
@@ -215,9 +204,17 @@ exports.postRegister = async (req, res) => {
         
         await user.save();
         
-        console.log(`✅ Property owner registered with pending payment: ${user.email}`);
+        console.log(`✅ Property owner registered successfully (FREE): ${user.email}`);
         
-        req.flash('success', 'Registration submitted! Your payment is pending verification. You will be notified once confirmed.');
+        // Send welcome email (non-blocking)
+        try {
+            await emailService.sendWelcomeEmailToPropertyOwner(user);
+            console.log('Welcome email sent successfully');
+        } catch (emailError) {
+            console.error('Email sending error (non-critical):', emailError.message);
+        }
+        
+        req.flash('success', 'Registration successful! You can now login to your account. You will pay the verification fee only when you list a property.');
         res.redirect('/login');
         
     } catch (error) {
@@ -225,6 +222,9 @@ exports.postRegister = async (req, res) => {
         
         if (error.code === 11000) {
             req.flash('error', 'Email already registered. Please use a different email.');
+        } else if (error.name === 'ValidationError') {
+            const messages = Object.values(error.errors).map(e => e.message).join(', ');
+            req.flash('error', `Validation error: ${messages}`);
         } else {
             req.flash('error', 'Registration failed. Please try again.');
         }
@@ -314,6 +314,14 @@ exports.postPromoterRegister = async (req, res) => {
         
         console.log(`✅ Promoter registered successfully: ${user.email}`);
         
+        // Send welcome email
+        try {
+            await emailService.sendWelcomeEmailToPromoter(user);
+            console.log('Welcome email sent successfully');
+        } catch (emailError) {
+            console.error('Email sending error (non-critical):', emailError.message);
+        }
+        
         req.flash('success', 'Registration successful! You can now login to your promoter dashboard.');
         res.redirect('/login');
         
@@ -342,7 +350,7 @@ exports.getBusinessPartnerRegister = (req, res) => {
     });
 };
 
-// Business Partner registration handler
+// Business Partner registration handler (requires payment)
 exports.postBusinessPartnerRegister = async (req, res) => {
     try {
         const {
@@ -445,7 +453,7 @@ exports.getProjectSubscriberRegister = (req, res) => {
     });
 };
 
-// Project Subscriber registration handler
+// Project Subscriber registration handler (FREE registration)
 exports.postProjectSubscriberRegister = async (req, res) => {
     try {
         const { name, email, phone, password, confirmPassword, countryOfResidence, passportNumber } = req.body;
@@ -769,7 +777,6 @@ exports.getDashboard = async (req, res) => {
         let user = await User.findById(req.session.userId);
         
         if (!user) {
-            // Check in Solicitor model
             user = await Solicitor.findById(req.session.userId);
             if (user) {
                 if (user.userType === 'solicitor') {
@@ -779,7 +786,6 @@ exports.getDashboard = async (req, res) => {
         }
         
         if (!user) {
-            // Check in HectareSolicitor model
             user = await HectareSolicitor.findById(req.session.userId);
             if (user && user.userType === 'hectare_solicitor') {
                 return res.redirect('/hectare-solicitor/dashboard');
@@ -820,7 +826,6 @@ exports.updateProfile = async (req, res) => {
     try {
         const { name, phone, company, address } = req.body;
         
-        // Check in User model first
         let user = await User.findById(req.session.userId);
         
         if (!user) {
@@ -967,7 +972,6 @@ exports.postForgotPassword = async (req, res) => {
     try {
         const { email } = req.body;
         
-        // Check in all models
         let user = await User.findOne({ email: email.toLowerCase() });
         
         if (!user) {

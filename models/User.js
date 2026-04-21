@@ -43,43 +43,61 @@ const userSchema = new mongoose.Schema({
         default: false
     },
     
-    // Property Owner specific fields (with payment verification)
-    propertyOwnerProfile: {
-        company: String,
-        rcNumber: String,
-        address: String,
-        verified: {
-            type: Boolean,
-            default: false
-        },
-        totalProperties: {
-            type: Number,
-            default: 0
-        },
-        totalPropertiesValue: {
-            type: Number,
-            default: 0
-        },
-        // Payment verification fields
-        paymentStatus: {
-            type: String,
-            enum: ['pending', 'confirmed', 'rejected'],
-            default: 'pending'
-        },
-        paymentReference: String,
-        paymentAmount: {
-            type: Number,
-            default: 20000
-        },
-        paymentDate: Date,
-        paymentProofUrl: String,
-        paymentVerifiedBy: {
-            type: mongoose.Schema.Types.ObjectId,
-            ref: 'User'
-        },
-        paymentVerifiedAt: Date,
-        paymentNotes: String
+   // Property Owner specific fields (with payment verification only when listing)
+propertyOwnerProfile: {
+    company: {
+        type: String,
+        default: ''
     },
+    rcNumber: {
+        type: String,
+        default: ''
+    },
+    address: {
+        type: String,
+        default: ''
+    },
+    verified: {
+        type: Boolean,
+        default: false
+    },
+    totalProperties: {
+        type: Number,
+        default: 0
+    },
+    totalPropertiesValue: {
+        type: Number,
+        default: 0
+    },
+    // Payment verification fields - only required when listing a property
+    paymentStatus: {
+        type: String,
+        enum: ['pending', 'confirmed', 'rejected', 'not_required'],
+        default: 'not_required'
+    },
+    paymentReference: {
+        type: String,
+        default: ''
+    },
+    paymentAmount: {
+        type: Number,
+        default: 0
+    },
+    paymentDate: Date,
+    paymentProofUrl: {
+        type: String,
+        default: ''
+    },
+    paymentVerifiedBy: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'User'
+    },
+    paymentVerifiedAt: Date,
+    paymentNotes: {
+        type: String,
+        default: ''
+    }
+},
     
     // Promoter specific fields (NO PAYMENT REQUIRED - free to join)
     promoterProfile: {
