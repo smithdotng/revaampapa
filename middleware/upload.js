@@ -10,9 +10,10 @@ const propertyUploadDir = path.join(__dirname, '../public/uploads/properties');
 const documentUploadDir = path.join(__dirname, '../public/uploads/documents');
 const blogUploadDir = path.join(__dirname, '../public/uploads/blogs');
 const bankGuaranteeUploadDir = path.join(__dirname, '../public/uploads/bank-guarantees');
+const paymentUploadDir = path.join(__dirname, '../public/uploads/payments');
 
 // Create directories if they don't exist
-const dirs = [uploadDir, profileUploadDir, propertyUploadDir, documentUploadDir, blogUploadDir, bankGuaranteeUploadDir];
+const dirs = [uploadDir, profileUploadDir, propertyUploadDir, documentUploadDir, blogUploadDir, bankGuaranteeUploadDir, paymentUploadDir];
 dirs.forEach(dir => {
     if (!fs.existsSync(dir)) {
         fs.mkdirSync(dir, { recursive: true });
@@ -63,6 +64,17 @@ const bankGuaranteeStorage = multer.diskStorage({
     }
 });
 
+// Configure storage for payment proofs
+const paymentStorage = multer.diskStorage({
+    destination: (req, file, cb) => {
+        cb(null, paymentUploadDir);
+    },
+    filename: (req, file, cb) => {
+        const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
+        cb(null, 'payment-' + uniqueSuffix + path.extname(file.originalname));
+    }
+});
+
 // File filter for images
 const imageFileFilter = (req, file, cb) => {
     const allowedTypes = /jpeg|jpg|png|gif|webp/;
@@ -90,25 +102,31 @@ const documentFileFilter = (req, file, cb) => {
 // Create multer instances
 const uploadProperty = multer({
     storage: propertyStorage,
-    limits: { fileSize: 10 * 1024 * 1024 }, // 10MB limit
+    limits: { fileSize: 10 * 1024 * 1024 },
     fileFilter: imageFileFilter
 });
 
 const uploadProfile = multer({
     storage: profileStorage,
-    limits: { fileSize: 2 * 1024 * 1024 }, // 2MB limit
+    limits: { fileSize: 2 * 1024 * 1024 },
     fileFilter: imageFileFilter
 });
 
 const uploadDocument = multer({
     storage: documentStorage,
-    limits: { fileSize: 5 * 1024 * 1024 }, // 5MB limit
+    limits: { fileSize: 5 * 1024 * 1024 },
     fileFilter: documentFileFilter
 });
 
 const uploadBankGuarantee = multer({
     storage: bankGuaranteeStorage,
-    limits: { fileSize: 5 * 1024 * 1024 }, // 5MB limit
+    limits: { fileSize: 5 * 1024 * 1024 },
+    fileFilter: documentFileFilter
+});
+
+const uploadPaymentProof = multer({
+    storage: paymentStorage,
+    limits: { fileSize: 5 * 1024 * 1024 },
     fileFilter: documentFileFilter
 });
 
@@ -120,12 +138,21 @@ const single = (fieldName) => {
         return uploadDocument.single(fieldName);
     } else if (fieldName === 'guaranteeDocument') {
         return uploadBankGuarantee.single(fieldName);
+    } else if (fieldName === 'paymentProof') {
+        return uploadPaymentProof.single(fieldName);
+    } else if (fieldName === 'barCertificate') {
+        return uploadDocument.single(fieldName);
     } else {
         return uploadProperty.single(fieldName);
     }
 };
 
-// Multiple files upload
+// Multiple files upload for different fields
+const fields = (fieldConfigs) => {
+    return uploadDocument.fields(fieldConfigs);
+};
+
+// Multiple files upload for properties
 const array = (fieldName, maxCount) => {
     return uploadProperty.array(fieldName, maxCount || 10);
 };
@@ -139,54 +166,30 @@ const uploadSingleDocument = uploadDocument.single('document');
 // Handle bank guarantee upload
 const uploadBankGuaranteeDoc = uploadBankGuarantee.single('guaranteeDocument');
 
+// Handle payment proof upload
+const uploadPaymentProofDoc = uploadPaymentProof.single('paymentProof');
 
+// Handle solicitor document uploads
+const uploadSolicitorDocs = uploadDocument.fields([
+    { name: 'barCertificate', maxCount: 1 },
+    { name: 'firmRegistration', maxCount: 1 }
+]);
 
-// Add payment upload configuration
-const paymentUploadDir = path.join(__dirname, '../public/uploads/payments');
-
-// Create directory
-if (!fs.existsSync(paymentUploadDir)) {
-    fs.mkdirSync(paymentUploadDir, { recursive: true });
-}
-
-// Configure storage for payment proofs
-const paymentStorage = multer.diskStorage({
-    destination: (req, file, cb) => {
-        cb(null, paymentUploadDir);
-    },
-    filename: (req, file, cb) => {
-        const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
-        cb(null, 'payment-' + uniqueSuffix + path.extname(file.originalname));
-    }
-});
-
-const uploadPaymentProof = multer({
-    storage: paymentStorage,
-    limits: { fileSize: 5 * 1024 * 1024 },
-    fileFilter: (req, file, cb) => {
-        const allowedTypes = /jpeg|jpg|png|gif|pdf/;
-        const extname = allowedTypes.test(path.extname(file.originalname).toLowerCase());
-        const mimetype = allowedTypes.test(file.mimetype);
-        if (mimetype && extname) {
-            return cb(null, true);
-        } else {
-            cb(new Error('Only images and PDF files are allowed'));
-        }
-    }
-});
-
-// Export
+// Export the configured middleware
 module.exports = {
     upload: {
         single: single,
-        array: array
+        array: array,
+        fields: fields
     },
     uploadMultiple,
     uploadSingleDocument,
     uploadBankGuaranteeDoc,
-    uploadPaymentProof,
+    uploadPaymentProofDoc,
+    uploadSolicitorDocs,
     uploadProperty,
     uploadProfile,
     uploadDocument,
-    uploadBankGuarantee
+    uploadBankGuarantee,
+    uploadPaymentProof
 };

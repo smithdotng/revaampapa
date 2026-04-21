@@ -1,0 +1,445 @@
+<!DOCTYPE html>
+<html lang="en-US">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <title>Become a REVAAMP Partner Solicitor | RevaampAPA</title>
+    
+    <!-- CSS Files -->
+    <link rel="stylesheet" href="/fonts/css/switzer.css" type="text/css" media="all">
+    <link rel="stylesheet" href="/fonts/css/font-awesome.min.css" type="text/css" media="all">
+    <link rel="stylesheet" href="/css/plugins/bootstrap-grid.css" type="text/css" media="all">
+    <link rel="stylesheet" href="/css/plugins/swiper.min.css" type="text/css" media="all">
+    <link rel="stylesheet" href="/css/plugins/magnific-popup.css" type="text/css" media="all">
+    <link rel="stylesheet" href="/css/style.css" type="text/css" media="all">
+    <link rel="stylesheet" href="/css/custom.css" type="text/css" media="all">
+
+    <link rel="shortcut icon" href="/favicon.ico" type="image/x-icon">
+    <link rel="icon" href="/favicon.ico" type="image/x-icon">
+</head>
+<body>
+
+    <div id="smooth-wrapper" class="mil-wrapper">
+        <div class="mil-preloader"><div class="mil-load"></div><p class="h2 mil-mb-30"><span class="mil-light mil-counter" data-number="100">100</span><span class="mil-light">%</span></p></div>
+        <div class="mil-progress-track"><div class="mil-progress"></div></div>
+        <div class="progress-wrap active-progress"></div>
+
+        <div class="mil-top-panel">
+            <div class="container">
+                <a href="/" class="mil-logo"><img src="/img/logo.png" alt="RevaampAPA" width="83" height="32"></a>
+                <nav class="mil-top-menu">
+                    <ul>
+                        <li><a href="/">Home</a></li>
+                        <li><a href="/properties">Properties</a></li>
+                        <li><a href="/about">About</a></li>
+                        <li><a href="/contact">Contact</a></li>
+                    </ul>
+                </nav>
+                <div class="mil-menu-buttons">
+                    <a href="/login" class="mil-btn mil-sm">Log in</a>
+                    <a href="/register" class="mil-btn mil-sm mil-light">List Property</a>
+                    <div class="mil-menu-btn"><span></span></div>
+                </div>
+            </div>
+        </div>
+
+        <% if (typeof error !== 'undefined' && error && error.length) { %>
+            <div class="alert alert-danger alert-dismissible fade show m-3" style="position: fixed; top: 100px; right: 20px; z-index: 9999;">
+                <i class="fas fa-exclamation-circle"></i> <%= error %>
+                <button type="button" class="btn-close" data-bs-dismiss="alert">&times;</button>
+            </div>
+        <% } %>
+        <% if (typeof success !== 'undefined' && success && success.length) { %>
+            <div class="alert alert-success alert-dismissible fade show m-3" style="position: fixed; top: 100px; right: 20px; z-index: 9999;">
+                <i class="fas fa-check-circle"></i> <%= success %>
+                <button type="button" class="btn-close" data-bs-dismiss="alert">&times;</button>
+            </div>
+        <% } %>
+
+        <div id="smooth-content">
+            <div class="mil-banner mil-banner-inner mil-dissolve">
+                <div class="container">
+                    <div class="row align-items-center justify-content-center">
+                        <div class="col-xl-8">
+                            <div class="mil-banner-text mil-text-center">
+                                <div class="mil-text-m mil-mb-20 mil-up">Join the REVAAMP Legal Ecosystem</div>
+                                <h1 class="mil-mb-60 mil-up">REVAAMP Partner Solicitor</h1>
+                                <ul class="mil-breadcrumbs mil-center mil-up">
+                                    <li><a href="/">Home</a></li>
+                                    <li><a href="/solicitor/register">Partner Solicitor</a></li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="mil-cta mil-up mil-mt-30">
+                <div class="container">
+                    <div class="mil-out-frame mil-p-80-80" style="background: linear-gradient(135deg, #2c3e50 0%, #3498db 100%);">
+                        <div class="row justify-content-between align-items-center">
+                            <div class="col-xl-12 mil-text-center">
+                                <h2 class="mil-light mil-mb-15 mil-up">✨ Provide Legal Services Across Africa's Real Estate Ecosystem ✨</h2>
+                                <p class="mil-text-m mil-light mil-mb-0 mil-up">Free training | Earn 70% of legal fees | Pan-African legal network</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="mil-blog-list mil-p-80-80">
+                <div class="container">
+                    <div class="row justify-content-center">
+                        <div class="col-xl-6">
+                            <div class="mil-price-card">
+                                <div class="mil-text-center mil-mb-30">
+                                    <i class="fa fa-gavel" style="font-size: 60px; color: #03A6A6;"></i>
+                                    <h3 class="mil-mb-15 mil-mt-15">Register as Partner Solicitor</h3>
+                                    <p class="mil-text-m mil-soft">Join the REVAAMP legal ecosystem and expand your practice across Africa</p>
+                                </div>
+                                
+                                <form action="/solicitor/register" method="POST" enctype="multipart/form-data">
+                                    <div class="row">
+                                        <div class="col-md-12">
+                                            <input class="mil-input mil-up mil-mb-15" type="text" name="name" placeholder="Full name" required>
+                                        </div>
+                                        <div class="col-md-12">
+                                            <input class="mil-input mil-up mil-mb-15" type="email" name="email" placeholder="Email address" required>
+                                        </div>
+                                        <div class="col-md-12">
+                                            <input class="mil-input mil-up mil-mb-15" type="tel" name="phone" placeholder="Phone number" required>
+                                        </div>
+                                        <div class="col-md-12">
+                                            <input class="mil-input mil-up mil-mb-15" type="text" name="lawFirm" placeholder="Law Firm Name" required>
+                                        </div>
+                                        <div class="col-md-12">
+                                            <input class="mil-input mil-up mil-mb-15" type="text" name="barNumber" placeholder="Bar Association Number" required>
+                                        </div>
+                                        <div class="col-md-12">
+                                            <input class="mil-input mil-up mil-mb-15" type="text" name="countryOfPractice" placeholder="Country of Practice" required>
+                                        </div>
+                                        <div class="col-md-12">
+                                            <input class="mil-input mil-up mil-mb-15" type="text" name="territory" placeholder="Your Territory (State/Region)" required>
+                                        </div>
+                                        <div class="col-md-12">
+                                            <textarea class="mil-input mil-up mil-mb-15" name="experience" rows="3" placeholder="Years of experience & areas of specialization"></textarea>
+                                        </div>
+                                        <div class="col-md-12">
+                                            <input class="mil-input mil-up mil-mb-15" type="password" name="password" placeholder="Password (min. 8 characters)" required>
+                                        </div>
+                                        <div class="col-md-12">
+                                            <input class="mil-input mil-up mil-mb-30" type="password" name="confirmPassword" placeholder="Confirm Password" required>
+                                        </div>
+                                    </div>
+
+                                    <h4 class="mil-mb-15 mil-up mil-mt-30">Upload Documents</h4>
+                                    <div class="mil-divider mil-mb-30"></div>
+                                    
+                                    <div class="mil-mb-30">
+                                        <label class="mil-text-s mil-soft mil-up">Bar Association Certificate</label>
+                                        <input class="mil-input mil-up mil-mt-10" type="file" name="barCertificate" accept="image/*,.pdf" required>
+                                        <p class="mil-text-xs mil-soft mil-mt-5">Upload your bar association membership certificate</p>
+                                    </div>
+                                    
+                                    <div class="mil-mb-30">
+                                        <label class="mil-text-s mil-soft mil-up">Law Firm Registration (Optional)</label>
+                                        <input class="mil-input mil-up mil-mt-10" type="file" name="firmRegistration" accept="image/*,.pdf">
+                                        <p class="mil-text-xs mil-soft mil-mt-5">Upload your law firm registration document</p>
+                                    </div>
+
+                                    <div class="mil-checkbox-frame mil-up mil-mb-30">
+                                        <div class="mil-checkbox">
+                                            <input type="checkbox" id="mandate" name="mandate" required>
+                                            <label for="mandate"></label>
+                                        </div>
+                                        <p class="mil-text-xs mil-soft">I accept the <a href="/solicitor/mandate" class="mil-accent">Mandate to Act as REVAAMP Partner Solicitor</a> and agree to the terms and conditions</p>
+                                    </div>
+
+                                    <div class="mil-checkbox-frame mil-up mil-mb-30">
+                                        <div class="mil-checkbox">
+                                            <input type="checkbox" id="terms" name="terms" required>
+                                            <label for="terms"></label>
+                                        </div>
+                                        <p class="mil-text-xs mil-soft">I agree to the <a href="/terms" class="mil-accent">Terms and Conditions</a> and <a href="/privacy" class="mil-accent">Privacy Policy</a></p>
+                                    </div>
+
+                                    <div class="mil-up">
+                                        <button type="submit" class="mil-btn mil-md mil-fw">Register as Partner Solicitor</button>
+                                    </div>
+
+                                    <div class="mil-text-center mil-mt-30">
+                                        <p class="mil-text-s mil-soft">
+                                            Already have an account? <a href="/login" class="mil-accent">Login here</a>
+                                        </p>
+                                        <p class="mil-text-s mil-soft mil-mt-15">
+                                            Want to join as Hectare by Hectare Solicitor? <a href="/hectare-solicitor/register" class="mil-accent">Register Here →</a>
+                                        </p>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="mil-features mil-p-80-80">
+                <div class="container">
+                    <div class="mil-text-center mil-mb-60">
+                        <h2 class="mil-mb-30 mil-up">Benefits of Becoming a REVAAMP Partner Solicitor</h2>
+                        <p class="mil-text-m mil-soft mil-up">Expand your legal practice across Africa with REVAAMP</p>
+                    </div>
+                    <div class="row">
+                        <div class="col-xl-4 col-md-6 mil-mb-30">
+                            <div class="mil-price-card mil-up mil-mb-30 mil-text-center" style="height: 100%;">
+                                <i class="fa fa-graduation-cap" style="font-size: 50px; color: #03A6A6; margin-bottom: 20px;"></i>
+                                <h4 class="mil-mb-15">Free Training</h4>
+                                <p class="mil-text-s mil-soft">Free training on REVAAMP solutions, schemes, and innovative legal frameworks</p>
+                            </div>
+                        </div>
+                        <div class="col-xl-4 col-md-6 mil-mb-30">
+                            <div class="mil-price-card mil-up mil-mb-30 mil-text-center" style="height: 100%;">
+                                <i class="fa fa-globe" style="font-size: 50px; color: #03A6A6; margin-bottom: 20px;"></i>
+                                <h4 class="mil-mb-15">Pan-African Ecosystem</h4>
+                                <p class="mil-text-s mil-soft">Access to legal practitioners and strategic stakeholders across Africa</p>
+                            </div>
+                        </div>
+                        <div class="col-xl-4 col-md-6 mil-mb-30">
+                            <div class="mil-price-card mil-up mil-mb-30 mil-text-center" style="height: 100%;">
+                                <i class="fa fa-money" style="font-size: 50px; color: #03A6A6; margin-bottom: 20px;"></i>
+                                <h4 class="mil-mb-15">70% Legal Fees</h4>
+                                <p class="mil-text-s mil-soft">Earn 70% of legal fees on transactions you initiate, even if other lawyers execute</p>
+                            </div>
+                        </div>
+                        <div class="col-xl-4 col-md-6 mil-mb-30">
+                            <div class="mil-price-card mil-up mil-mb-30 mil-text-center" style="height: 100%;">
+                                <i class="fa fa-calendar" style="font-size: 50px; color: #03A6A6; margin-bottom: 20px;"></i>
+                                <h4 class="mil-mb-15">Recurring Income</h4>
+                                <p class="mil-text-s mil-soft">Earn 60% of monthly legal fees throughout project lifecycle on qualifying transactions</p>
+                            </div>
+                        </div>
+                        <div class="col-xl-4 col-md-6 mil-mb-30">
+                            <div class="mil-price-card mil-up mil-mb-30 mil-text-center" style="height: 100%;">
+                                <i class="fa fa-leaf" style="font-size: 50px; color: #03A6A6; margin-bottom: 20px;"></i>
+                                <h4 class="mil-mb-15">Hectare by Hectare</h4>
+                                <p class="mil-text-s mil-soft">Participate and benefit from the Hectare by Hectare programme</p>
+                            </div>
+                        </div>
+                        <div class="col-xl-4 col-md-6 mil-mb-30">
+                            <div class="mil-price-card mil-up mil-mb-30 mil-text-center" style="height: 100%;">
+                                <i class="fa fa-users" style="font-size: 50px; color: #03A6A6; margin-bottom: 20px;"></i>
+                                <h4 class="mil-mb-15">Network Growth</h4>
+                                <p class="mil-text-s mil-soft">Onboard and train other solicitors, earning from their contributions</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="mil-cta mil-up">
+                <div class="container">
+                    <div class="mil-out-frame mil-p-80-80" style="background: #f8f9fa;">
+                        <div class="mil-text-center mil-mb-60">
+                            <h2 class="mil-mb-30 mil-up">REVAAMP Solutions You'll Support</h2>
+                            <p class="mil-text-m mil-soft mil-up">Key schemes and solutions requiring legal expertise</p>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-4 mil-mb-30">
+                                <div class="mil-text-center">
+                                    <i class="fa fa-handshake-o" style="font-size: 40px; color: #03A6A6; margin-bottom: 15px;"></i>
+                                    <h5 class="mil-mb-10">Joint Ownership Solution</h5>
+                                    <p class="mil-text-s mil-soft">De-risked solution enabling co-ownership of properties by multiple persons</p>
+                                </div>
+                            </div>
+                            <div class="col-md-4 mil-mb-30">
+                                <div class="mil-text-center">
+                                    <i class="fa fa-tasks" style="font-size: 40px; color: #03A6A6; margin-bottom: 15px;"></i>
+                                    <h5 class="mil-mb-10">Project Management Solution</h5>
+                                    <p class="mil-text-s mil-soft">Hassle-free development for diaspora Africans with payment in arrears</p>
+                                </div>
+                            </div>
+                            <div class="col-md-4 mil-mb-30">
+                                <div class="mil-text-center">
+                                    <i class="fa fa-unlock-alt" style="font-size: 40px; color: #03A6A6; margin-bottom: 15px;"></i>
+                                    <h5 class="mil-mb-10">Equity Release Scheme</h5>
+                                    <p class="mil-text-s mil-soft">Unlock capital from properties already listed for sale</p>
+                                </div>
+                            </div>
+                            <div class="col-md-4 mil-mb-30">
+                                <div class="mil-text-center">
+                                    <i class="fa fa-home" style="font-size: 40px; color: #03A6A6; margin-bottom: 15px;"></i>
+                                    <h5 class="mil-mb-10">Mortgage Scheme</h5>
+                                    <p class="mil-text-s mil-soft">Lease to Own Mortgage Solution addressing housing deficit</p>
+                                </div>
+                            </div>
+                            <div class="col-md-4 mil-mb-30">
+                                <div class="mil-text-center">
+                                    <i class="fa fa-exchange" style="font-size: 40px; color: #03A6A6; margin-bottom: 15px;"></i>
+                                    <h5 class="mil-mb-10">Land Swap Scheme</h5>
+                                    <p class="mil-text-s mil-soft">Landowner contributes land as equity for housing development</p>
+                                </div>
+                            </div>
+                            <div class="col-md-4 mil-mb-30">
+                                <div class="mil-text-center">
+                                    <i class="fa fa-graduation-cap" style="font-size: 40px; color: #03A6A6; margin-bottom: 15px;"></i>
+                                    <h5 class="mil-mb-10">Students & Staff Housing</h5>
+                                    <p class="mil-text-s mil-soft">Affordable hostel and staff housing development in tertiary institutions</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="mil-faq mil-p-80-80">
+                <div class="container">
+                    <div class="row justify-content-center">
+                        <div class="col-xl-8">
+                            <div class="mil-text-center">
+                                <h2 class="mil-mb-30 mil-up">Frequently Asked Questions</h2>
+                                <p class="mil-text-m mil-soft mil-mb-60 mil-up">Everything you need to know about becoming a Partner Solicitor</p>
+                            </div>
+                            <div class="mil-accordion">
+                                <div class="mil-accordion-group mil-up">
+                                    <div class="mil-accordion-menu">
+                                        <h5>What is the administrative fee on earnings?</h5>
+                                        <div class="mil-accordion-icon"><i class="fas fa-chevron-up"></i></div>
+                                    </div>
+                                    <div class="mil-accordion-content">
+                                        <p class="mil-text-m mil-soft">Every income due to you under the programme shall be subject to a 10% deduction as Administrative fee.</p>
+                                    </div>
+                                </div>
+                                <div class="mil-accordion-group mil-up">
+                                    <div class="mil-accordion-menu">
+                                        <h5>How do I earn from the Hectare by Hectare programme?</h5>
+                                        <div class="mil-accordion-icon"><i class="fas fa-chevron-up"></i></div>
+                                    </div>
+                                    <div class="mil-accordion-content">
+                                        <p class="mil-text-m mil-soft">You'll provide legal services and corporate governance to premium cooperative societies assigned to you under the Hectare by Hectare Programme, earning professional fees from these engagements.</p>
+                                    </div>
+                                </div>
+                                <div class="mil-accordion-group mil-up">
+                                    <div class="mil-accordion-menu">
+                                        <h5>Do I need to pay any registration fee?</h5>
+                                        <div class="mil-accordion-icon"><i class="fas fa-chevron-up"></i></div>
+                                    </div>
+                                    <div class="mil-accordion-content">
+                                        <p class="mil-text-m mil-soft">Registration is free. There is no upfront fee to become a REVAAMP Partner Solicitor. You earn from legal fees on transactions.</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="mil-cta mil-up">
+                <div class="container">
+                    <div class="mil-out-frame mil-p-80-80" style="background: linear-gradient(135deg, #2c3e50 0%, #3498db 100%);">
+                        <div class="row justify-content-between align-items-center">
+                            <div class="col-xl-8 mil-sm-text-center">
+                                <h2 class="mil-light mil-mb-30 mil-up">Ready to Expand Your Legal Practice?</h2>
+                                <p class="mil-text-m mil-mb-30 mil-dark-soft mil-up">Join the REVAAMP legal ecosystem and access real estate transactions across Africa.</p>
+                            </div>
+                            <div class="col-xl-4 mil-sm-text-center">
+                                <div class="mil-buttons-frame mil-up">
+                                    <a href="#top" class="mil-btn mil-md mil-light">Register Now</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <footer class="mil-p-80-0">
+                <div class="container">
+                    <div class="row">
+                        <div class="col-xl-3">
+                            <a href="/" class="mil-footer-logo mil-mb-60"><img src="/img/logo-2.png" alt="RevaampAPA" width="28" height="32"></a>
+                        </div>
+                        <div class="col-xl-3 mil-mb-60">
+                            <h6 class="mil-mb-60">Useful Links</h6>
+                            <ul class="mil-footer-list">
+                                <li><a href="/">Home</a></li>
+                                <li><a href="/about">About Us</a></li>
+                                <li><a href="/contact">Contact Us</a></li>
+                            </ul>
+                        </div>
+                        <div class="col-xl-3 mil-mb-60">
+                            <h6 class="mil-mb-60">For Solicitors</h6>
+                            <ul class="mil-footer-list">
+                                <li><a href="/solicitor/register">Become Partner Solicitor</a></li>
+                                <li><a href="/hectare-solicitor/register">HbH Solicitor</a></li>
+                            </ul>
+                        </div>
+                        <div class="col-xl-3 mil-mb-80">
+                            <h6 class="mil-mb-60">Newsletter</h6>
+                            <form class="mil-subscripe-form-footer" id="footerNewsletterForm">
+                                <input class="mil-input" type="email" placeholder="Email">
+                                <button type="submit"><i class="far fa-envelope-open mil-dark"></i></button>
+                            </form>
+                        </div>
+                    </div>
+                    <div class="mil-footer-bottom">
+                        <div class="row">
+                            <div class="col-xl-6"><p class="mil-text-s mil-soft">© 2024 RevaampAPA. All rights reserved.</p></div>
+                            <div class="col-xl-6"><p class="mil-text-s mil-text-right mil-sm-text-left mil-soft">Website by <a href="https://shedfactory.co" target="_blank">Shed Factory</a></p></div>
+                        </div>
+                    </div>
+                </div>
+            </footer>
+        </div>
+    </div>
+
+    <script src="/js/plugins/jquery.min.js"></script>
+    <script src="/js/plugins/swiper.min.js"></script>
+    <script src="/js/plugins/gsap.min.js"></script>
+    <script src="/js/plugins/ScrollSmoother.min.js"></script>
+    <script src="/js/plugins/ScrollTrigger.min.js"></script>
+    <script src="/js/plugins/ScrollTo.min.js"></script>
+    <script src="/js/plugins/magnific-popup.js"></script>
+    <script src="/js/main.js"></script>
+
+    <script>
+        setTimeout(function() {
+            document.querySelectorAll('.alert').forEach(function(alert) {
+                alert.style.opacity = '0';
+                setTimeout(function() { if (alert.parentNode) alert.remove(); }, 300);
+            });
+        }, 5000);
+
+        var footerForm = document.getElementById('footerNewsletterForm');
+        if (footerForm) {
+            footerForm.addEventListener('submit', function(e) {
+                e.preventDefault();
+                var email = footerForm.querySelector('input[type="email"]').value;
+                fetch('/api/subscribe', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email: email })
+                })
+                .then(function(response) { return response.json(); })
+                .then(function(data) {
+                    alert(data.success ? 'Successfully subscribed!' : 'Error subscribing.');
+                    if (data.success) footerForm.reset();
+                })
+                .catch(function(error) {
+                    console.error('Error:', error);
+                    alert('Error subscribing.');
+                });
+            });
+        }
+    </script>
+
+    <style>
+        .mil-fw { width: 100%; }
+        .mil-mt-30 { margin-top: 30px; }
+        .mil-mt-10 { margin-top: 10px; }
+        .mil-mb-5 { margin-bottom: 5px; }
+        .mil-mb-15 { margin-bottom: 15px; }
+        .mil-mb-30 { margin-bottom: 30px; }
+        .mil-input { width: 100%; padding: 12px 15px; border: 1px solid #e0e0e0; border-radius: 8px; }
+        .mil-divider { height: 1px; background: #e0e0e0; margin: 15px 0; }
+        label { display: block; margin-bottom: 5px; font-weight: 500; }
+    </style>
+</body>
+</html>

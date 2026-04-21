@@ -157,6 +157,10 @@ app.get('/r/:code', require('./controllers/referralController').handleReferral);
 // Project Subscriber routes
 app.use('/project-subscriber', require('./routes/projectSubscriberRoutes'));
 
+// app.js - Add this line with other routes
+
+// Solicitor routes
+app.use('/solicitor', require('./routes/solicitorRoutes'));
 // ============= PUBLIC PAGES =============
 
 // Home page

@@ -11,52 +11,27 @@ router.post('/login', authController.postLogin);
 
 // ============= PROPERTY OWNER REGISTRATION =============
 router.get('/register', authController.getRegister);
-router.post('/register', upload.uploadPaymentProof.single('paymentProof'), authController.postRegister);
+router.post('/register', upload.uploadPaymentProofDoc, authController.postRegister);
 
-
-// ============= PROMOTER REGISTRATION =============
+// ============= PROMOTER REGISTRATION (FREE) =============
 router.get('/promoter/register', authController.getPromoterRegister);
 router.post('/promoter/register', authController.postPromoterRegister);
-router.get('/agent/pending', authController.agentPending);
 
-// Business Partner registration (with payment)
+// ============= BUSINESS PARTNER REGISTRATION =============
 router.get('/business-partner/register', authController.getBusinessPartnerRegister);
-router.post('/business-partner/register', upload.uploadPaymentProof.single('paymentProof'), authController.postBusinessPartnerRegister);
+router.post('/business-partner/register', upload.uploadPaymentProofDoc, authController.postBusinessPartnerRegister);
+
+// ============= PROJECT SUBSCRIBER REGISTRATION =============
+router.get('/project-subscriber/register', authController.getProjectSubscriberRegister);
+router.post('/project-subscriber/register', authController.postProjectSubscriberRegister);
 
 // ============= DASHBOARD =============
 router.get('/dashboard', authMiddleware.isAuthenticated, authController.getDashboard);
 
 // ============= PROFILE MANAGEMENT =============
-router.post('/dashboard/update-profile', 
-    authMiddleware.isAuthenticated, 
-    authController.updateProfile
-);
-
-router.post('/dashboard/update-profile-image', 
-    authMiddleware.isAuthenticated, 
-    (req, res, next) => {
-        upload.upload.single('profileImage')(req, res, (err) => {
-            if (err) {
-                console.error('Upload error:', err);
-                req.flash('error', err.message);
-                return res.redirect('/dashboard/settings');
-            }
-            next();
-        });
-    },
-    authController.updateProfileImage
-);
-
-router.post('/dashboard/change-password', 
-    authMiddleware.isAuthenticated, 
-    authController.changePassword
-);
-
-// ============ Project Subscriber registration ==========
-router.get('/project-subscriber/register', authController.getProjectSubscriberRegister);
-router.post('/project-subscriber/register', authController.postProjectSubscriberRegister);
-
-
+router.post('/dashboard/update-profile', authMiddleware.isAuthenticated, authController.updateProfile);
+router.post('/dashboard/update-profile-image', authMiddleware.isAuthenticated, upload.upload.single('profileImage'), authController.updateProfileImage);
+router.post('/dashboard/change-password', authMiddleware.isAuthenticated, authController.changePassword);
 
 // ============= PASSWORD RESET =============
 router.get('/forgot-password', authController.getForgotPassword);
@@ -69,5 +44,8 @@ router.get('/verification-callback', authController.verificationCallback);
 
 // ============= LOGOUT =============
 router.get('/logout', authController.logout);
+
+// ============= PENDING PAGE =============
+router.get('/agent/pending', authController.agentPending);
 
 module.exports = router;
