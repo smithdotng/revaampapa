@@ -28,8 +28,12 @@
         .status-pending { background: #ffc107; color: #000; }
         .status-rejected { background: #dc3545; color: #fff; }
         .status-payment_confirmed { background: #17a2b8; color: #fff; }
+        .featured-badge { background: #ffd700; color: #000; padding: 4px 8px; border-radius: 4px; font-size: 11px; font-weight: 600; margin-left: 5px; }
         .delete-btn { background: none; border: none; color: #dc3545; cursor: pointer; font-size: 14px; margin-left: 10px; }
         .delete-btn:hover { color: #c82333; text-decoration: underline; }
+        .feature-btn { background: none; border: none; color: #ffc107; cursor: pointer; font-size: 14px; margin-left: 10px; }
+        .feature-btn:hover { color: #ffd700; text-decoration: underline; }
+        .feature-btn.active { color: #ffd700; }
         .property-image { width: 50px; height: 50px; object-fit: cover; border-radius: 4px; }
         .modal {
             display: none;
@@ -64,6 +68,7 @@
             font-weight: 600;
         }
         .confirm-delete { background: #dc3545; color: white; }
+        .confirm-feature { background: #ffc107; color: #000; }
         .cancel-delete { background: #6c757d; color: white; }
         .toast-message {
             position: fixed;
@@ -78,9 +83,15 @@
             animation: slideIn 0.3s ease;
         }
         .toast-message.error { background: #dc3545; }
+        .toast-message.warning { background: #ffc107; color: #000; }
         @keyframes slideIn {
             from { transform: translateX(100%); opacity: 0; }
             to { transform: translateX(0); opacity: 1; }
+        }
+        .action-buttons {
+            display: flex;
+            gap: 5px;
+            flex-wrap: wrap;
         }
     </style>
 </head>
@@ -244,6 +255,7 @@
                                                     <th>Owner</th>
                                                     <th>Price</th>
                                                     <th>Status</th>
+                                                    <th>Featured</th>
                                                     <th>Created</th>
                                                     <th>Actions</th>
                                                 </tr>
@@ -257,11 +269,16 @@
                                                             <% } else { %>
                                                                 <div style="width: 50px; height: 50px; background: #f0f0f0; border-radius: 4px;"></div>
                                                             <% } %>
-                                                        </td>
-                                                        <td><%= property.title.substring(0, 40) %></td>
-                                                        <td><%= property.owner ? property.owner.name : 'N/A' %></td>
-                                                        <td>₦<%= property.price.toLocaleString() %></td>
-                                                        <td>
+                                                         </td>
+                                                         <td>
+                                                            <%= property.title.substring(0, 40) %>
+                                                            <% if (property.featured) { %>
+                                                                <span class="featured-badge"><i class="fa fa-star"></i> Featured</span>
+                                                            <% } %>
+                                                         </td>
+                                                         <td><%= property.owner ? property.owner.name : 'N/A' %></td>
+                                                         <td>₦<%= property.price.toLocaleString() %></td>
+                                                         <td>
                                                             <% if (property.verificationStatus === 'verified') { %>
                                                                 <span class="status-badge status-verified">✓ Verified</span>
                                                             <% } else if (property.verificationStatus === 'payment_confirmed') { %>
@@ -271,18 +288,27 @@
                                                             <% } else { %>
                                                                 <span class="status-badge"><%= property.verificationStatus %></span>
                                                             <% } %>
-                                                        </td>
-                                                        <td><%= new Date(property.createdAt).toLocaleDateString() %></td>
-                                                        <td>
-                                                            <a href="/superadmin/properties/<%= property._id %>" class="mil-link mil-accent">View</a>
-                                                            <% if (property.verificationStatus === 'payment_confirmed') { %>
-                                                                <button onclick="verifyProperty('<%= property._id %>')" class="mil-link" style="color: #28a745; margin-left: 10px;">Verify</button>
-                                                            <% } %>
-                                                            <button onclick="confirmDelete('<%= property._id %>', '<%= property.title.replace(/'/g, "\\'") %>')" class="delete-btn" title="Delete Property">
-                                                                <i class="fa fa-trash"></i> Delete
+                                                         </td>
+                                                         <td class="text-center">
+                                                            <button onclick="toggleFeatured('<%= property._id %>', <%= property.featured %>)" 
+                                                                    class="feature-btn <%= property.featured ? 'active' : '' %>"
+                                                                    title="<%= property.featured ? 'Remove from Featured' : 'Make Featured' %>">
+                                                                <i class="fa fa-star"></i> <%= property.featured ? 'Unfeature' : 'Feature' %>
                                                             </button>
-                                                        </td>
-                                                    </tr>
+                                                         </td>
+                                                         <td><%= new Date(property.createdAt).toLocaleDateString() %></td>
+                                                         <td>
+                                                            <div class="action-buttons">
+                                                                <a href="/superadmin/properties/<%= property._id %>" class="mil-link mil-accent">View</a>
+                                                                <% if (property.verificationStatus === 'payment_confirmed') { %>
+                                                                    <button onclick="verifyProperty('<%= property._id %>')" class="mil-link" style="color: #28a745;">Verify</button>
+                                                                <% } %>
+                                                                <button onclick="confirmDelete('<%= property._id %>', '<%= property.title.replace(/'/g, "\\'") %>')" class="delete-btn" title="Delete Property">
+                                                                    <i class="fa fa-trash"></i> Delete
+                                                                </button>
+                                                            </div>
+                                                         </td>
+                                                     </tr>
                                                 <% }); %>
                                             </tbody>
                                         </table>
@@ -355,6 +381,35 @@
         let propertyToDelete = null;
         let propertyTitle = '';
         
+        // Toggle featured property
+        function toggleFeatured(propertyId, currentStatus) {
+            const action = currentStatus ? 'remove from featured' : 'make featured';
+            if (confirm(`Are you sure you want to ${action} this property?`)) {
+                fetch(`/superadmin/properties/${propertyId}/feature`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        const message = data.featured ? 'Property marked as featured!' : 'Property removed from featured!';
+                        showToast(message, 'success');
+                        setTimeout(() => {
+                            location.reload();
+                        }, 1000);
+                    } else {
+                        showToast(data.error || 'Error updating featured status', 'error');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    showToast('Error updating featured status', 'error');
+                });
+            }
+        }
+        
         // Show delete confirmation modal
         function confirmDelete(propertyId, title) {
             propertyToDelete = propertyId;
@@ -383,7 +438,6 @@
             .then(response => response.json())
             .then(data => {
                 if (data.success) {
-                    // Remove the row from the table
                     const row = document.getElementById(`property-row-${propertyToDelete}`);
                     if (row) {
                         row.remove();
@@ -391,7 +445,6 @@
                     showToast('Property deleted successfully!', 'success');
                     closeDeleteModal();
                     
-                    // Reload after 1 second to update stats
                     setTimeout(() => {
                         location.reload();
                     }, 1000);
@@ -441,6 +494,8 @@
             toast.className = 'toast-message';
             if (type === 'error') {
                 toast.classList.add('error');
+            } else if (type === 'warning') {
+                toast.classList.add('warning');
             }
             toast.style.display = 'block';
             

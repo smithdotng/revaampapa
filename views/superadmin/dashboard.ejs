@@ -166,28 +166,28 @@
                     <div class="row">
                         <div class="col-xl-3 col-md-6">
                             <div class="mil-price-card stat-card mil-up mil-mb-30">
-                                <h4 class="mil-mb-15"><span class="mil-pricing-table-price"><%= stats.totalProperties %></span></h4>
+                                <h4 class="mil-mb-15"><span class="mil-pricing-table-price"><%= stats.totalProperties || 0 %></span></h4>
                                 <p class="mil-text-s mil-soft">Total Properties</p>
                                 <i class="fa fa-building" style="font-size: 40px; opacity: 0.3; margin-top: 20px;"></i>
                             </div>
                         </div>
                         <div class="col-xl-3 col-md-6">
                             <div class="mil-price-card stat-card mil-up mil-mb-30">
-                                <h4 class="mil-mb-15"><span class="mil-pricing-table-price"><%= stats.pendingProperties %></span></h4>
+                                <h4 class="mil-mb-15"><span class="mil-pricing-table-price"><%= stats.pendingProperties || 0 %></span></h4>
                                 <p class="mil-text-s mil-soft">Pending Verification</p>
                                 <i class="fa fa-clock-o" style="font-size: 40px; opacity: 0.3; margin-top: 20px;"></i>
                             </div>
                         </div>
                         <div class="col-xl-3 col-md-6">
                             <div class="mil-price-card stat-card mil-up mil-mb-30">
-                                <h4 class="mil-mb-15"><span class="mil-pricing-table-price"><%= stats.verifiedProperties %></span></h4>
+                                <h4 class="mil-mb-15"><span class="mil-pricing-table-price"><%= stats.verifiedProperties || 0 %></span></h4>
                                 <p class="mil-text-s mil-soft">Verified Properties</p>
                                 <i class="fa fa-check-circle" style="font-size: 40px; opacity: 0.3; margin-top: 20px;"></i>
                             </div>
                         </div>
                         <div class="col-xl-3 col-md-6">
                             <div class="mil-price-card stat-card mil-up mil-mb-30">
-                                <h4 class="mil-mb-15">₦<span class="mil-pricing-table-price"><%= stats.totalRevenue.toLocaleString() %></span></h4>
+                                <h4 class="mil-mb-15">₦<span class="mil-pricing-table-price"><%= (stats.totalRevenue || 0).toLocaleString() %></span></h4>
                                 <p class="mil-text-s mil-soft">Total Revenue</p>
                                 <i class="fa fa-money" style="font-size: 40px; opacity: 0.3; margin-top: 20px;"></i>
                             </div>
@@ -203,28 +203,28 @@
                     <div class="row">
                         <div class="col-xl-3 col-md-6">
                             <div class="mil-price-card stat-card mil-up mil-mb-30">
-                                <h4 class="mil-mb-15"><span class="mil-pricing-table-price"><%= stats.totalPromoters %></span></h4>
+                                <h4 class="mil-mb-15"><span class="mil-pricing-table-price"><%= stats.totalPromoters || 0 %></span></h4>
                                 <p class="mil-text-s mil-soft">Total Promoters</p>
                                 <i class="fa fa-users" style="font-size: 40px; opacity: 0.3; margin-top: 20px;"></i>
                             </div>
                         </div>
                         <div class="col-xl-3 col-md-6">
                             <div class="mil-price-card stat-card mil-up mil-mb-30">
-                                <h4 class="mil-mb-15"><span class="mil-pricing-table-price"><%= stats.pendingPromoters %></span></h4>
+                                <h4 class="mil-mb-15"><span class="mil-pricing-table-price"><%= stats.pendingPromoters || 0 %></span></h4>
                                 <p class="mil-text-s mil-soft">Pending Promoters</p>
                                 <i class="fa fa-user-plus" style="font-size: 40px; opacity: 0.3; margin-top: 20px;"></i>
                             </div>
                         </div>
                         <div class="col-xl-3 col-md-6">
                             <div class="mil-price-card stat-card mil-up mil-mb-30">
-                                <h4 class="mil-mb-15"><span class="mil-pricing-table-price"><%= stats.totalTransactions %></span></h4>
+                                <h4 class="mil-mb-15"><span class="mil-pricing-table-price"><%= stats.totalTransactions || 0 %></span></h4>
                                 <p class="mil-text-s mil-soft">Transactions</p>
                                 <i class="fa fa-exchange" style="font-size: 40px; opacity: 0.3; margin-top: 20px;"></i>
                             </div>
                         </div>
                         <div class="col-xl-3 col-md-6">
                             <div class="mil-price-card stat-card mil-up mil-mb-30">
-                                <h4 class="mil-mb-15"><span class="mil-pricing-table-price"><%= stats.completedTransactions %></span></h4>
+                                <h4 class="mil-mb-15"><span class="mil-pricing-table-price"><%= stats.completedTransactions || 0 %></span></h4>
                                 <p class="mil-text-s mil-soft">Completed</p>
                                 <i class="fa fa-check-circle-o" style="font-size: 40px; opacity: 0.3; margin-top: 20px;"></i>
                             </div>
@@ -295,8 +295,9 @@
                                             </thead>
                                             <tbody>
                                                 <% recentProperties.forEach(function(property) { %>
+                                                    <% if (property) { %>
                                                     <tr>
-                                                        <td><%= property.title.substring(0, 30) %></td>
+                                                        <td><%= property.title ? property.title.substring(0, 30) : 'N/A' %></td>
                                                         <td><%= property.owner ? property.owner.name : 'N/A' %></td>
                                                         <td>
                                                             <% if (property.verificationStatus === 'verified') { %>
@@ -309,8 +310,9 @@
                                                                 <span class="badge"><%= property.verificationStatus %></span>
                                                             <% } %>
                                                           </td>
-                                                        <td><%= new Date(property.createdAt).toLocaleDateString() %></td>
+                                                          <td><%= property.createdAt ? new Date(property.createdAt).toLocaleDateString() : 'N/A' %></td>
                                                     </tr>
+                                                    <% } %>
                                                 <% }); %>
                                             </tbody>
                                         </table>
@@ -334,12 +336,14 @@
                                             </thead>
                                             <tbody>
                                                 <% recentTransactions.forEach(function(transaction) { %>
+                                                    <% if (transaction) { %>
                                                     <tr>
                                                         <td><%= transaction.property ? transaction.property.title.substring(0, 20) : 'N/A' %></td>
                                                         <td><%= transaction.promoter ? transaction.promoter.name : 'N/A' %></td>
-                                                        <td>₦<%= (transaction.commissionSplit?.platform?.amount || 0).toLocaleString() %></td>
-                                                        <td><%= new Date(transaction.transactionDate).toLocaleDateString() %></td>
+                                                        <td>₦<%= (transaction.commissionSplit && transaction.commissionSplit.platform && transaction.commissionSplit.platform.amount) ? transaction.commissionSplit.platform.amount.toLocaleString() : '0' %></td>
+                                                        <td><%= transaction.transactionDate ? new Date(transaction.transactionDate).toLocaleDateString() : 'N/A' %></td>
                                                     </tr>
+                                                    <% } %>
                                                 <% }); %>
                                             </tbody>
                                         </table>
@@ -372,17 +376,18 @@
                                             </thead>
                                             <tbody>
                                                 <% recentInquiries.forEach(function(inquiry) { %>
+                                                    <% if (inquiry && inquiry.property) { %>
                                                     <tr>
                                                         <td>
                                                             <a href="/superadmin/properties/<%= inquiry.property._id %>" class="mil-link mil-accent">
-                                                                <%= inquiry.property.title.substring(0, 30) %>
+                                                                <%= inquiry.property.title ? inquiry.property.title.substring(0, 30) : 'N/A' %>
                                                             </a>
                                                         </td>
                                                         <td>
-                                                            <strong><%= inquiry.name %></strong><br>
-                                                            <small class="mil-soft"><%= inquiry.email %></small>
+                                                            <strong><%= inquiry.name || 'N/A' %></strong><br>
+                                                            <small class="mil-soft"><%= inquiry.email || 'N/A' %></small>
                                                         </td>
-                                                        <td><%= inquiry.message.substring(0, 50) %>...</td>
+                                                        <td><%= inquiry.message ? inquiry.message.substring(0, 50) : 'N/A' %>...</td>
                                                         <td>
                                                             <% if (inquiry.status === 'new') { %>
                                                                 <span class="badge badge-new">New</span>
@@ -392,11 +397,12 @@
                                                                 <span class="badge badge-replied">Replied</span>
                                                             <% } %>
                                                         </td>
-                                                        <td><%= new Date(inquiry.createdAt).toLocaleDateString() %></td>
+                                                        <td><%= inquiry.createdAt ? new Date(inquiry.createdAt).toLocaleDateString() : 'N/A' %></td>
                                                         <td>
                                                             <a href="/superadmin/inquiries/<%= inquiry._id %>" class="mil-link mil-accent">View →</a>
                                                         </td>
                                                     </tr>
+                                                    <% } %>
                                                 <% }); %>
                                             </tbody>
                                         </table>

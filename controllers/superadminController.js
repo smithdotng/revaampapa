@@ -7,6 +7,7 @@ const Promotion = require('../models/Promotion');
 const Inquiry = require('../models/Inquiry');
 
 // In superadminController.js, update the getDashboard method
+// ============= DASHBOARD =============
 exports.getDashboard = async (req, res) => {
     try {
         const user = await User.findById(req.session.userId);
@@ -16,17 +17,19 @@ exports.getDashboard = async (req, res) => {
             return res.redirect('/login');
         }
         
-        // Get statistics
+        // Get statistics - Properties
         const totalProperties = await Property.countDocuments();
         const pendingProperties = await Property.countDocuments({ verificationStatus: 'payment_confirmed' });
         const verifiedProperties = await Property.countDocuments({ verificationStatus: 'verified' });
         const rejectedProperties = await Property.countDocuments({ verificationStatus: 'rejected' });
         
+        // Get statistics - Users
         const totalPropertyOwners = await User.countDocuments({ userType: 'property_owner' });
         const totalPromoters = await User.countDocuments({ userType: 'promoter' });
         const pendingPromoters = await User.countDocuments({ userType: 'promoter', 'promoterProfile.isApproved': false });
         const approvedPromoters = await User.countDocuments({ userType: 'promoter', 'promoterProfile.isApproved': true });
         
+        // Get statistics - Transactions
         const totalTransactions = await Transaction.countDocuments();
         const completedTransactions = await Transaction.countDocuments({ paymentStatus: 'completed' });
         const pendingTransactions = await Transaction.countDocuments({ paymentStatus: 'pending' });
@@ -39,16 +42,18 @@ exports.getDashboard = async (req, res) => {
         const totalRevenue = revenueResult.length > 0 ? revenueResult[0].total : 0;
         
         // Get inquiry statistics
+        const Inquiry = require('../models/Inquiry');
         const totalInquiries = await Inquiry.countDocuments();
         const newInquiries = await Inquiry.countDocuments({ status: 'new' });
         const readInquiries = await Inquiry.countDocuments({ status: 'read' });
         const repliedInquiries = await Inquiry.countDocuments({ status: 'replied' });
         
-        // Get recent inquiries
-        const recentInquiries = await Inquiry.find()
-            .populate('property', 'title slug')
-            .sort('-createdAt')
-            .limit(5);
+        // Get pending payments count
+        const pendingPayments = await Property.countDocuments({ 
+            verificationStatus: 'payment_confirmed',
+            verificationPaymentConfirmed: true,
+            status: 'payment_confirmed'
+        });
         
         // Monthly revenue for chart
         const monthlyRevenue = await Transaction.aggregate([
@@ -66,65 +71,133 @@ exports.getDashboard = async (req, res) => {
             { $limit: 6 }
         ]);
         
-        // Recent activities
-        const recentProperties = await Property.find()
-            .populate('owner', 'name email')
-            .sort('-createdAt')
-            .limit(5);
+        // Recent properties - with error handling
+        let recentProperties = [];
+        try {
+            recentProperties = await Property.find()
+                .populate('owner', 'name email')
+                .sort('-createdAt')
+                .limit(5);
+        } catch (err) {
+            console.error('Error fetching recent properties:', err);
+            recentProperties = [];
+        }
         
-        const recentTransactions = await Transaction.find()
-            .populate('property', 'title')
-            .populate('promoter', 'name')
-            .sort('-transactionDate')
-            .limit(5);
+        // Recent transactions - with error handling
+        let recentTransactions = [];
+        try {
+            recentTransactions = await Transaction.find()
+                .populate('property', 'title')
+                .populate('promoter', 'name')
+                .sort('-transactionDate')
+                .limit(5);
+        } catch (err) {
+            console.error('Error fetching recent transactions:', err);
+            recentTransactions = [];
+        }
         
-        const recentPromoters = await User.find({ userType: 'promoter' })
-            .select('-password')
-            .sort('-createdAt')
-            .limit(5);
+        // Recent promoters - with error handling
+        let recentPromoters = [];
+        try {
+            recentPromoters = await User.find({ userType: 'promoter' })
+                .select('-password')
+                .sort('-createdAt')
+                .limit(5);
+        } catch (err) {
+            console.error('Error fetching recent promoters:', err);
+            recentPromoters = [];
+        }
         
-        // Get pending payments count
-        const pendingPayments = await Property.countDocuments({ 
-            verificationStatus: 'payment_confirmed',
-            verificationPaymentConfirmed: true,
-            status: 'payment_confirmed'
-        });
+        // Recent inquiries - filter out null properties
+        let recentInquiries = [];
+        try {
+            recentInquiries = await Inquiry.find({ property: { $ne: null } })
+                .populate('property', 'title slug')
+                .sort('-createdAt')
+                .limit(5);
+            
+            // Filter out any inquiries where property is null after population
+            recentInquiries = recentInquiries.filter(inquiry => inquiry && inquiry.property);
+        } catch (err) {
+            console.error('Error fetching recent inquiries:', err);
+            recentInquiries = [];
+        }
         
+        // Compile statistics object with null checks
         const stats = {
-            totalProperties,
-            pendingProperties,
-            verifiedProperties,
-            rejectedProperties,
-            totalPropertyOwners,
-            totalPromoters,
-            pendingPromoters,
-            approvedPromoters,
-            totalTransactions,
-            completedTransactions,
-            pendingTransactions,
-            totalRevenue,
-            pendingPayments,
-            totalInquiries,
-            newInquiries,
-            readInquiries,
-            repliedInquiries
+            totalProperties: totalProperties || 0,
+            pendingProperties: pendingProperties || 0,
+            verifiedProperties: verifiedProperties || 0,
+            rejectedProperties: rejectedProperties || 0,
+            totalPropertyOwners: totalPropertyOwners || 0,
+            totalPromoters: totalPromoters || 0,
+            pendingPromoters: pendingPromoters || 0,
+            approvedPromoters: approvedPromoters || 0,
+            totalTransactions: totalTransactions || 0,
+            completedTransactions: completedTransactions || 0,
+            pendingTransactions: pendingTransactions || 0,
+            totalRevenue: totalRevenue || 0,
+            pendingPayments: pendingPayments || 0,
+            totalInquiries: totalInquiries || 0,
+            newInquiries: newInquiries || 0,
+            readInquiries: readInquiries || 0,
+            repliedInquiries: repliedInquiries || 0
         };
         
+        // Render dashboard with all data
         res.render('superadmin/dashboard', {
             title: 'Superadmin Dashboard - RevaampAP',
             user: user,
             stats: stats,
-            monthlyRevenue: monthlyRevenue,
-            recentProperties: recentProperties,
-            recentTransactions: recentTransactions,
-            recentPromoters: recentPromoters,
-            recentInquiries: recentInquiries,
+            monthlyRevenue: monthlyRevenue || [],
+            recentProperties: recentProperties || [],
+            recentTransactions: recentTransactions || [],
+            recentPromoters: recentPromoters || [],
+            recentInquiries: recentInquiries || [],
             currentPath: '/superadmin/dashboard'
         });
+        
     } catch (error) {
         console.error('Dashboard error:', error);
-        req.flash('error', 'Error loading dashboard');
-        res.redirect('/superadmin/dashboard');
+        console.error('Error stack:', error.stack);
+        
+        // Render a safe version of the dashboard even if there's an error
+        try {
+            const user = await User.findById(req.session.userId);
+            res.render('superadmin/dashboard', {
+                title: 'Superadmin Dashboard - RevaampAP',
+                user: user || { name: 'Admin' },
+                stats: {
+                    totalProperties: 0,
+                    pendingProperties: 0,
+                    verifiedProperties: 0,
+                    rejectedProperties: 0,
+                    totalPropertyOwners: 0,
+                    totalPromoters: 0,
+                    pendingPromoters: 0,
+                    approvedPromoters: 0,
+                    totalTransactions: 0,
+                    completedTransactions: 0,
+                    pendingTransactions: 0,
+                    totalRevenue: 0,
+                    pendingPayments: 0,
+                    totalInquiries: 0,
+                    newInquiries: 0,
+                    readInquiries: 0,
+                    repliedInquiries: 0
+                },
+                monthlyRevenue: [],
+                recentProperties: [],
+                recentTransactions: [],
+                recentPromoters: [],
+                recentInquiries: [],
+                currentPath: '/superadmin/dashboard'
+            });
+        } catch (renderError) {
+            console.error('Failed to render error dashboard:', renderError);
+            req.flash('error', 'Error loading dashboard');
+            res.redirect('/');
+        }
     }
 };
 
@@ -310,6 +383,7 @@ exports.rejectProperty = async (req, res) => {
 };
 
 // Feature/unfeature property
+// Feature/unfeature property (add this method if not already in your controller)
 exports.featureProperty = async (req, res) => {
     try {
         const property = await Property.findById(req.params.id);
@@ -318,13 +392,23 @@ exports.featureProperty = async (req, res) => {
             return res.status(404).json({ error: 'Property not found' });
         }
         
+        // Toggle featured status
         property.featured = !property.featured;
+        
+        // If featured, set expiry date to 30 days from now
         if (property.featured) {
             property.featuredExpiry = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000);
+        } else {
+            property.featuredExpiry = null;
         }
+        
         await property.save();
         
-        res.json({ success: true, featured: property.featured });
+        res.json({ 
+            success: true, 
+            featured: property.featured,
+            message: property.featured ? 'Property marked as featured' : 'Property removed from featured'
+        });
     } catch (error) {
         console.error('Feature property error:', error);
         res.status(500).json({ error: 'Error featuring property' });

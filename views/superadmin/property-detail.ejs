@@ -1,0 +1,705 @@
+<!DOCTYPE html>
+<html lang="en-US">
+
+<head>
+    <title><%= title %></title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    
+    <link rel="stylesheet" href="/fonts/css/switzer.css" type="text/css" media="all">
+    <link rel="stylesheet" href="/fonts/css/font-awesome.min.css" type="text/css" media="all">
+    <link rel="stylesheet" href="/css/plugins/bootstrap-grid.css" type="text/css" media="all">
+    <link rel="stylesheet" href="/css/plugins/swiper.min.css" type="text/css" media="all">
+    <link rel="stylesheet" href="/css/plugins/magnific-popup.css" type="text/css" media="all">
+    <link rel="stylesheet" href="/css/style.css" type="text/css" media="all">
+    <link rel="stylesheet" href="/css/custom.css" type="text/css" media="all">
+    <link rel="shortcut icon" href="/favicon.ico" type="image/x-icon">
+    
+    <style>
+        .property-gallery {
+            position: relative;
+            margin-bottom: 30px;
+        }
+        .property-gallery .main-image {
+            width: 100%;
+            height: 400px;
+            object-fit: cover;
+            border-radius: 12px;
+        }
+        .property-gallery .thumbnail-list {
+            display: flex;
+            gap: 10px;
+            margin-top: 15px;
+            overflow-x: auto;
+        }
+        .property-gallery .thumbnail {
+            width: 80px;
+            height: 60px;
+            object-fit: cover;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: opacity 0.3s;
+        }
+        .property-gallery .thumbnail:hover {
+            opacity: 0.8;
+        }
+        .property-gallery .thumbnail.active {
+            border: 2px solid #03A6A6;
+        }
+        .info-section {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+        }
+        .info-label {
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 5px;
+        }
+        .info-value {
+            color: #666;
+            margin-bottom: 15px;
+        }
+        .status-badge {
+            display: inline-block;
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+        .status-verified { background: #28a745; color: white; }
+        .status-pending { background: #ffc107; color: #000; }
+        .status-rejected { background: #dc3545; color: white; }
+        .status-payment_confirmed { background: #17a2b8; color: white; }
+        .featured-badge {
+            display: inline-block;
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            background: #ffd700;
+            color: #000;
+        }
+        .action-buttons {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+            flex-wrap: wrap;
+        }
+        .btn-verify { background: #28a745; color: white; border: none; padding: 10px 20px; border-radius: 8px; cursor: pointer; }
+        .btn-reject { background: #dc3545; color: white; border: none; padding: 10px 20px; border-radius: 8px; cursor: pointer; }
+        .btn-feature { background: #ffc107; color: #000; border: none; padding: 10px 20px; border-radius: 8px; cursor: pointer; }
+        .btn-delete { background: #6c757d; color: white; border: none; padding: 10px 20px; border-radius: 8px; cursor: pointer; }
+        .btn-back { background: #03A6A6; color: white; border: none; padding: 10px 20px; border-radius: 8px; cursor: pointer; text-decoration: none; display: inline-block; }
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 9999;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.5);
+        }
+        .modal-content {
+            background-color: white;
+            margin: 15% auto;
+            padding: 30px;
+            border-radius: 12px;
+            width: 90%;
+            max-width: 500px;
+            text-align: center;
+        }
+        .modal-buttons {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            margin-top: 25px;
+        }
+        .modal-buttons button {
+            padding: 10px 25px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+        }
+        .confirm-action { background: #dc3545; color: white; }
+        .cancel-action { background: #6c757d; color: white; }
+        .toast-message {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: #28a745;
+            color: white;
+            padding: 12px 24px;
+            border-radius: 8px;
+            z-index: 10000;
+            display: none;
+            animation: slideIn 0.3s ease;
+        }
+        .toast-message.error { background: #dc3545; }
+        @keyframes slideIn {
+            from { transform: translateX(100%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+        .dropdown-menu { display: none; }
+        .dropdown:hover .dropdown-menu,
+        .dropdown .dropdown-menu.show { display: block; }
+        .property-description {
+            line-height: 1.8;
+            color: #555;
+        }
+        .property-description img {
+            max-width: 100%;
+            height: auto;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div id="smooth-wrapper" class="mil-wrapper">
+        <div class="mil-preloader">
+            <div class="mil-load"></div>
+            <p class="h2 mil-mb-30"><span class="mil-light mil-counter" data-number="100">100</span><span class="mil-light">%</span></p>
+        </div>
+
+        <div class="mil-progress-track">
+            <div class="mil-progress"></div>
+        </div>
+
+        <div class="progress-wrap active-progress"></div>
+
+        <!-- top panel -->
+        <div class="mil-top-panel">
+            <div class="container">
+                <a href="/" class="mil-logo">
+                    <img src="/img/logo.png" alt="RevaampAP" width="83" height="32">
+                </a>
+                <nav class="mil-top-menu">
+                    <ul>
+                        <li><a href="/">Home</a></li>
+                        <li><a href="/superadmin/dashboard" class="mil-active">Dashboard</a></li>
+                        <li><a href="/superadmin/properties">Properties</a></li>
+                        <li><a href="/superadmin/promoters">Promoters</a></li>
+                        <li><a href="/superadmin/property-owners">Owners</a></li>
+                        <li><a href="/superadmin/transactions">Transactions</a></li>
+                        <li><a href="/superadmin/inquiries">Inquiries</a></li>
+                        <li><a href="/superadmin/analytics">Analytics</a></li>
+                    </ul>
+                </nav>
+                <div class="mil-menu-buttons">
+                    <div class="dropdown" style="position: relative;">
+                        <a href="#" class="mil-btn mil-sm dropdown-toggle" data-bs-toggle="dropdown" style="display: flex; align-items: center; gap: 8px;">
+                            <i class="fa fa-user-circle"></i> 
+                            <span><%= user.name %></span>
+                            <i class="fa fa-chevron-down"></i>
+                        </a>
+                        <ul class="dropdown-menu">
+                            <li><a href="/superadmin/profile"><i class="fa fa-user"></i> Profile</a></li>
+                            <li><a href="/superadmin/settings"><i class="fa fa-cog"></i> Settings</a></li>
+                            <li><hr></li>
+                            <li><a href="/logout"><i class="fa fa-sign-out-alt"></i> Logout</a></li>
+                        </ul>
+                    </div>
+                    <div class="mil-menu-btn">
+                        <span></span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="smooth-content">
+            <div class="mil-banner mil-banner-inner mil-dissolve">
+                <div class="container">
+                    <div class="row align-items-center justify-content-center">
+                        <div class="col-xl-8">
+                            <div class="mil-banner-text mil-text-center">
+                                <div class="mil-text-m mil-mb-20 mil-up">Property Details</div>
+                                <h1 class="mil-mb-60 mil-up"><%= property.title %></h1>
+                                <ul class="mil-breadcrumbs mil-pub-info mil-center mil-up">
+                                    <li><a href="/">Home</a></li>
+                                    <li><a href="/superadmin/dashboard">Dashboard</a></li>
+                                    <li><a href="/superadmin/properties">Properties</a></li>
+                                    <li>Details</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="mil-blog-list mil-p-80-80">
+                <div class="container">
+                    <div class="row">
+                        <!-- Left Column - Images -->
+                        <div class="col-xl-8">
+                            <div class="property-gallery mil-mb-30">
+                                <% if (property.images && property.images.length > 0) { 
+                                    var primaryImage = property.images.find(function(img) { return img.isPrimary; }) || property.images[0];
+                                %>
+                                    <img id="mainImage" src="<%= primaryImage.url %>" alt="<%= property.title %>" class="main-image">
+                                    <div class="thumbnail-list">
+                                        <% property.images.forEach(function(image, index) { %>
+                                            <img src="<%= image.url %>" alt="Thumbnail" class="thumbnail <%= image.isPrimary ? 'active' : '' %>" onclick="changeImage(this, '<%= image.url %>')">
+                                        <% }); %>
+                                    </div>
+                                <% } else { %>
+                                    <div style="width: 100%; height: 400px; background: #f0f0f0; border-radius: 12px; display: flex; align-items: center; justify-content: center;">
+                                        <i class="fa fa-building" style="font-size: 80px; color: #ccc;"></i>
+                                    </div>
+                                <% } %>
+                            </div>
+
+                            <!-- Description -->
+                            <div class="info-section">
+                                <h4 class="mil-mb-20">Description</h4>
+                                <div class="property-description">
+                                    <%- property.description %>
+                                </div>
+                            </div>
+
+                            <!-- Features -->
+                            <div class="info-section">
+                                <h4 class="mil-mb-20">Features & Amenities</h4>
+                                <div class="row">
+                                    <% if (property.features && property.features.bedrooms) { %>
+                                        <div class="col-md-6">
+                                            <div class="info-label"><i class="fa fa-bed"></i> Bedrooms</div>
+                                            <div class="info-value"><%= property.features.bedrooms %></div>
+                                        </div>
+                                    <% } %>
+                                    <% if (property.features && property.features.bathrooms) { %>
+                                        <div class="col-md-6">
+                                            <div class="info-label"><i class="fa fa-bath"></i> Bathrooms</div>
+                                            <div class="info-value"><%= property.features.bathrooms %></div>
+                                        </div>
+                                    <% } %>
+                                    <% if (property.features && property.features.toilets) { %>
+                                        <div class="col-md-6">
+                                            <div class="info-label"><i class="fa fa-toilet"></i> Toilets</div>
+                                            <div class="info-value"><%= property.features.toilets %></div>
+                                        </div>
+                                    <% } %>
+                                    <% if (property.features && property.features.parkingSpaces) { %>
+                                        <div class="col-md-6">
+                                            <div class="info-label"><i class="fa fa-car"></i> Parking Spaces</div>
+                                            <div class="info-value"><%= property.features.parkingSpaces %></div>
+                                        </div>
+                                    <% } %>
+                                    <% if (property.features && property.features.floorArea) { %>
+                                        <div class="col-md-6">
+                                            <div class="info-label"><i class="fa fa-arrows-alt"></i> Floor Area</div>
+                                            <div class="info-value"><%= property.features.floorArea.toLocaleString() %> sq ft</div>
+                                        </div>
+                                    <% } %>
+                                    <% if (property.features && property.features.landArea) { %>
+                                        <div class="col-md-6">
+                                            <div class="info-label"><i class="fa fa-map"></i> Land Area</div>
+                                            <div class="info-value"><%= property.features.landArea.toLocaleString() %> sq ft</div>
+                                        </div>
+                                    <% } %>
+                                    <% if (property.features && property.features.furnished) { %>
+                                        <div class="col-md-6">
+                                            <div class="info-label"><i class="fa fa-couch"></i> Furnished</div>
+                                            <div class="info-value">Yes</div>
+                                        </div>
+                                    <% } %>
+                                    <% if (property.features && property.features.security) { %>
+                                        <div class="col-md-6">
+                                            <div class="info-label"><i class="fa fa-shield-alt"></i> Security</div>
+                                            <div class="info-value">24/7 Security</div>
+                                        </div>
+                                    <% } %>
+                                </div>
+                            </div>
+
+                            <!-- Location -->
+                            <div class="info-section">
+                                <h4 class="mil-mb-20">Location</h4>
+                                <div class="info-label"><i class="fa fa-map-marker"></i> Address</div>
+                                <div class="info-value"><%= property.location.address || 'N/A' %></div>
+                                
+                                <div class="info-label"><i class="fa fa-city"></i> City</div>
+                                <div class="info-value"><%= property.location.city || 'N/A' %></div>
+                                
+                                <div class="info-label"><i class="fa fa-flag"></i> State</div>
+                                <div class="info-value"><%= property.location.state || 'N/A' %></div>
+                                
+                                <div class="info-label"><i class="fa fa-map"></i> LGA</div>
+                                <div class="info-value"><%= property.location.lga || 'N/A' %></div>
+                                
+                                <% if (property.location.landmark) { %>
+                                    <div class="info-label"><i class="fa fa-flag-checkered"></i> Landmark</div>
+                                    <div class="info-value"><%= property.location.landmark %></div>
+                                <% } %>
+                            </div>
+                        </div>
+
+                        <!-- Right Column - Property Info & Actions -->
+                        <div class="col-xl-4">
+                            <!-- Status Card -->
+                            <div class="mil-price-card mil-up mil-mb-30">
+                                <h4 class="mil-mb-20">Property Status</h4>
+                                <div class="info-label">Verification Status</div>
+                                <div class="info-value">
+                                    <% if (property.verificationStatus === 'verified') { %>
+                                        <span class="status-badge status-verified">✓ Verified</span>
+                                    <% } else if (property.verificationStatus === 'payment_confirmed') { %>
+                                        <span class="status-badge status-payment_confirmed">⏳ Payment Confirmed</span>
+                                    <% } else if (property.verificationStatus === 'pending_payment') { %>
+                                        <span class="status-badge status-pending">⚠ Pending Payment</span>
+                                    <% } else if (property.verificationStatus === 'rejected') { %>
+                                        <span class="status-badge status-rejected">✗ Rejected</span>
+                                    <% } else { %>
+                                        <span class="status-badge"><%= property.verificationStatus %></span>
+                                    <% } %>
+                                </div>
+                                
+                                <div class="info-label">Listing Status</div>
+                                <div class="info-value">
+                                    <% if (property.status === 'available') { %>
+                                        <span class="status-badge status-verified">Available</span>
+                                    <% } else if (property.status === 'sold') { %>
+                                        <span class="status-badge status-rejected">Sold</span>
+                                    <% } else if (property.status === 'rented') { %>
+                                        <span class="status-badge status-pending">Rented</span>
+                                    <% } else { %>
+                                        <span class="status-badge"><%= property.status %></span>
+                                    <% } %>
+                                </div>
+                                
+                                <div class="info-label">Featured Status</div>
+                                <div class="info-value">
+                                    <% if (property.featured) { %>
+                                        <span class="featured-badge"><i class="fa fa-star"></i> Featured Property</span>
+                                        <% if (property.featuredExpiry) { %>
+                                            <br><small class="mil-soft">Expires: <%= new Date(property.featuredExpiry).toLocaleDateString() %></small>
+                                        <% } %>
+                                    <% } else { %>
+                                        <span>Not Featured</span>
+                                    <% } %>
+                                </div>
+                            </div>
+
+                            <!-- Property Details Card -->
+                            <div class="mil-price-card mil-up mil-mb-30">
+                                <h4 class="mil-mb-20">Property Details</h4>
+                                <div class="info-label"><i class="fa fa-tag"></i> Price</div>
+                                <div class="info-value">₦<%= property.price.toLocaleString() %>
+                                    <% if (property.priceNegotiable) { %>
+                                        <span class="mil-text-s mil-soft"> (Negotiable)</span>
+                                    <% } %>
+                                </div>
+                                
+                                <div class="info-label"><i class="fa fa-home"></i> Property Type</div>
+                                <div class="info-value"><%= property.propertyType ? property.propertyType.replace('_', ' ').toUpperCase() : 'N/A' %></div>
+                                
+                                <div class="info-label"><i class="fa fa-exchange"></i> Transaction Type</div>
+                                <div class="info-value"><%= property.transactionType ? property.transactionType.toUpperCase() : 'N/A' %></div>
+                                
+                                <div class="info-label"><i class="fa fa-calendar"></i> Date Listed</div>
+                                <div class="info-value"><%= new Date(property.createdAt).toLocaleDateString() %></div>
+                                
+                                <div class="info-label"><i class="fa fa-eye"></i> Total Views</div>
+                                <div class="info-value"><%= property.views || 0 %></div>
+                            </div>
+
+                            <!-- Owner Information Card -->
+                            <div class="mil-price-card mil-up mil-mb-30">
+                                <h4 class="mil-mb-20">Property Owner</h4>
+                                <div class="info-label"><i class="fa fa-user"></i> Name</div>
+                                <div class="info-value"><%= property.owner ? property.owner.name : 'N/A' %></div>
+                                
+                                <div class="info-label"><i class="fa fa-envelope"></i> Email</div>
+                                <div class="info-value"><%= property.owner ? property.owner.email : 'N/A' %></div>
+                                
+                                <div class="info-label"><i class="fa fa-phone"></i> Phone</div>
+                                <div class="info-value"><%= property.owner ? property.owner.phone : 'N/A' %></div>
+                                
+                                <div class="info-label"><i class="fa fa-user-circle"></i> Account Type</div>
+                                <div class="info-value"><%= property.ownerType || 'N/A' %></div>
+                            </div>
+
+                            <!-- Verification Info Card (if applicable) -->
+                            <% if (property.verificationFeedback && property.verificationFeedback.message) { %>
+                                <div class="mil-price-card mil-up mil-mb-30">
+                                    <h4 class="mil-mb-20">Verification Feedback</h4>
+                                    <div class="info-label">Message</div>
+                                    <div class="info-value"><%= property.verificationFeedback.message %></div>
+                                    
+                                    <% if (property.verificationFeedback.providedBy) { %>
+                                        <div class="info-label">Reviewed By</div>
+                                        <div class="info-value">Superadmin</div>
+                                    <% } %>
+                                    
+                                    <% if (property.verificationFeedback.providedAt) { %>
+                                        <div class="info-label">Date</div>
+                                        <div class="info-value"><%= new Date(property.verificationFeedback.providedAt).toLocaleString() %></div>
+                                    <% } %>
+                                </div>
+                            <% } %>
+
+                            <!-- Action Buttons -->
+                            <div class="mil-price-card mil-up mil-mb-30">
+                                <h4 class="mil-mb-20">Actions</h4>
+                                <div class="action-buttons">
+                                    <a href="/superadmin/properties" class="btn-back">
+                                        <i class="fa fa-arrow-left"></i> Back
+                                    </a>
+                                    
+                                    <% if (property.verificationStatus === 'payment_confirmed') { %>
+                                        <button onclick="verifyProperty()" class="btn-verify">
+                                            <i class="fa fa-check"></i> Verify Property
+                                        </button>
+                                        <button onclick="showRejectModal()" class="btn-reject">
+                                            <i class="fa fa-times"></i> Reject
+                                        </button>
+                                    <% } %>
+                                    
+                                    <button onclick="toggleFeatured()" class="btn-feature">
+                                        <i class="fa fa-star"></i> <%= property.featured ? 'Remove Featured' : 'Make Featured' %>
+                                    </button>
+                                    
+                                    <button onclick="confirmDelete()" class="btn-delete">
+                                        <i class="fa fa-trash"></i> Delete Property
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <footer class="mil-p-80-0">
+                <div class="container">
+                    <div class="mil-footer-bottom">
+                        <div class="row">
+                            <div class="col-xl-6">
+                                <p class="mil-text-s mil-soft">© 2024 RevaampAP. All rights reserved.</p>
+                            </div>
+                            <div class="col-xl-6">
+                                <p class="mil-text-s mil-text-right mil-sm-text-left mil-soft">Superadmin Dashboard</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </footer>
+        </div>
+    </div>
+
+    <!-- Reject Modal -->
+    <div id="rejectModal" class="modal">
+        <div class="modal-content">
+            <i class="fa fa-exclamation-triangle" style="font-size: 48px; color: #dc3545; margin-bottom: 20px;"></i>
+            <h3>Reject Property</h3>
+            <p style="margin: 20px 0;">Please provide a reason for rejecting this property:</p>
+            <textarea id="rejectReason" rows="4" style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 8px; margin-bottom: 20px;" placeholder="Enter rejection reason..."></textarea>
+            <div class="modal-buttons">
+                <button class="cancel-action" onclick="closeRejectModal()">Cancel</button>
+                <button class="confirm-action" onclick="rejectProperty()">Reject Property</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Delete Confirmation Modal -->
+    <div id="deleteModal" class="modal">
+        <div class="modal-content">
+            <i class="fa fa-exclamation-triangle" style="font-size: 48px; color: #dc3545; margin-bottom: 20px;"></i>
+            <h3>Confirm Delete</h3>
+            <p style="margin: 20px 0;">Are you sure you want to permanently delete this property?</p>
+            <p style="color: #dc3545; font-weight: bold;"><%= property.title %></p>
+            <div class="modal-buttons">
+                <button class="cancel-action" onclick="closeDeleteModal()">Cancel</button>
+                <button class="confirm-action" onclick="deleteProperty()">Delete Permanently</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast Message -->
+    <div id="toastMessage" class="toast-message">
+        <i class="fa fa-check-circle"></i> <span id="toastText"></span>
+    </div>
+
+    <script src="/js/plugins/jquery.min.js"></script>
+    <script src="/js/plugins/swiper.min.js"></script>
+    <script src="/js/plugins/gsap.min.js"></script>
+    <script src="/js/plugins/ScrollSmoother.min.js"></script>
+    <script src="/js/plugins/ScrollTrigger.min.js"></script>
+    <script src="/js/plugins/ScrollTo.min.js"></script>
+    <script src="/js/plugins/magnific-popup.js"></script>
+    <script src="/js/main.js"></script>
+
+    <script>
+        const propertyId = '<%= property._id %>';
+        
+        // Change gallery image
+        function changeImage(thumbnail, imageUrl) {
+            document.getElementById('mainImage').src = imageUrl;
+            document.querySelectorAll('.thumbnail').forEach(function(thumb) {
+                thumb.classList.remove('active');
+            });
+            thumbnail.classList.add('active');
+        }
+        
+        // Verify property
+        function verifyProperty() {
+            if (confirm('Are you sure you want to verify this property? It will become visible to all users.')) {
+                fetch(`/superadmin/properties/${propertyId}/verify`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ feedback: 'Property verified by superadmin' })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        showToast('Property verified successfully!', 'success');
+                        setTimeout(() => {
+                            window.location.href = '/superadmin/properties';
+                        }, 1500);
+                    } else {
+                        showToast('Error verifying property', 'error');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    showToast('Error verifying property', 'error');
+                });
+            }
+        }
+        
+        // Show reject modal
+        function showRejectModal() {
+            document.getElementById('rejectModal').style.display = 'block';
+        }
+        
+        // Close reject modal
+        function closeRejectModal() {
+            document.getElementById('rejectModal').style.display = 'none';
+            document.getElementById('rejectReason').value = '';
+        }
+        
+        // Reject property
+        function rejectProperty() {
+            const reason = document.getElementById('rejectReason').value;
+            if (!reason.trim()) {
+                alert('Please provide a reason for rejection');
+                return;
+            }
+            
+            fetch(`/superadmin/properties/${propertyId}/reject`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ reason: reason })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    showToast('Property rejected successfully!', 'success');
+                    setTimeout(() => {
+                        window.location.href = '/superadmin/properties';
+                    }, 1500);
+                } else {
+                    showToast('Error rejecting property', 'error');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                showToast('Error rejecting property', 'error');
+            });
+        }
+        
+        // Toggle featured status
+        function toggleFeatured() {
+            const action = <%= property.featured %> ? 'remove from featured' : 'make featured';
+            if (confirm(`Are you sure you want to ${action} this property?`)) {
+                fetch(`/superadmin/properties/${propertyId}/feature`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' }
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        const message = data.featured ? 'Property marked as featured!' : 'Property removed from featured!';
+                        showToast(message, 'success');
+                        setTimeout(() => {
+                            location.reload();
+                        }, 1000);
+                    } else {
+                        showToast(data.error || 'Error updating featured status', 'error');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    showToast('Error updating featured status', 'error');
+                });
+            }
+        }
+        
+        // Confirm delete
+        function confirmDelete() {
+            document.getElementById('deleteModal').style.display = 'block';
+        }
+        
+        // Close delete modal
+        function closeDeleteModal() {
+            document.getElementById('deleteModal').style.display = 'none';
+        }
+        
+        // Delete property
+        function deleteProperty() {
+            fetch(`/superadmin/properties/${propertyId}`, {
+                method: 'DELETE',
+                headers: { 'Content-Type': 'application/json' }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    showToast('Property deleted successfully!', 'success');
+                    setTimeout(() => {
+                        window.location.href = '/superadmin/properties';
+                    }, 1500);
+                } else {
+                    showToast(data.error || 'Error deleting property', 'error');
+                    closeDeleteModal();
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                showToast('Error deleting property', 'error');
+                closeDeleteModal();
+            });
+        }
+        
+        // Show toast message
+        function showToast(message, type) {
+            const toast = document.getElementById('toastMessage');
+            const toastText = document.getElementById('toastText');
+            toastText.innerText = message;
+            toast.className = 'toast-message';
+            if (type === 'error') {
+                toast.classList.add('error');
+            }
+            toast.style.display = 'block';
+            
+            setTimeout(() => {
+                toast.style.display = 'none';
+            }, 3000);
+        }
+        
+        // Close modals when clicking outside
+        window.onclick = function(event) {
+            const rejectModal = document.getElementById('rejectModal');
+            const deleteModal = document.getElementById('deleteModal');
+            if (event.target == rejectModal) {
+                closeRejectModal();
+            }
+            if (event.target == deleteModal) {
+                closeDeleteModal();
+            }
+        }
+    </script>
+</body>
+
+</html>
