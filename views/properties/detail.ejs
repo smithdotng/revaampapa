@@ -5,7 +5,77 @@
     <title><%= title %></title>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <meta name="description" content="<%= property.description ? property.description.replace(/<[^>]*>/g, '').substring(0, 160) : '' %>">
+    
+    <!-- Primary Meta Tags -->
+    <meta name="description" content="<%= property.description ? property.description.replace(/<[^>]*>/g, '').substring(0, 160) : property.title %>">
+    <meta name="keywords" content="<%= property.title %>, property for sale, property for rent, real estate, <%= property.location.city %>, <%= property.location.state %>">
+    <meta name="author" content="RevaampAP">
+    
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="<%= 'https://' + (host || 'revaampap.com') + '/properties/' + property.slug %>">
+    <meta property="og:title" content="<%= property.title %> - RevaampAP">
+    <meta property="og:description" content="<%= property.description ? property.description.replace(/<[^>]*>/g, '').substring(0, 160) : 'Check out this amazing property on RevaampAP' %>">
+    <meta property="og:site_name" content="RevaampAP">
+    <meta property="og:locale" content="en_NG">
+    
+    <!-- Open Graph Image - Use property image -->
+    <% 
+        var ogImageUrl = '/img/logo-og.png';
+        if (property.images && property.images.length > 0) {
+            var firstImage = property.images[0];
+            ogImageUrl = firstImage.url || firstImage;
+            // Ensure URL starts with http:// or https://
+            if (ogImageUrl && ogImageUrl.startsWith('/')) {
+                ogImageUrl = 'https://' + (host || 'revaampap.com') + ogImageUrl;
+            }
+        }
+    %>
+    <meta property="og:image" content="<%= ogImageUrl %>">
+    <meta property="og:image:width" content="1200">
+    <meta property="og:image:height" content="630">
+    <meta property="og:image:alt" content="<%= property.title %> - Property Image">
+    <meta property="og:image:type" content="image/jpeg">
+    
+    <!-- Twitter Card -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:url" content="<%= 'https://' + (host || 'revaampap.com') + '/properties/' + property.slug %>">
+    <meta name="twitter:title" content="<%= property.title %> - RevaampAP">
+    <meta name="twitter:description" content="<%= property.description ? property.description.replace(/<[^>]*>/g, '').substring(0, 160) : 'Check out this amazing property on RevaampAP' %>">
+    <meta name="twitter:image" content="<%= ogImageUrl %>">
+    <meta name="twitter:site" content="@revaampap">
+    <meta name="twitter:creator" content="@revaampap">
+    
+    <!-- WhatsApp Preview -->
+    <meta property="og:image:secure_url" content="<%= ogImageUrl %>">
+    
+    <!-- LinkedIn Specific -->
+    <meta property="linkedin:card" content="summary_large_image">
+    
+    <!-- Pinterest Specific -->
+    <meta name="pinterest:richpins" content="enabled">
+    
+    <!-- Additional Property Schema -->
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@type": "Product",
+        "name": "<%= property.title %>",
+        "description": "<%= property.description ? property.description.replace(/<[^>]*>/g, '').substring(0, 200) : '' %>",
+        "image": "<%= ogImageUrl %>",
+        "offers": {
+            "@type": "Offer",
+            "price": "<%= property.price %>",
+            "priceCurrency": "NGN",
+            "availability": "<%= property.status === 'available' ? 'https://schema.org/InStock' : 'https://schema.org/SoldOut' %>",
+            "url": "<%= 'https://' + (host || 'revaampap.com') + '/properties/' + property.slug %>"
+        },
+        "brand": {
+            "@type": "Brand",
+            "name": "RevaampAP"
+        }
+    }
+    </script>
     
     <!-- switzer font css -->
     <link rel="stylesheet" href="/fonts/css/switzer.css" type="text/css" media="all">
@@ -25,6 +95,7 @@
     <!-- Favicon -->
     <link rel="shortcut icon" href="/favicon.ico" type="image/x-icon">
     <link rel="icon" href="/favicon.ico" type="image/x-icon">
+    <link rel="canonical" href="<%= 'https://' + (host || 'revaampap.com') + '/properties/' + property.slug %>">
     
     <style>
         .property-gallery {
@@ -186,6 +257,32 @@
             margin-bottom: 20px;
             display: none;
         }
+        /* Social Share Buttons */
+        .social-share {
+            display: flex;
+            gap: 10px;
+            margin-top: 15px;
+            flex-wrap: wrap;
+        }
+        .social-share a {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 15px;
+            border-radius: 8px;
+            color: white;
+            text-decoration: none;
+            font-size: 14px;
+            transition: opacity 0.3s;
+        }
+        .social-share a:hover {
+            opacity: 0.8;
+        }
+        .social-facebook { background: #3b5998; }
+        .social-twitter { background: #1da1f2; }
+        .social-whatsapp { background: #25d366; }
+        .social-linkedin { background: #0077b5; }
+        .social-email { background: #6c757d; }
     </style>
 </head>
 
@@ -260,11 +357,14 @@
                             <div class="property-gallery mil-mb-30">
                                 <% if (property.images && property.images.length > 0) { 
                                     var primaryImage = property.images.find(function(img) { return img.isPrimary; }) || property.images[0];
+                                    var primaryImageUrl = primaryImage.url || primaryImage;
                                 %>
-                                    <img id="mainImage" src="<%= primaryImage.url %>" alt="<%= property.title %>" class="main-image">
+                                    <img id="mainImage" src="<%= primaryImageUrl %>" alt="<%= property.title %>" class="main-image" onerror="this.src='/img/property-placeholder.jpg'">
                                     <div class="thumbnail-list">
-                                        <% property.images.forEach(function(image, index) { %>
-                                            <img src="<%= image.url %>" alt="Thumbnail" class="thumbnail <%= image.isPrimary ? 'active' : '' %>" onclick="changeImage(this, '<%= image.url %>')">
+                                        <% property.images.forEach(function(image, index) { 
+                                            var thumbUrl = image.url || image;
+                                        %>
+                                            <img src="<%= thumbUrl %>" alt="Thumbnail" class="thumbnail <%= image.isPrimary ? 'active' : '' %>" onerror="this.src='/img/property-placeholder.jpg'" onclick="changeImage(this, '<%= thumbUrl %>')">
                                         <% }); %>
                                     </div>
                                 <% } else { %>
@@ -383,6 +483,28 @@
                                 </div>
                             </div>
 
+                            <!-- Share Property Section -->
+                            <div class="mil-price-card mil-up mil-mb-30">
+                                <h4 class="mil-mb-20">Share this Property</h4>
+                                <div class="social-share">
+                                    <a href="https://www.facebook.com/sharer/sharer.php?u=<%= encodeURIComponent('https://' + (host || 'revaampap.com') + '/properties/' + property.slug) %>" target="_blank" class="social-facebook">
+                                        <i class="fa fa-facebook"></i> Facebook
+                                    </a>
+                                    <a href="https://twitter.com/intent/tweet?url=<%= encodeURIComponent('https://' + (host || 'revaampap.com') + '/properties/' + property.slug) %>&text=<%= encodeURIComponent(property.title) %>" target="_blank" class="social-twitter">
+                                        <i class="fa fa-twitter"></i> Twitter
+                                    </a>
+                                    <a href="https://wa.me/?text=<%= encodeURIComponent(property.title + ' - ₦' + property.price.toLocaleString() + ' - https://' + (host || 'revaampap.com') + '/properties/' + property.slug) %>" target="_blank" class="social-whatsapp">
+                                        <i class="fa fa-whatsapp"></i> WhatsApp
+                                    </a>
+                                    <a href="https://www.linkedin.com/sharing/share-offsite/?url=<%= encodeURIComponent('https://' + (host || 'revaampap.com') + '/properties/' + property.slug) %>" target="_blank" class="social-linkedin">
+                                        <i class="fa fa-linkedin"></i> LinkedIn
+                                    </a>
+                                    <a href="mailto:?subject=<%= encodeURIComponent(property.title) %>&body=<%= encodeURIComponent('Check out this property: https://' + (host || 'revaampap.com') + '/properties/' + property.slug) %>" class="social-email">
+                                        <i class="fa fa-envelope"></i> Email
+                                    </a>
+                                </div>
+                            </div>
+
                             <!-- Inquiry Form -->
                             <div class="inquiry-form">
                                 <h4 class="mil-mb-20">Interested in this property?</h4>
@@ -397,7 +519,6 @@
                                 <form id="inquiryForm">
                                     <input type="hidden" name="propertyId" value="<%= property._id %>">
                                     
-                                    <!-- Always include name and email fields, pre-fill if user is logged in -->
                                     <div class="form-group">
                                         <input type="text" id="inquiryName" name="name" placeholder="Your Name *" required 
                                                value="<%= user ? user.name : '' %>">
@@ -421,22 +542,6 @@
                                         <i class="fa fa-paper-plane"></i> Send Inquiry
                                     </button>
                                 </form>
-                            </div>
-
-                            <!-- Share Property -->
-                            <div class="mil-price-card mil-up mil-mb-30">
-                                <h4 class="mil-mb-20">Share this Property</h4>
-                                <div class="mil-buttons-frame">
-                                    <a href="https://www.facebook.com/sharer/sharer.php?u=<%= encodeURIComponent('https://' + (host || 'revaampap.com') + '/properties/' + property.slug) %>" target="_blank" class="mil-btn mil-sm" style="background: #3b5998;">
-                                        <i class="fa fa-facebook"></i> Share
-                                    </a>
-                                    <a href="https://twitter.com/intent/tweet?url=<%= encodeURIComponent('https://' + (host || 'revaampap.com') + '/properties/' + property.slug) %>&text=<%= encodeURIComponent(property.title) %>" target="_blank" class="mil-btn mil-sm" style="background: #1da1f2;">
-                                        <i class="fa fa-twitter"></i> Tweet
-                                    </a>
-                                    <a href="https://wa.me/?text=<%= encodeURIComponent(property.title + ' - https://' + (host || 'revaampap.com') + '/properties/' + property.slug) %>" target="_blank" class="mil-btn mil-sm" style="background: #25d366;">
-                                        <i class="fa fa-whatsapp"></i> WhatsApp
-                                    </a>
-                                </div>
                             </div>
                         </div>
                     </div>
@@ -495,79 +600,41 @@
             inquiryForm.addEventListener('submit', async function(e) {
                 e.preventDefault();
                 
-                // Get form values
                 const propertyId = document.querySelector('input[name="propertyId"]').value;
                 const name = document.getElementById('inquiryName').value.trim();
                 const email = document.getElementById('inquiryEmail').value.trim();
                 const phone = document.getElementById('inquiryPhone').value.trim();
                 const message = document.querySelector('textarea[name="message"]').value.trim();
                 
-                // Validate
-                if (!name) {
-                    showError('Please enter your name');
-                    return;
-                }
+                if (!name) { showError('Please enter your name'); return; }
+                if (!email) { showError('Please enter your email address'); return; }
+                if (!email.includes('@') || !email.includes('.')) { showError('Please enter a valid email address'); return; }
+                if (!message) { showError('Please enter your message'); return; }
                 
-                if (!email) {
-                    showError('Please enter your email address');
-                    return;
-                }
-                
-                if (!email.includes('@') || !email.includes('.')) {
-                    showError('Please enter a valid email address');
-                    return;
-                }
-                
-                if (!message) {
-                    showError('Please enter your message');
-                    return;
-                }
-                
-                // Disable submit button
                 submitBtn.disabled = true;
                 submitBtn.innerHTML = '<i class="fa fa-spinner fa-spin"></i> Sending...';
-                
-                // Hide any previous messages
                 hideMessages();
                 
                 try {
-                    const requestData = {
-                        propertyId: propertyId,
-                        name: name,
-                        email: email,
-                        phone: phone,
-                        message: message
-                    };
-                    
-                    console.log('Sending inquiry:', requestData);
-                    
                     const response = await fetch('/api/inquiries', {
                         method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json'
-                        },
-                        body: JSON.stringify(requestData)
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ propertyId, name, email, phone, message })
                     });
                     
                     const result = await response.json();
-                    console.log('Response:', result);
                     
                     if (result.success) {
-                        // Show success message
                         showSuccess();
-                        // Reset form
                         inquiryForm.reset();
-                        // Keep the propertyId hidden field
                         document.querySelector('input[name="propertyId"]').value = propertyId;
                     } else {
-                        // Show error message
                         showError(result.message || 'Failed to send inquiry. Please try again.');
                     }
                 } catch (error) {
                     console.error('Error:', error);
                     showError('Network error. Please check your connection and try again.');
                 } finally {
-                    // Re-enable submit button
                     submitBtn.disabled = false;
                     submitBtn.innerHTML = '<i class="fa fa-paper-plane"></i> Send Inquiry';
                 }
@@ -578,8 +645,6 @@
             if (successMessageDiv) {
                 successMessageDiv.style.display = 'block';
                 if (errorMessageDiv) errorMessageDiv.style.display = 'none';
-                
-                // Auto hide after 5 seconds
                 setTimeout(function() {
                     if (successMessageDiv) successMessageDiv.style.display = 'none';
                 }, 5000);
@@ -593,8 +658,6 @@
                 errorTextSpan.innerText = message;
                 errorMessageDiv.style.display = 'block';
                 if (successMessageDiv) successMessageDiv.style.display = 'none';
-                
-                // Auto hide after 5 seconds
                 setTimeout(function() {
                     if (errorMessageDiv) errorMessageDiv.style.display = 'none';
                 }, 5000);
