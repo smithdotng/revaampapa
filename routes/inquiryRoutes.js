@@ -1,52 +1,73 @@
 // routes/inquiryRoutes.js
 const express = require('express');
 const router = express.Router();
+const inquiryController = require('../controllers/inquiryController');
 const authMiddleware = require('../middleware/auth');
 
-// Public route - Create inquiry
-router.post('/project', (req, res) => {
-    req.flash('success', 'Inquiry sent successfully');
-    res.redirect('back');
-});
+// ============= PUBLIC ROUTES (MUST BE FIRST) =============
+// This route needs to be accessible without authentication
+router.post('/api/inquiries', inquiryController.submitInquiry);
 
-// Admin routes (protected)
-router.get('/admin/inquiries', 
+// ============= PROPERTY OWNER ROUTES =============
+router.get('/property-owner/inquiries', 
     authMiddleware.isAuthenticated, 
-    authMiddleware.isAdmin, 
-    (req, res) => {
-        res.render('admin/inquiries', { 
-            title: 'Inquiries - RevaampAPA', 
-            user: req.session.user 
-        });
-    }
+    authMiddleware.isPropertyOwner,
+    inquiryController.getOwnerInquiries
 );
 
-router.get('/admin/inquiries/:id', 
+router.get('/property-owner/inquiries/:id', 
     authMiddleware.isAuthenticated, 
-    authMiddleware.isAdmin, 
-    (req, res) => {
-        res.render('admin/inquiry-detail', { 
-            title: 'Inquiry Details - RevaampAPA', 
-            user: req.session.user 
-        });
-    }
+    authMiddleware.isPropertyOwner,
+    inquiryController.getInquiryDetails
 );
 
-router.post('/admin/inquiries/:id/reply', 
+router.post('/property-owner/inquiries/:id/reply', 
     authMiddleware.isAuthenticated, 
-    authMiddleware.isAdmin, 
-    (req, res) => {
-        req.flash('success', 'Reply sent');
-        res.redirect(`/admin/inquiries/${req.params.id}`);
-    }
+    authMiddleware.isPropertyOwner,
+    inquiryController.replyToInquiry
 );
 
-router.delete('/admin/inquiries/:id', 
+router.post('/property-owner/inquiries/:id/note', 
     authMiddleware.isAuthenticated, 
-    authMiddleware.isAdmin, 
-    (req, res) => {
-        res.json({ success: true });
-    }
+    authMiddleware.isPropertyOwner,
+    inquiryController.addNote
+);
+
+router.put('/property-owner/inquiries/:id/status', 
+    authMiddleware.isAuthenticated, 
+    authMiddleware.isPropertyOwner,
+    inquiryController.updateStatus
+);
+
+// ============= SUPERADMIN ROUTES =============
+router.get('/superadmin/inquiries', 
+    authMiddleware.isAuthenticated, 
+    authMiddleware.isSuperadmin,
+    inquiryController.getAllInquiries
+);
+
+router.get('/superadmin/inquiries/:id', 
+    authMiddleware.isAuthenticated, 
+    authMiddleware.isSuperadmin,
+    inquiryController.getAdminInquiryDetails
+);
+
+router.delete('/superadmin/inquiries/:id', 
+    authMiddleware.isAuthenticated, 
+    authMiddleware.isSuperadmin,
+    inquiryController.deleteInquiry
+);
+
+router.post('/superadmin/inquiries/bulk-update', 
+    authMiddleware.isAuthenticated, 
+    authMiddleware.isSuperadmin,
+    inquiryController.bulkUpdateStatus
+);
+
+router.get('/superadmin/inquiries/export/csv', 
+    authMiddleware.isAuthenticated, 
+    authMiddleware.isSuperadmin,
+    inquiryController.exportInquiries
 );
 
 module.exports = router;

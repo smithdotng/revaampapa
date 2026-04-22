@@ -1,0 +1,423 @@
+<!DOCTYPE html>
+<html lang="en-US">
+
+<head>
+    <title>Payment Verifications | Superadmin Dashboard | RevaampAPA</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    
+    <!-- switzer font css -->
+    <link rel="stylesheet" href="/fonts/css/switzer.css" type="text/css" media="all">
+    <!-- font awesome css -->
+    <link rel="stylesheet" href="/fonts/css/font-awesome.min.css" type="text/css" media="all">
+    <!-- bootstrap grid css -->
+    <link rel="stylesheet" href="/css/plugins/bootstrap-grid.css" type="text/css" media="all">
+    <!-- swiper css -->
+    <link rel="stylesheet" href="/css/plugins/swiper.min.css" type="text/css" media="all">
+    <!-- magnific popup -->
+    <link rel="stylesheet" href="/css/plugins/magnific-popup.css" type="text/css" media="all">
+    <!-- plax css -->
+    <link rel="stylesheet" href="/css/style.css" type="text/css" media="all">
+    <!-- custom css -->
+    <link rel="stylesheet" href="/css/custom.css" type="text/css" media="all">
+
+    <!-- Favicon -->
+    <link rel="shortcut icon" href="/favicon.ico" type="image/x-icon">
+    <link rel="icon" href="/favicon.ico" type="image/x-icon">
+</head>
+
+<body>
+
+    <!-- wrapper -->
+    <div id="smooth-wrapper" class="mil-wrapper">
+
+        <!-- preloader -->
+        <div class="mil-preloader">
+            <div class="mil-load"></div>
+            <p class="h2 mil-mb-30"><span class="mil-light mil-counter" data-number="100">100</span><span class="mil-light">%</span></p>
+        </div>
+        <!-- preloader end -->
+
+        <!-- scroll progress -->
+        <div class="mil-progress-track">
+            <div class="mil-progress"></div>
+        </div>
+        <!-- scroll progress end -->
+
+        <!-- back to top -->
+        <div class="progress-wrap active-progress"></div>
+
+        <!-- top panel -->
+        <div class="mil-top-panel">
+            <div class="container">
+                <a href="/" class="mil-logo">
+                    <img src="/img/logo.png" alt="RevaampAP" width="83" height="32">
+                </a>
+                <nav class="mil-top-menu">
+                    <ul>
+                        <li><a href="/">Home</a></li>
+                        <li><a href="/superadmin/dashboard">Dashboard</a></li>
+                        <li><a href="/superadmin/properties">Properties</a></li>
+                        <li><a href="/superadmin/promoters">Promoters</a></li>
+                        <li><a href="/superadmin/property-owners">Owners</a></li>
+                        <li><a href="/superadmin/transactions">Transactions</a></li>
+                        <li><a href="/superadmin/analytics">Analytics</a></li>
+                    </ul>
+                </nav>
+                <div class="mil-menu-buttons">
+                    <div class="dropdown" style="position: relative;">
+                        <a href="#" class="mil-btn mil-sm dropdown-toggle" data-bs-toggle="dropdown" style="display: flex; align-items: center; gap: 8px;">
+                            <i class="fa fa-user-circle" style="font-size: 18px;"></i> 
+                            <span><%= user.name %></span>
+                            <i class="fa fa-chevron-down" style="font-size: 12px;"></i>
+                        </a>
+                        <ul class="dropdown-menu" style="position: absolute; right: 0; top: 100%; min-width: 220px; background: white; border-radius: 12px; box-shadow: 0 10px 30px rgba(0,0,0,0.15); padding: 10px 0; margin-top: 10px; z-index: 1000;">
+                            <li><a href="/superadmin/profile" style="display: flex; align-items: center; gap: 10px; padding: 12px 20px; color: #333; text-decoration: none;"><i class="fa fa-user" style="width: 20px; color: #03A6A6;"></i> Profile</a></li>
+                            <li><a href="/superadmin/settings" style="display: flex; align-items: center; gap: 10px; padding: 12px 20px; color: #333; text-decoration: none;"><i class="fa fa-cog" style="width: 20px; color: #03A6A6;"></i> Settings</a></li>
+                            <li><hr style="margin: 8px 0; border-color: #eee;"></li>
+                            <li><a href="/logout" style="display: flex; align-items: center; gap: 10px; padding: 12px 20px; color: #dc3545; text-decoration: none;"><i class="fa fa-sign-out-alt" style="width: 20px;"></i> Logout</a></li>
+                        </ul>
+                    </div>
+                    <div class="mil-menu-btn">
+                        <span></span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- top panel end -->
+
+        <!-- content -->
+        <div id="smooth-content">
+
+            <!-- banner -->
+            <div class="mil-banner mil-banner-inner mil-dissolve">
+                <div class="container">
+                    <div class="row align-items-center justify-content-center">
+                        <div class="col-xl-8">
+                            <div class="mil-banner-text mil-text-center">
+                                <div class="mil-text-m mil-mb-20 mil-up">Verify Property Owner Payments</div>
+                                <h1 class="mil-mb-60 mil-up">Payment Verifications</h1>
+                                <ul class="mil-breadcrumbs mil-pub-info mil-center mil-up">
+                                    <li><a href="/">Home</a></li>
+                                    <li><a href="/superadmin/dashboard">Dashboard</a></li>
+                                    <li><a href="/superadmin/payments/pending">Payment Verifications</a></li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- banner end -->
+
+            <!-- stats cards -->
+            <div class="mil-blog-list mil-p-0-80">
+                <div class="container">
+                    <div class="row">
+                        <div class="col-xl-4 col-md-6">
+                            <div class="mil-price-card mil-up mil-mb-30">
+                                <h4 class="mil-mb-15"><span class="mil-pricing-table-price"><%= pendingCount || 0 %></span></h4>
+                                <p class="mil-text-s mil-soft">Pending Verifications</p>
+                                <i class="fa fa-clock-o" style="font-size: 40px; opacity: 0.3; margin-top: 20px;"></i>
+                            </div>
+                        </div>
+                        <div class="col-xl-4 col-md-6">
+                            <div class="mil-price-card mil-up mil-mb-30">
+                                <h4 class="mil-mb-15"><span class="mil-pricing-table-price"><%= verifiedCount || 0 %></span></h4>
+                                <p class="mil-text-s mil-soft">Verified This Month</p>
+                                <i class="fa fa-check-circle" style="font-size: 40px; opacity: 0.3; margin-top: 20px;"></i>
+                            </div>
+                        </div>
+                        <div class="col-xl-4 col-md-6">
+                            <div class="mil-price-card mil-up mil-mb-30">
+                                <h4 class="mil-mb-15">₦<span class="mil-pricing-table-price"><%= totalPendingAmount ? totalPendingAmount.toLocaleString() : 0 %></span></h4>
+                                <p class="mil-text-s mil-soft">Pending Amount</p>
+                                <i class="fa fa-money" style="font-size: 40px; opacity: 0.3; margin-top: 20px;"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- stats cards end -->
+
+            <!-- Pending Payments Table -->
+            <div class="mil-blog-list mil-p-80-80">
+                <div class="container">
+                    <div class="row">
+                        <div class="col-xl-12">
+                            <div class="mil-price-card mil-up mil-mb-30">
+                                <h4 class="mil-mb-30">Pending Payment Verifications</h4>
+                                
+                                <% if (pendingPayments && pendingPayments.length > 0) { %>
+                                    <div class="mil-table-responsive">
+                                        <table class="mil-table">
+                                            <thead>
+                                                <tr>
+                                                    <th>Property Details</th>
+                                                    <th>Owner Information</th>
+                                                    <th>Payment Reference</th>
+                                                    <th>Amount</th>
+                                                    <th>Payment Date</th>
+                                                    <th>Proof</th>
+                                                    <th>Actions</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                <% pendingPayments.forEach(function(payment) { %>
+                                                    <tr>
+                                                        <td>
+                                                            <strong><%= payment.title %></strong><br>
+                                                            <small class="mil-soft"><%= payment.propertyType %></small><br>
+                                                            <small class="mil-soft"><i class="fa fa-map-marker"></i> <%= payment.location.city %>, <%= payment.location.state %></small>
+                                                        </td>
+                                                        <td>
+                                                            <strong><%= payment.owner ? payment.owner.name : 'N/A' %></strong><br>
+                                                            <small><%= payment.owner ? payment.owner.email : 'N/A' %></small><br>
+                                                            <small><%= payment.owner ? payment.owner.phone : 'N/A' %></small>
+                                                        </td>
+                                                        <td>
+                                                            <code style="background: #f5f5f5; padding: 4px 8px; border-radius: 4px;"><%= payment.verificationPaymentReference %></code>
+                                                        </td>
+                                                        <td class="mil-accent" style="font-weight: bold;">₦<%= (payment.verificationFee || 20000).toLocaleString() %></td>
+                                                        <td><%= new Date(payment.verificationPaymentDate).toLocaleDateString() %></td>
+                                                        <td>
+                                                            <a href="<%= payment.verificationPaymentProofUrl %>" target="_blank" class="mil-btn mil-sm" style="padding: 6px 12px;">
+                                                                <i class="fa fa-eye"></i> View Proof
+                                                            </a>
+                                                        </td>
+                                                        <td>
+                                                            <div style="display: flex; gap: 8px;">
+                                                                <button class="mil-btn mil-sm" style="background: #28a745; color: white; padding: 6px 12px;" onclick="verifyPayment('<%= payment._id %>')">
+                                                                    <i class="fa fa-check"></i> Verify
+                                                                </button>
+                                                                <button class="mil-btn mil-sm" style="background: #dc3545; color: white; padding: 6px 12px;" onclick="rejectPayment('<%= payment._id %>')">
+                                                                    <i class="fa fa-times"></i> Reject
+                                                                </button>
+                                                            </div>
+                                                        </td>
+                                                    </tr>
+                                                <% }); %>
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                <% } else { %>
+                                    <div class="mil-text-center mil-p-40">
+                                        <i class="fa fa-check-circle" style="font-size: 60px; color: #28a745; margin-bottom: 20px;"></i>
+                                        <h4 class="mil-mb-15">No Pending Verifications</h4>
+                                        <p class="mil-text-m mil-soft">All payment verifications are up to date.</p>
+                                        <a href="/superadmin/dashboard" class="mil-btn mil-md mil-mt-30">Back to Dashboard</a>
+                                    </div>
+                                <% } %>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- Pending Payments Table End -->
+
+            <!-- Recently Verified Section -->
+            <% if (recentlyVerified && recentlyVerified.length > 0) { %>
+                <div class="mil-blog-list mil-p-80-80">
+                    <div class="container">
+                        <div class="row">
+                            <div class="col-xl-12">
+                                <div class="mil-price-card mil-up mil-mb-30">
+                                    <h4 class="mil-mb-30">Recently Verified Properties</h4>
+                                    <div class="mil-table-responsive">
+                                        <table class="mil-table">
+                                            <thead>
+                                                <tr>
+                                                    <th>Property</th>
+                                                    <th>Owner</th>
+                                                    <th>Verified Date</th>
+                                                    <th>Status</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                <% recentlyVerified.forEach(function(property) { %>
+                                                    <tr>
+                                                        <td><%= property.title %></td>
+                                                        <td><%= property.owner ? property.owner.name : 'N/A' %></td>
+                                                        <td><%= new Date(property.verificationPaymentConfirmedAt).toLocaleDateString() %></td>
+                                                        <td><span style="color: #28a745;"><i class="fa fa-check-circle"></i> Verified</span></td>
+                                                    </tr>
+                                                <% }); %>
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                    <div class="mil-mt-30">
+                                        <a href="/superadmin/properties?status=verified" class="mil-link mil-accent">View All Verified Properties →</a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            <% } %>
+            <!-- Recently Verified End -->
+
+            <!-- How It Works - Verification Process -->
+            <div class="mil-cta mil-up">
+                <div class="container">
+                    <div class="mil-out-frame mil-p-80-80" style="background: #f8f9fa;">
+                        <div class="row justify-content-between align-items-center">
+                            <div class="col-xl-12">
+                                <div class="mil-text-center">
+                                    <h2 class="mil-mb-30 mil-up">Verification Process</h2>
+                                    <p class="mil-text-m mil-soft mil-mb-60 mil-up">Follow these steps to verify property owner payments</p>
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-4 mil-text-center mil-mb-30">
+                                        <div class="step-number" style="width: 60px; height: 60px; background: #03A6A6; color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 24px; font-weight: bold; margin: 0 auto 20px;">1</div>
+                                        <h5 class="mil-mb-15">Review Payment Proof</h5>
+                                        <p class="mil-text-s mil-soft">Click "View Proof" to examine the uploaded payment confirmation</p>
+                                    </div>
+                                    <div class="col-md-4 mil-text-center mil-mb-30">
+                                        <div class="step-number" style="width: 60px; height: 60px; background: #03A6A6; color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 24px; font-weight: bold; margin: 0 auto 20px;">2</div>
+                                        <h5 class="mil-mb-15">Verify Bank Details</h5>
+                                        <p class="mil-text-s mil-soft">Confirm payment matches Revacom Ltd (Fidelity Bank - 5601419395)</p>
+                                    </div>
+                                    <div class="col-md-4 mil-text-center mil-mb-30">
+                                        <div class="step-number" style="width: 60px; height: 60px; background: #03A6A6; color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 24px; font-weight: bold; margin: 0 auto 20px;">3</div>
+                                        <h5 class="mil-mb-15">Approve or Reject</h5>
+                                        <p class="mil-text-s mil-soft">Click "Verify" to approve or "Reject" with a reason if invalid</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- How It Works End -->
+
+            <!-- footer -->
+            <footer class="mil-p-80-0">
+                <div class="container">
+                    <div class="mil-footer-bottom">
+                        <div class="row">
+                            <div class="col-xl-6">
+                                <p class="mil-text-s mil-soft">© 2024 RevaampAP. All rights reserved.</p>
+                            </div>
+                            <div class="col-xl-6">
+                                <p class="mil-text-s mil-text-right mil-sm-text-left mil-soft">Superadmin Dashboard</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </footer>
+            <!-- footer end -->
+
+        </div>
+        <!-- content end -->
+    </div>
+    <!-- wrapper end -->
+
+    <!-- jquery js -->
+    <script src="/js/plugins/jquery.min.js"></script>
+    <script src="/js/plugins/swiper.min.js"></script>
+    <script src="/js/plugins/gsap.min.js"></script>
+    <script src="/js/plugins/ScrollSmoother.min.js"></script>
+    <script src="/js/plugins/ScrollTrigger.min.js"></script>
+    <script src="/js/plugins/ScrollTo.min.js"></script>
+    <script src="/js/plugins/magnific-popup.js"></script>
+    <script src="/js/main.js"></script>
+
+    <script>
+        // Verify payment function
+        function verifyPayment(propertyId) {
+            if (confirm('Are you sure you want to verify this payment?\n\nThe property will be listed on the platform immediately.')) {
+                $.ajax({
+                    url: '/superadmin/payments/verify/' + propertyId,
+                    method: 'POST',
+                    data: { action: 'approve' },
+                    success: function(response) {
+                        if (response.success) {
+                            alert('✅ Payment verified successfully!\n\nProperty is now listed on the platform.');
+                            location.reload();
+                        } else {
+                            alert('❌ Error: ' + (response.error || 'Could not verify payment'));
+                        }
+                    },
+                    error: function(xhr) {
+                        alert('❌ Error processing request. Please try again.');
+                        console.error(xhr.responseText);
+                    }
+                });
+            }
+        }
+
+        // Reject payment function
+        function rejectPayment(propertyId) {
+            const reason = prompt('Please provide a reason for rejection:', 'Invalid payment proof or incorrect amount');
+            if (reason && reason.trim()) {
+                $.ajax({
+                    url: '/superadmin/payments/reject/' + propertyId,
+                    method: 'POST',
+                    data: { action: 'reject', reason: reason },
+                    success: function(response) {
+                        if (response.success) {
+                            alert('❌ Payment rejected successfully.\n\nProperty owner will be notified.');
+                            location.reload();
+                        } else {
+                            alert('❌ Error: ' + (response.error || 'Could not reject payment'));
+                        }
+                    },
+                    error: function(xhr) {
+                        alert('❌ Error processing request. Please try again.');
+                        console.error(xhr.responseText);
+                    }
+                });
+            } else if (reason === "") {
+                alert('Please provide a reason for rejection.');
+            }
+        }
+    </script>
+
+    <style>
+        .dropdown-menu {
+            display: none;
+        }
+        .dropdown:hover .dropdown-menu,
+        .dropdown .dropdown-menu.show {
+            display: block;
+        }
+        .mil-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        .mil-table th,
+        .mil-table td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #eee;
+            vertical-align: top;
+        }
+        .mil-table th {
+            font-weight: 600;
+            color: #333;
+            background: #f8f9fa;
+        }
+        .mil-table-responsive {
+            overflow-x: auto;
+        }
+        .mil-mt-30 {
+            margin-top: 30px;
+        }
+        .mil-p-40 {
+            padding: 40px;
+        }
+        .mil-soft {
+            color: #666;
+        }
+        code {
+            font-family: monospace;
+            font-size: 12px;
+        }
+        .step-number {
+            transition: transform 0.3s ease;
+        }
+        .step-number:hover {
+            transform: scale(1.1);
+        }
+    </style>
+</body>
+</html>

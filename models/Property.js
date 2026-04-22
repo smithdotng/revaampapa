@@ -65,6 +65,22 @@ const propertySchema = new mongoose.Schema({
             default: false
         }
     }],
+    
+    // Documents for verification
+    documents: [{
+        type: {
+            type: String,
+            enum: ['title_deed', 'survey_plan', 'tax_clearance', 'building_plan', 'other'],
+            required: true
+        },
+        url: String,
+        filename: String,
+        uploadedAt: {
+            type: Date,
+            default: Date.now
+        }
+    }],
+    
     videoUrl: String,
     owner: {
         type: mongoose.Schema.Types.ObjectId,
@@ -73,14 +89,49 @@ const propertySchema = new mongoose.Schema({
     },
     ownerType: {
         type: String,
-        enum: ['realtor', 'admin'],
-        default: 'realtor'
+        enum: ['property_owner', 'realtor', 'admin', 'superadmin'],
+        default: 'property_owner'
     },
+    
+    // Verification status
+    verificationStatus: {
+        type: String,
+        enum: ['pending_payment', 'payment_confirmed', 'verification_pending', 'verified', 'rejected'],
+        default: 'pending_payment'
+    },
+    verificationFee: {
+        type: Number,
+        default: 20000
+    },
+    verificationPaymentReference: String,
+    verificationPaymentDate: Date,
+    verificationPaymentConfirmed: {
+        type: Boolean,
+        default: false
+    },
+    verificationPaymentConfirmedBy: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'User'
+    },
+    verificationPaymentConfirmedAt: Date,
+    
+    // Verification feedback from admin
+    verificationFeedback: {
+        message: String,
+        providedBy: {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: 'User'
+        },
+        providedAt: Date
+    },
+    
+    // Property status
     status: {
         type: String,
-        enum: ['available', 'pending', 'sold', 'rented', 'unavailable'],
-        default: 'available'
+        enum: ['pending_payment', 'payment_confirmed', 'pending_verification', 'available', 'sold', 'rented', 'unavailable', 'rejected'],
+        default: 'pending_payment'
     },
+    
     views: {
         type: Number,
         default: 0
@@ -94,7 +145,6 @@ const propertySchema = new mongoose.Schema({
         type: Number,
         required: true,
         default: function() {
-            // Default 10% of price as agency fee
             return this.price * 0.1;
         }
     },
@@ -107,6 +157,30 @@ const propertySchema = new mongoose.Schema({
         default: Date.now
     },
 
+    // Listing tier
+    listingTier: {
+        type: String,
+        enum: ['free', 'standard', 'premium'],
+        default: 'free'
+    },
+    commissionSplit: {
+        agent: {
+            type: Number,
+            default: 70
+        },
+        promoter: {
+            type: Number,
+            default: 10
+        },
+        platform: {
+            type: Number,
+            default: 20
+        }
+    },
+    tierExpiry: {
+        type: Date
+    },
+
     // Shortlet specific fields
     shortletDetails: {
         isAvailable: {
@@ -114,11 +188,11 @@ const propertySchema = new mongoose.Schema({
             default: true
         },
         minimumStay: {
-            type: Number, // in nights
+            type: Number,
             default: 1
         },
         maximumStay: {
-            type: Number, // in nights
+            type: Number,
             default: 30
         },
         checkInTime: {
@@ -160,60 +234,38 @@ const propertySchema = new mongoose.Schema({
             default: 0
         },
         weekendRate: {
-            type: Number, // Different rate for weekends (Fri-Sun)
+            type: Number,
             default: null
         },
         weeklyDiscount: {
-            type: Number, // Percentage discount for weekly booking
+            type: Number,
             default: 0
         },
         monthlyDiscount: {
-            type: Number, // Percentage discount for monthly booking
+            type: Number,
             default: 0
         },
         earlyBirdDiscount: {
-            type: Number, // Percentage discount for booking X days in advance
+            type: Number,
             default: 0
         },
         earlyBirdDays: {
-            type: Number, // Days in advance for early bird discount
+            type: Number,
             default: 0
         },
         lastMinuteDiscount: {
-            type: Number, // Percentage discount for last minute booking
+            type: Number,
             default: 0
         },
         lastMinuteDays: {
-            type: Number, // Days before check-in for last minute discount
+            type: Number,
             default: 0
-        }
-    
-    },
-
-    // Add these fields to your propertySchema
-listingTier: {
+        },
+        verificationPaymentProofUrl: {
     type: String,
-    enum: ['free', 'standard', 'premium'],
-    default: 'free'
+    default: ''
 },
-commissionSplit: {
-    agent: {
-        type: Number,
-        default: 70
-    },
-    promoter: {
-        type: Number,
-        default: 10
-    },
-    platform: {
-        type: Number,
-        default: 20
     }
-},
-tierExpiry: {
-    type: Date
-}
-
 });
 
 // Update timestamp on save
@@ -221,6 +273,11 @@ propertySchema.pre('save', function(next) {
     this.updatedAt = Date.now();
     next();
 });
+
+// Check if property is live (visible to public)
+propertySchema.methods.isLive = function() {
+    return this.verificationStatus === 'verified' && this.status === 'available';
+};
 
 // Calculate price for shortlet bookings
 propertySchema.methods.calculatePrice = function(checkIn, checkOut, guests = 2) {
@@ -310,8 +367,8 @@ propertySchema.methods.calculatePrice = function(checkIn, checkOut, guests = 2) 
             earlyBird: daysUntilCheckIn >= this.shortletDetails.earlyBirdDays ? this.shortletDetails.earlyBirdDiscount : 0,
             lastMinute: daysUntilCheckIn <= this.shortletDetails.lastMinuteDays ? this.shortletDetails.lastMinuteDiscount : 0
         },
-        paymentDue: totalPrice, // Amount guest pays
-        depositHeld: securityDeposit // Amount held as security
+        paymentDue: totalPrice,
+        depositHeld: securityDeposit
     };
 };
 

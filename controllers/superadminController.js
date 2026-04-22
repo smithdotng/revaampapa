@@ -4,8 +4,9 @@ const Property = require('../models/Property');
 const Transaction = require('../models/Transaction');
 const Withdrawal = require('../models/Withdrawal');
 const Promotion = require('../models/Promotion');
+const Inquiry = require('../models/Inquiry');
 
-// ============= DASHBOARD =============
+// In superadminController.js, update the getDashboard method
 exports.getDashboard = async (req, res) => {
     try {
         const user = await User.findById(req.session.userId);
@@ -36,6 +37,18 @@ exports.getDashboard = async (req, res) => {
             { $group: { _id: null, total: { $sum: '$commissionSplit.platform.amount' } } }
         ]);
         const totalRevenue = revenueResult.length > 0 ? revenueResult[0].total : 0;
+        
+        // Get inquiry statistics
+        const totalInquiries = await Inquiry.countDocuments();
+        const newInquiries = await Inquiry.countDocuments({ status: 'new' });
+        const readInquiries = await Inquiry.countDocuments({ status: 'read' });
+        const repliedInquiries = await Inquiry.countDocuments({ status: 'replied' });
+        
+        // Get recent inquiries
+        const recentInquiries = await Inquiry.find()
+            .populate('property', 'title slug')
+            .sort('-createdAt')
+            .limit(5);
         
         // Monthly revenue for chart
         const monthlyRevenue = await Transaction.aggregate([
@@ -70,6 +83,13 @@ exports.getDashboard = async (req, res) => {
             .sort('-createdAt')
             .limit(5);
         
+        // Get pending payments count
+        const pendingPayments = await Property.countDocuments({ 
+            verificationStatus: 'payment_confirmed',
+            verificationPaymentConfirmed: true,
+            status: 'payment_confirmed'
+        });
+        
         const stats = {
             totalProperties,
             pendingProperties,
@@ -82,7 +102,12 @@ exports.getDashboard = async (req, res) => {
             totalTransactions,
             completedTransactions,
             pendingTransactions,
-            totalRevenue
+            totalRevenue,
+            pendingPayments,
+            totalInquiries,
+            newInquiries,
+            readInquiries,
+            repliedInquiries
         };
         
         res.render('superadmin/dashboard', {
@@ -93,6 +118,7 @@ exports.getDashboard = async (req, res) => {
             recentProperties: recentProperties,
             recentTransactions: recentTransactions,
             recentPromoters: recentPromoters,
+            recentInquiries: recentInquiries,
             currentPath: '/superadmin/dashboard'
         });
     } catch (error) {
@@ -1032,5 +1058,115 @@ exports.changePassword = async (req, res) => {
         console.error('Change password error:', error);
         req.flash('error', 'Error changing password');
         res.redirect('/superadmin/profile');
+    }
+};
+
+// Get pending payments for verification
+// Fix the getPendingPayments method - change from 'admin/payment-verifications' to 'superadmin/payment-verifications'
+exports.getPendingPayments = async (req, res) => {
+    try {
+        const user = await User.findById(req.session.userId);
+        
+        // Find properties with payment_confirmed status but not yet verified
+        const pendingPayments = await Property.find({ 
+            verificationStatus: 'payment_confirmed',
+            verificationPaymentConfirmed: true,
+            status: 'payment_confirmed'
+        }).populate('owner', 'name email phone');
+        
+        // Get recently verified (last 30 days)
+        const thirtyDaysAgo = new Date();
+        thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+        
+        const recentlyVerified = await Property.find({
+            verificationStatus: 'verified',
+            verificationPaymentConfirmedAt: { $gte: thirtyDaysAgo }
+        }).populate('owner', 'name').limit(10);
+        
+        const totalPendingAmount = pendingPayments.reduce((sum, p) => sum + (p.verificationFee || 20000), 0);
+        
+        // FIXED: Changed from 'admin/payment-verifications' to 'superadmin/payment-verifications'
+        res.render('superadmin/payment-verifications', {
+            title: 'Payment Verifications - RevaampAP',
+            user: user,
+            pendingPayments: pendingPayments,
+            recentlyVerified: recentlyVerified,
+            pendingCount: pendingPayments.length,
+            verifiedCount: recentlyVerified.length,
+            totalPendingAmount: totalPendingAmount,
+            currentPath: '/superadmin/payments/pending'
+        });
+    } catch (error) {
+        console.error('Get pending payments error:', error);
+        req.flash('error', 'Error loading payment verifications');
+        res.redirect('/superadmin/dashboard');
+    }
+};
+
+// Verify payment and approve property
+exports.verifyPayment = async (req, res) => {
+    try {
+        const property = await Property.findById(req.params.id);
+        
+        if (!property) {
+            return res.status(404).json({ error: 'Property not found' });
+        }
+        
+        // Update property status
+        property.verificationStatus = 'verified';
+        property.status = 'available';
+        property.verificationPaymentConfirmedBy = req.session.userId;
+        property.verificationPaymentConfirmedAt = new Date();
+        
+        await property.save();
+        
+        // Send notification email to property owner
+        try {
+            const emailService = require('../utils/email');
+            await emailService.sendPropertyVerifiedEmail(property.owner, property);
+        } catch (emailError) {
+            console.error('Email error:', emailError.message);
+        }
+        
+        res.json({ success: true });
+    } catch (error) {
+        console.error('Verify payment error:', error);
+        res.status(500).json({ error: 'Error verifying payment' });
+    }
+};
+
+// Reject payment
+exports.rejectPayment = async (req, res) => {
+    try {
+        const { reason } = req.body;
+        const property = await Property.findById(req.params.id);
+        
+        if (!property) {
+            return res.status(404).json({ error: 'Property not found' });
+        }
+        
+        // Update property status
+        property.verificationStatus = 'rejected';
+        property.status = 'rejected';
+        property.verificationFeedback = {
+            message: reason || 'Payment verification failed',
+            providedBy: req.session.userId,
+            providedAt: new Date()
+        };
+        
+        await property.save();
+        
+        // Send notification email to property owner
+        try {
+            const emailService = require('../utils/email');
+            await emailService.sendPropertyRejectedEmail(property.owner, property, reason);
+        } catch (emailError) {
+            console.error('Email error:', emailError.message);
+        }
+        
+        res.json({ success: true });
+    } catch (error) {
+        console.error('Reject payment error:', error);
+        res.status(500).json({ error: 'Error rejecting payment' });
     }
 };

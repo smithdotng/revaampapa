@@ -1,0 +1,613 @@
+<!DOCTYPE html>
+<html lang="en-US">
+
+<head>
+    <title><%= title %></title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="<%= property.description ? property.description.replace(/<[^>]*>/g, '').substring(0, 160) : '' %>">
+    
+    <!-- switzer font css -->
+    <link rel="stylesheet" href="/fonts/css/switzer.css" type="text/css" media="all">
+    <!-- font awesome css -->
+    <link rel="stylesheet" href="/fonts/css/font-awesome.min.css" type="text/css" media="all">
+    <!-- bootstrap grid css -->
+    <link rel="stylesheet" href="/css/plugins/bootstrap-grid.css" type="text/css" media="all">
+    <!-- swiper css -->
+    <link rel="stylesheet" href="/css/plugins/swiper.min.css" type="text/css" media="all">
+    <!-- magnific popup -->
+    <link rel="stylesheet" href="/css/plugins/magnific-popup.css" type="text/css" media="all">
+    <!-- plax css -->
+    <link rel="stylesheet" href="/css/style.css" type="text/css" media="all">
+    <!-- custom css -->
+    <link rel="stylesheet" href="/css/custom.css" type="text/css" media="all">
+
+    <!-- Favicon -->
+    <link rel="shortcut icon" href="/favicon.ico" type="image/x-icon">
+    <link rel="icon" href="/favicon.ico" type="image/x-icon">
+    
+    <style>
+        .property-gallery {
+            position: relative;
+            margin-bottom: 30px;
+        }
+        .property-gallery .main-image {
+            width: 100%;
+            height: 500px;
+            object-fit: cover;
+            border-radius: 12px;
+        }
+        .property-gallery .thumbnail-list {
+            display: flex;
+            gap: 10px;
+            margin-top: 15px;
+            overflow-x: auto;
+        }
+        .property-gallery .thumbnail {
+            width: 100px;
+            height: 70px;
+            object-fit: cover;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: opacity 0.3s;
+        }
+        .property-gallery .thumbnail:hover {
+            opacity: 0.8;
+        }
+        .property-gallery .thumbnail.active {
+            border: 2px solid #03A6A6;
+        }
+        .property-price {
+            font-size: 32px;
+            color: #03A6A6;
+            font-weight: 700;
+        }
+        .property-features {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+            margin: 20px 0;
+        }
+        .feature-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px;
+            background: #f8f9fa;
+            border-radius: 8px;
+        }
+        .feature-item i {
+            font-size: 20px;
+            color: #03A6A6;
+        }
+        .inquiry-form {
+            background: #f8f9fa;
+            padding: 25px;
+            border-radius: 12px;
+            margin-top: 30px;
+        }
+        .inquiry-form input,
+        .inquiry-form textarea {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            margin-bottom: 15px;
+        }
+        .btn-primary {
+            background: #03A6A6;
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            width: 100%;
+        }
+        .btn-primary:hover {
+            background: #028484;
+        }
+        .btn-primary:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+        }
+        .status-badge {
+            display: inline-block;
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+        .status-available {
+            background: #28a745;
+            color: white;
+        }
+        .status-sold {
+            background: #dc3545;
+            color: white;
+        }
+        .status-rented {
+            background: #ffc107;
+            color: #000;
+        }
+        
+        /* Rich Text Content Styles */
+        .property-description {
+            line-height: 1.8;
+            color: #555;
+        }
+        .property-description h1,
+        .property-description h2,
+        .property-description h3,
+        .property-description h4,
+        .property-description h5,
+        .property-description h6 {
+            margin-top: 20px;
+            margin-bottom: 15px;
+            color: #333;
+        }
+        .property-description p {
+            margin-bottom: 15px;
+        }
+        .property-description ul,
+        .property-description ol {
+            margin-bottom: 15px;
+            padding-left: 20px;
+        }
+        .property-description li {
+            margin-bottom: 5px;
+        }
+        .property-description a {
+            color: #03A6A6;
+            text-decoration: none;
+        }
+        .property-description a:hover {
+            text-decoration: underline;
+        }
+        .property-description img {
+            max-width: 100%;
+            height: auto;
+            border-radius: 8px;
+            margin: 15px 0;
+        }
+        .success-message {
+            background: #d4edda;
+            color: #155724;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            display: none;
+        }
+        .error-message {
+            background: #f8d7da;
+            color: #721c24;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            display: none;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div id="smooth-wrapper" class="mil-wrapper">
+
+        <div class="mil-preloader">
+            <div class="mil-load"></div>
+            <p class="h2 mil-mb-30"><span class="mil-light mil-counter" data-number="100">100</span><span class="mil-light">%</span></p>
+        </div>
+
+        <div class="mil-progress-track">
+            <div class="mil-progress"></div>
+        </div>
+
+        <div class="progress-wrap active-progress"></div>
+
+        <div class="mil-top-panel">
+            <div class="container">
+                <a href="/" class="mil-logo">
+                    <img src="/img/logo.png" alt="RevaampAP" width="83" height="32">
+                </a>
+                <nav class="mil-top-menu">
+                    <ul>
+                        <li><a href="/">Home</a></li>
+                        <li><a href="/properties">Properties</a></li>
+                        <li><a href="/how-it-works">How It Works</a></li>
+                        <li><a href="/about">About</a></li>
+                        <li><a href="/contact">Contact</a></li>
+                        <% if (user) { %>
+                            <li><a href="/dashboard">Dashboard</a></li>
+                            <li><a href="/logout">Logout</a></li>
+                        <% } else { %>
+                            <li><a href="/login">Login</a></li>
+                            <li><a href="/register">Register</a></li>
+                        <% } %>
+                    </ul>
+                </nav>
+                <div class="mil-menu-buttons">
+                    <div class="mil-menu-btn">
+                        <span></span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="smooth-content">
+            <div class="mil-banner mil-banner-inner mil-dissolve">
+                <div class="container">
+                    <div class="row align-items-center justify-content-center">
+                        <div class="col-xl-8">
+                            <div class="mil-banner-text mil-text-center">
+                                <div class="mil-text-m mil-mb-20 mil-up">Property Details</div>
+                                <h1 class="mil-mb-60 mil-up"><%= property.title %></h1>
+                                <ul class="mil-breadcrumbs mil-pub-info mil-center mil-up">
+                                    <li><a href="/">Home</a></li>
+                                    <li><a href="/properties">Properties</a></li>
+                                    <li><%= property.title.substring(0, 30) %></li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="mil-blog-list mil-p-80-80">
+                <div class="container">
+                    <div class="row">
+                        <div class="col-xl-8">
+                            <!-- Gallery -->
+                            <div class="property-gallery mil-mb-30">
+                                <% if (property.images && property.images.length > 0) { 
+                                    var primaryImage = property.images.find(function(img) { return img.isPrimary; }) || property.images[0];
+                                %>
+                                    <img id="mainImage" src="<%= primaryImage.url %>" alt="<%= property.title %>" class="main-image">
+                                    <div class="thumbnail-list">
+                                        <% property.images.forEach(function(image, index) { %>
+                                            <img src="<%= image.url %>" alt="Thumbnail" class="thumbnail <%= image.isPrimary ? 'active' : '' %>" onclick="changeImage(this, '<%= image.url %>')">
+                                        <% }); %>
+                                    </div>
+                                <% } else { %>
+                                    <div style="width: 100%; height: 500px; background: #f0f0f0; border-radius: 12px; display: flex; align-items: center; justify-content: center;">
+                                        <i class="fa fa-building" style="font-size: 80px; color: #ccc;"></i>
+                                    </div>
+                                <% } %>
+                            </div>
+
+                            <!-- Price & Status -->
+                            <div class="mil-mb-30">
+                                <div class="row align-items-center">
+                                    <div class="col-md-6">
+                                        <span class="property-price">₦<%= property.price.toLocaleString() %></span>
+                                        <% if (property.priceNegotiable) { %>
+                                            <span class="mil-text-s mil-soft"> (Negotiable)</span>
+                                        <% } %>
+                                    </div>
+                                    <div class="col-md-6 mil-text-right">
+                                        <span class="status-badge status-<%= property.status === 'available' ? 'available' : (property.status === 'sold' ? 'sold' : 'rented') %>">
+                                            <%= property.status.toUpperCase() %>
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Property Type & Transaction Type -->
+                            <div class="mil-mb-30">
+                                <span class="mil-badge" style="background: #03A6A6; color: white; padding: 5px 12px; border-radius: 20px; margin-right: 10px;">
+                                    <i class="fa fa-home"></i> <%= property.propertyType.replace('_', ' ').toUpperCase() %>
+                                </span>
+                                <span class="mil-badge" style="background: #6c757d; color: white; padding: 5px 12px; border-radius: 20px;">
+                                    <i class="fa fa-tag"></i> <%= property.transactionType.toUpperCase() %>
+                                </span>
+                            </div>
+
+                            <!-- Description with Rich Text -->
+                            <div class="mil-mb-40">
+                                <h3 class="mil-mb-20">Description</h3>
+                                <div class="property-description">
+                                    <%- property.description %>
+                                </div>
+                            </div>
+
+                            <!-- Features -->
+                            <div class="mil-mb-40">
+                                <h3 class="mil-mb-20">Features & Amenities</h3>
+                                <div class="property-features">
+                                    <% if (property.features && property.features.bedrooms) { %>
+                                        <div class="feature-item"><i class="fa fa-bed"></i><span><%= property.features.bedrooms %> Bedrooms</span></div>
+                                    <% } %>
+                                    <% if (property.features && property.features.bathrooms) { %>
+                                        <div class="feature-item"><i class="fa fa-bath"></i><span><%= property.features.bathrooms %> Bathrooms</span></div>
+                                    <% } %>
+                                    <% if (property.features && property.features.toilets) { %>
+                                        <div class="feature-item"><i class="fa fa-toilet"></i><span><%= property.features.toilets %> Toilets</span></div>
+                                    <% } %>
+                                    <% if (property.features && property.features.parkingSpaces) { %>
+                                        <div class="feature-item"><i class="fa fa-car"></i><span><%= property.features.parkingSpaces %> Parking Spaces</span></div>
+                                    <% } %>
+                                    <% if (property.features && property.features.floorArea) { %>
+                                        <div class="feature-item"><i class="fa fa-arrows-alt"></i><span><%= property.features.floorArea.toLocaleString() %> sq ft</span></div>
+                                    <% } %>
+                                    <% if (property.features && property.features.landArea) { %>
+                                        <div class="feature-item"><i class="fa fa-map"></i><span><%= property.features.landArea.toLocaleString() %> sq ft Land</span></div>
+                                    <% } %>
+                                    <% if (property.features && property.features.furnished) { %>
+                                        <div class="feature-item"><i class="fa fa-couch"></i><span>Furnished</span></div>
+                                    <% } %>
+                                    <% if (property.features && property.features.serviced) { %>
+                                        <div class="feature-item"><i class="fa fa-concierge-bell"></i><span>Serviced</span></div>
+                                    <% } %>
+                                    <% if (property.features && property.features.security) { %>
+                                        <div class="feature-item"><i class="fa fa-shield-alt"></i><span>24/7 Security</span></div>
+                                    <% } %>
+                                    <% if (property.features && property.features.powerSupply) { %>
+                                        <div class="feature-item"><i class="fa fa-bolt"></i><span>Power Supply</span></div>
+                                    <% } %>
+                                    <% if (property.features && property.features.borehole) { %>
+                                        <div class="feature-item"><i class="fa fa-tint"></i><span>Borehole</span></div>
+                                    <% } %>
+                                </div>
+                            </div>
+
+                            <!-- Location -->
+                            <div class="mil-mb-40">
+                                <h3 class="mil-mb-20">Location</h3>
+                                <p class="mil-text-m mil-soft">
+                                    <i class="fa fa-map-marker"></i> 
+                                    <%= property.location.address ? property.location.address + ', ' : '' %>
+                                    <%= property.location.city ? property.location.city + ', ' : '' %>
+                                    <%= property.location.state ? property.location.state : '' %>
+                                    <%= property.location.lga ? ' (' + property.location.lga + ')' : '' %>
+                                </p>
+                                <% if (property.location.landmark) { %>
+                                    <p class="mil-text-s mil-soft mil-mt-10">
+                                        <i class="fa fa-flag"></i> Landmark: <%= property.location.landmark %>
+                                    </p>
+                                <% } %>
+                            </div>
+                        </div>
+
+                        <!-- Right Column - Sidebar -->
+                        <div class="col-xl-4">
+                            <!-- Owner Information -->
+                            <div class="mil-price-card mil-up mil-mb-30">
+                                <h4 class="mil-mb-20">Property Owner</h4>
+                                <div class="mil-mb-15">
+                                    <p><strong><i class="fa fa-user"></i> <%= property.owner ? property.owner.name : 'N/A' %></strong></p>
+                                    <% if (property.owner && property.owner.email) { %>
+                                        <p><i class="fa fa-envelope"></i> <%= property.owner.email %></p>
+                                    <% } %>
+                                    <% if (property.owner && property.owner.phone) { %>
+                                        <p><i class="fa fa-phone"></i> <%= property.owner.phone %></p>
+                                    <% } %>
+                                </div>
+                            </div>
+
+                            <!-- Inquiry Form -->
+                            <div class="inquiry-form">
+                                <h4 class="mil-mb-20">Interested in this property?</h4>
+                                
+                                <div id="successMessage" class="success-message">
+                                    <i class="fa fa-check-circle"></i> Inquiry sent successfully! The property owner will contact you soon.
+                                </div>
+                                <div id="errorMessage" class="error-message">
+                                    <i class="fa fa-exclamation-circle"></i> <span id="errorText"></span>
+                                </div>
+                                
+                                <form id="inquiryForm">
+                                    <input type="hidden" name="propertyId" value="<%= property._id %>">
+                                    
+                                    <!-- Always include name and email fields, pre-fill if user is logged in -->
+                                    <div class="form-group">
+                                        <input type="text" id="inquiryName" name="name" placeholder="Your Name *" required 
+                                               value="<%= user ? user.name : '' %>">
+                                    </div>
+                                    
+                                    <div class="form-group">
+                                        <input type="email" id="inquiryEmail" name="email" placeholder="Your Email *" required 
+                                               value="<%= user ? user.email : '' %>">
+                                    </div>
+                                    
+                                    <div class="form-group">
+                                        <input type="tel" id="inquiryPhone" name="phone" placeholder="Your Phone Number (Optional)"
+                                               value="<%= user && user.phone ? user.phone : '' %>">
+                                    </div>
+                                    
+                                    <div class="form-group">
+                                        <textarea name="message" rows="4" placeholder="I'm interested in this property. Please contact me with more information." required></textarea>
+                                    </div>
+                                    
+                                    <button type="submit" class="btn-primary" id="submitInquiryBtn">
+                                        <i class="fa fa-paper-plane"></i> Send Inquiry
+                                    </button>
+                                </form>
+                            </div>
+
+                            <!-- Share Property -->
+                            <div class="mil-price-card mil-up mil-mb-30">
+                                <h4 class="mil-mb-20">Share this Property</h4>
+                                <div class="mil-buttons-frame">
+                                    <a href="https://www.facebook.com/sharer/sharer.php?u=<%= encodeURIComponent('https://' + (host || 'revaampap.com') + '/properties/' + property.slug) %>" target="_blank" class="mil-btn mil-sm" style="background: #3b5998;">
+                                        <i class="fa fa-facebook"></i> Share
+                                    </a>
+                                    <a href="https://twitter.com/intent/tweet?url=<%= encodeURIComponent('https://' + (host || 'revaampap.com') + '/properties/' + property.slug) %>&text=<%= encodeURIComponent(property.title) %>" target="_blank" class="mil-btn mil-sm" style="background: #1da1f2;">
+                                        <i class="fa fa-twitter"></i> Tweet
+                                    </a>
+                                    <a href="https://wa.me/?text=<%= encodeURIComponent(property.title + ' - https://' + (host || 'revaampap.com') + '/properties/' + property.slug) %>" target="_blank" class="mil-btn mil-sm" style="background: #25d366;">
+                                        <i class="fa fa-whatsapp"></i> WhatsApp
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <footer class="mil-p-80-0">
+                <div class="container">
+                    <div class="mil-footer-bottom">
+                        <div class="row">
+                            <div class="col-xl-6">
+                                <p class="mil-text-s mil-soft">© 2024 RevaampAP. All rights reserved.</p>
+                            </div>
+                            <div class="col-xl-6">
+                                <p class="mil-text-s mil-text-right mil-sm-text-left mil-soft">Find your dream property today</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </footer>
+        </div>
+    </div>
+
+    <script src="/js/plugins/jquery.min.js"></script>
+    <script src="/js/plugins/swiper.min.js"></script>
+    <script src="/js/plugins/gsap.min.js"></script>
+    <script src="/js/plugins/ScrollSmoother.min.js"></script>
+    <script src="/js/plugins/ScrollTrigger.min.js"></script>
+    <script src="/js/plugins/ScrollTo.min.js"></script>
+    <script src="/js/plugins/magnific-popup.js"></script>
+    <script src="/js/main.js"></script>
+
+    <script>
+        // Change gallery image
+        function changeImage(thumbnail, imageUrl) {
+            document.getElementById('mainImage').src = imageUrl;
+            document.querySelectorAll('.thumbnail').forEach(function(thumb) {
+                thumb.classList.remove('active');
+            });
+            thumbnail.classList.add('active');
+        }
+        
+        // Get form elements
+        const inquiryForm = document.getElementById('inquiryForm');
+        const submitBtn = document.getElementById('submitInquiryBtn');
+        const successMessageDiv = document.getElementById('successMessage');
+        const errorMessageDiv = document.getElementById('errorMessage');
+        const errorTextSpan = document.getElementById('errorText');
+        
+        // Hide messages initially
+        if (successMessageDiv) successMessageDiv.style.display = 'none';
+        if (errorMessageDiv) errorMessageDiv.style.display = 'none';
+        
+        // Handle inquiry form submission
+        if (inquiryForm) {
+            inquiryForm.addEventListener('submit', async function(e) {
+                e.preventDefault();
+                
+                // Get form values
+                const propertyId = document.querySelector('input[name="propertyId"]').value;
+                const name = document.getElementById('inquiryName').value.trim();
+                const email = document.getElementById('inquiryEmail').value.trim();
+                const phone = document.getElementById('inquiryPhone').value.trim();
+                const message = document.querySelector('textarea[name="message"]').value.trim();
+                
+                // Validate
+                if (!name) {
+                    showError('Please enter your name');
+                    return;
+                }
+                
+                if (!email) {
+                    showError('Please enter your email address');
+                    return;
+                }
+                
+                if (!email.includes('@') || !email.includes('.')) {
+                    showError('Please enter a valid email address');
+                    return;
+                }
+                
+                if (!message) {
+                    showError('Please enter your message');
+                    return;
+                }
+                
+                // Disable submit button
+                submitBtn.disabled = true;
+                submitBtn.innerHTML = '<i class="fa fa-spinner fa-spin"></i> Sending...';
+                
+                // Hide any previous messages
+                hideMessages();
+                
+                try {
+                    const requestData = {
+                        propertyId: propertyId,
+                        name: name,
+                        email: email,
+                        phone: phone,
+                        message: message
+                    };
+                    
+                    console.log('Sending inquiry:', requestData);
+                    
+                    const response = await fetch('/api/inquiries', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify(requestData)
+                    });
+                    
+                    const result = await response.json();
+                    console.log('Response:', result);
+                    
+                    if (result.success) {
+                        // Show success message
+                        showSuccess();
+                        // Reset form
+                        inquiryForm.reset();
+                        // Keep the propertyId hidden field
+                        document.querySelector('input[name="propertyId"]').value = propertyId;
+                    } else {
+                        // Show error message
+                        showError(result.message || 'Failed to send inquiry. Please try again.');
+                    }
+                } catch (error) {
+                    console.error('Error:', error);
+                    showError('Network error. Please check your connection and try again.');
+                } finally {
+                    // Re-enable submit button
+                    submitBtn.disabled = false;
+                    submitBtn.innerHTML = '<i class="fa fa-paper-plane"></i> Send Inquiry';
+                }
+            });
+        }
+        
+        function showSuccess() {
+            if (successMessageDiv) {
+                successMessageDiv.style.display = 'block';
+                if (errorMessageDiv) errorMessageDiv.style.display = 'none';
+                
+                // Auto hide after 5 seconds
+                setTimeout(function() {
+                    if (successMessageDiv) successMessageDiv.style.display = 'none';
+                }, 5000);
+            } else {
+                alert('Inquiry sent successfully! The property owner will contact you soon.');
+            }
+        }
+        
+        function showError(message) {
+            if (errorMessageDiv && errorTextSpan) {
+                errorTextSpan.innerText = message;
+                errorMessageDiv.style.display = 'block';
+                if (successMessageDiv) successMessageDiv.style.display = 'none';
+                
+                // Auto hide after 5 seconds
+                setTimeout(function() {
+                    if (errorMessageDiv) errorMessageDiv.style.display = 'none';
+                }, 5000);
+            } else {
+                alert('Error: ' + message);
+            }
+        }
+        
+        function hideMessages() {
+            if (successMessageDiv) successMessageDiv.style.display = 'none';
+            if (errorMessageDiv) errorMessageDiv.style.display = 'none';
+        }
+    </script>
+</body>
+
+</html>

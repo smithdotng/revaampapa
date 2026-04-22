@@ -9,18 +9,18 @@ const path = require('path');
 // Get all properties (public)
 exports.getAllProperties = async (req, res) => {
     try {
-        const { type, transactionType, state, search, page = 1 } = req.query;
+        const { propertyType, transactionType, state, search, page = 1 } = req.query;
         
         let query = { 
             verificationStatus: 'verified',
             status: 'available' 
         };
         
-        if (type) query.propertyType = type;
-        if (transactionType) query.transactionType = transactionType;
-        if (state) query['location.state'] = state;
+        if (propertyType && propertyType !== '') query.propertyType = propertyType;
+        if (transactionType && transactionType !== '') query.transactionType = transactionType;
+        if (state && state !== '') query['location.state'] = state;
         
-        if (search) {
+        if (search && search !== '') {
             query.$or = [
                 { title: { $regex: search, $options: 'i' } },
                 { description: { $regex: search, $options: 'i' } },
@@ -45,7 +45,9 @@ exports.getAllProperties = async (req, res) => {
             currentPage: parseInt(page),
             totalPages: Math.ceil(total / limit),
             total,
-            filters: req.query
+            filters: req.query,
+            user: req.session.userId ? { name: req.session.userName } : null,
+            host: req.get('host')
         });
     } catch (error) {
         console.error('Get properties error:', error);
@@ -70,7 +72,9 @@ exports.getPropertyDetail = async (req, res) => {
         
         res.render('properties/detail', {
             title: `${property.title} - RevaampAP`,
-            property
+            property,
+            user: req.session.userId ? { name: req.session.userName } : null,
+            host: req.get('host')
         });
     } catch (error) {
         console.error('Property detail error:', error);
@@ -78,13 +82,14 @@ exports.getPropertyDetail = async (req, res) => {
     }
 };
 
-// Get add property form
+// Get add property form (with TinyMCE)
 exports.getAddProperty = async (req, res) => {
     try {
         res.render('property-owner/add-property', {
             title: 'Add New Property - RevaampAP',
             property: null,
-            verificationFee: 20000
+            verificationFee: 20000,
+            user: req.session.userId ? { name: req.session.userName } : null
         });
     } catch (error) {
         console.error('Get add property error:', error);
@@ -92,7 +97,7 @@ exports.getAddProperty = async (req, res) => {
     }
 };
 
-// Post add property
+// Post add property (with TinyMCE content)
 exports.postAddProperty = async (req, res) => {
     try {
         const {
@@ -110,7 +115,7 @@ exports.postAddProperty = async (req, res) => {
         if (req.files && req.files.length > 0) {
             req.files.forEach((file, index) => {
                 images.push({
-                    url: '/uploads/' + file.filename,
+                    url: '/uploads/properties/' + file.filename,
                     isPrimary: index === 0
                 });
             });
@@ -121,7 +126,7 @@ exports.postAddProperty = async (req, res) => {
         const property = new Property({
             title,
             slug,
-            description,
+            description, // Now supports HTML from TinyMCE
             propertyType,
             transactionType,
             price: parseFloat(price),
@@ -160,7 +165,7 @@ exports.postAddProperty = async (req, res) => {
     }
 };
 
-// Get edit property form
+// Get edit property form (with TinyMCE)
 exports.getEditProperty = async (req, res) => {
     try {
         const property = await Property.findById(req.params.id);
@@ -178,7 +183,8 @@ exports.getEditProperty = async (req, res) => {
         res.render('property-owner/add-property', {
             title: 'Edit Property - RevaampAP',
             property,
-            verificationFee: 20000
+            verificationFee: 20000,
+            user: req.session.userId ? { name: req.session.userName } : null
         });
     } catch (error) {
         console.error('Edit property error:', error);
@@ -186,7 +192,7 @@ exports.getEditProperty = async (req, res) => {
     }
 };
 
-// Update property
+// Update property (with TinyMCE)
 exports.updateProperty = async (req, res) => {
     try {
         const property = await Property.findById(req.params.id);
@@ -215,7 +221,7 @@ exports.updateProperty = async (req, res) => {
         }
         
         property.title = title;
-        property.description = description;
+        property.description = description; // Now supports HTML from TinyMCE
         property.propertyType = propertyType;
         property.transactionType = transactionType;
         property.price = parseFloat(price);
@@ -238,7 +244,7 @@ exports.updateProperty = async (req, res) => {
         if (req.files && req.files.length > 0) {
             req.files.forEach(file => {
                 property.images.push({
-                    url: '/uploads/' + file.filename,
+                    url: '/uploads/properties/' + file.filename,
                     isPrimary: property.images.length === 0
                 });
             });
@@ -281,7 +287,7 @@ exports.deleteProperty = async (req, res) => {
     }
 };
 
-// API methods (placeholder)
+// API methods
 exports.getInquiries = async (req, res) => {
     res.json([]);
 };

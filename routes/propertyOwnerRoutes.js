@@ -21,9 +21,9 @@ router.put('/properties/:id', upload.uploadMultiple, propertyOwnerController.upd
 router.delete('/properties/:id', propertyOwnerController.deleteProperty);
 router.get('/properties/:id', propertyOwnerController.getPropertyDetails);
 
-// Verification payment
+// Verification payment - Fixed: using uploadPaymentProofDoc
 router.get('/properties/pay-verification/:id', propertyOwnerController.getPayVerification);
-router.post('/properties/pay-verification/:id', propertyOwnerController.processVerificationPayment);
+router.post('/properties/pay-verification/:id', upload.uploadPaymentProofDoc, propertyOwnerController.processVerificationPayment);
 
 // Earnings
 router.get('/earnings', propertyOwnerController.getEarnings);

@@ -13,7 +13,10 @@
     <link rel="stylesheet" href="/css/plugins/magnific-popup.css" type="text/css" media="all">
     <link rel="stylesheet" href="/css/style.css" type="text/css" media="all">
     <link rel="stylesheet" href="/css/custom.css" type="text/css" media="all">
-
+    
+    <!-- TinyMCE Rich Text Editor -->
+    <script src="https://cdn.tiny.cloud/1/r7yn90cu0z6obkdeiouqmtq3bvnazgybfvn40efwi6fdzms4/tinymce/6/tinymce.min.js" referrerpolicy="origin"></script>
+    
     <link rel="shortcut icon" href="/favicon.ico" type="image/x-icon">
     <link rel="icon" href="/favicon.ico" type="image/x-icon">
 </head>
@@ -76,7 +79,7 @@
                     <div class="row justify-content-center">
                         <div class="col-xl-10">
                             <div class="mil-price-card mil-up">
-                                <form action="/property-owner/properties/add" method="POST" enctype="multipart/form-data">
+                                <form action="/property-owner/properties/add" method="POST" enctype="multipart/form-data" id="propertyForm">
                                     <!-- Basic Information -->
                                     <h3 class="mil-mb-30">Property Information</h3>
                                     <div class="row">
@@ -86,7 +89,7 @@
                                         </div>
                                         <div class="col-md-12">
                                             <label class="mil-text-s mil-soft mil-mb-10">Description *</label>
-                                            <textarea class="mil-input mil-mb-15" name="description" rows="5" placeholder="Describe your property in detail..." required><%= property ? property.description : '' %></textarea>
+                                            <textarea id="propertyDescription" name="description" rows="10" placeholder="Describe your property in detail..."><%= property ? property.description : '' %></textarea>
                                         </div>
                                         <div class="col-md-6">
                                             <label class="mil-text-s mil-soft mil-mb-10">Property Type *</label>
@@ -274,7 +277,7 @@
         <footer class="mil-p-80-0">
             <div class="container">
                 <div class="mil-footer-bottom">
-                    <p class="mil-text-s mil-soft">© 2024 RevaampAPA. All rights reserved.</p>
+                    <p class="mil-text-s mil-soft">© 2026 RevaampAPA. All rights reserved.</p>
                 </div>
             </div>
         </footer>
@@ -289,6 +292,30 @@
     <script src="/js/plugins/magnific-popup.js"></script>
     <script src="/js/main.js"></script>
 
+    <script>
+        // Initialize TinyMCE Rich Text Editor
+        tinymce.init({
+            selector: '#propertyDescription',
+            height: 400,
+            menubar: true,
+            plugins: [
+                'advlist', 'autolink', 'lists', 'link', 'image', 'charmap', 'preview',
+                'anchor', 'searchreplace', 'visualblocks', 'code', 'fullscreen',
+                'insertdatetime', 'media', 'table', 'help', 'wordcount'
+            ],
+            toolbar: 'undo redo | blocks | ' +
+                'bold italic backcolor | alignleft aligncenter ' +
+                'alignright alignjustify | bullist numlist outdent indent | ' +
+                'removeformat | help',
+            content_style: 'body { font-family:Helvetica,Arial,sans-serif; font-size:16px }',
+            setup: function(editor) {
+                editor.on('change', function() {
+                    editor.save();
+                });
+            }
+        });
+    </script>
+
     <style>
         .dropdown-menu { display: none; }
         .dropdown:hover .dropdown-menu { display: block; }
@@ -298,6 +325,12 @@
         .mil-mb-15 { margin-bottom: 15px; }
         .mil-mb-30 { margin-bottom: 30px; }
         label { display: block; margin-bottom: 5px; font-weight: 500; }
+        
+        /* TinyMCE container styling */
+        .tox-tinymce {
+            border-radius: 8px !important;
+            border-color: #e0e0e0 !important;
+        }
     </style>
 </body>
 </html>

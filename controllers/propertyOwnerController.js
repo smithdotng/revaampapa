@@ -3,7 +3,6 @@ const Property = require('../models/Property');
 const User = require('../models/User');
 const Transaction = require('../models/Transaction');
 const Promotion = require('../models/Promotion');
-const axios = require('axios');
 const slugify = require('slugify');
 const fs = require('fs');
 const path = require('path');
@@ -99,23 +98,16 @@ exports.postAddProperty = async (req, res) => {
         if (req.files && req.files.length > 0) {
             req.files.forEach((file, index) => {
                 images.push({
-                    url: '/uploads/' + file.filename,
+                    url: '/uploads/properties/' + file.filename,
                     isPrimary: index === 0
                 });
             });
         }
         
-        // Process document uploads
-        const documents = [];
-        if (req.body.documentTypes && req.files) {
-            // Handle document uploads separately
-            // This would need a separate file input for documents
-        }
-        
         // Calculate agency fee (10% of price)
         const agencyFee = parseFloat(price) * 0.1;
         
-        // Create property with pending payment status
+        // Create property - using correct enum values
         const property = new Property({
             title,
             slug,
@@ -124,7 +116,13 @@ exports.postAddProperty = async (req, res) => {
             transactionType,
             price: parseFloat(price),
             priceNegotiable: priceNegotiable === 'on',
-            location: { address, city, state, lga, landmark },
+            location: {
+                address,
+                city,
+                state,
+                lga,
+                landmark
+            },
             features: {
                 bedrooms: bedrooms ? parseInt(bedrooms) : undefined,
                 bathrooms: bathrooms ? parseInt(bathrooms) : undefined,
@@ -139,10 +137,10 @@ exports.postAddProperty = async (req, res) => {
                 borehole: borehole === 'on'
             },
             images,
-            documents,
             owner: req.session.userId,
             ownerType: 'property_owner',
             agencyFee,
+            listingTier: 'free',
             verificationStatus: 'pending_payment',
             status: 'pending_payment',
             verificationFee: 20000
@@ -150,130 +148,106 @@ exports.postAddProperty = async (req, res) => {
         
         await property.save();
         
-        // Store property ID in session for payment
-        req.session.pendingPropertyPayment = {
-            propertyId: property._id,
-            amount: 20000
-        };
-        
-        req.flash('info', 'Please pay the verification fee of ₦20,000 to proceed with property verification.');
-        res.redirect(`/properties/pay-verification/${property._id}`);
+        req.flash('info', 'Property submitted! Please pay the verification fee of ₦20,000 to complete your listing.');
+        res.redirect(`/property-owner/properties/pay-verification/${property._id}`);
     } catch (error) {
         console.error('Add property error:', error);
-        req.flash('error', 'Error adding property. Please try again.');
-        res.redirect('/properties/add');
+        req.flash('error', 'Error adding property: ' + error.message);
+        res.redirect('/property-owner/properties/add');
     }
 };
 
-// Pay verification fee page
+// Get pay verification page
 exports.getPayVerification = async (req, res) => {
     try {
         const property = await Property.findById(req.params.id);
         
         if (!property) {
             req.flash('error', 'Property not found');
-            return res.redirect('/dashboard');
+            return res.redirect('/property-owner/dashboard');
         }
         
+        // Check if property belongs to user
         if (property.owner.toString() !== req.session.userId) {
             req.flash('error', 'Unauthorized');
-            return res.redirect('/dashboard');
+            return res.redirect('/property-owner/dashboard');
         }
         
-        if (property.verificationStatus !== 'pending_payment') {
-            req.flash('error', 'Payment already processed for this property');
-            return res.redirect('/dashboard');
+        // Check if payment already made
+        if (property.verificationPaymentConfirmed) {
+            req.flash('info', 'Payment already submitted for this property. Awaiting admin verification.');
+            return res.redirect('/property-owner/dashboard');
         }
         
         res.render('property-owner/pay-verification', {
             title: 'Pay Verification Fee - RevaampAP',
-            property,
+            user: req.currentUser,
+            property: property,
             feeAmount: 20000
         });
     } catch (error) {
         console.error('Get pay verification error:', error);
         req.flash('error', 'Error loading payment page');
-        res.redirect('/dashboard');
+        res.redirect('/property-owner/dashboard');
     }
 };
 
-// Process verification payment
+// Process verification payment (MANUAL - Bank Transfer)
 exports.processVerificationPayment = async (req, res) => {
     try {
         const { id } = req.params;
+        const { paymentReference, paymentAmount, paymentDate } = req.body;
+        
         const property = await Property.findById(id);
         
         if (!property) {
             req.flash('error', 'Property not found');
-            return res.redirect('/dashboard');
+            return res.redirect('/property-owner/dashboard');
         }
         
+        // Check if property belongs to user
         if (property.owner.toString() !== req.session.userId) {
             req.flash('error', 'Unauthorized');
-            return res.redirect('/dashboard');
+            return res.redirect('/property-owner/dashboard');
         }
         
-        // Initialize Paystack payment
-        const response = await axios.post('https://api.paystack.co/transaction/initialize', {
-            email: req.session.userEmail,
-            amount: 20000 * 100, // Paystack uses kobo
-            callback_url: `${getBaseUrl(req)}/properties/verification-callback`,
-            metadata: {
-                propertyId: property._id,
-                purpose: 'property_verification',
-                userId: req.session.userId,
-                amount: 20000
-            }
-        }, {
-            headers: {
-                Authorization: `Bearer ${process.env.PAYSTACK_SECRET_KEY}`,
-                'Content-Type': 'application/json'
-            }
-        });
-        
-        if (response.data.status) {
-            res.redirect(response.data.data.authorization_url);
-        } else {
-            throw new Error('Payment initialization failed');
+        // Validate payment proof
+        if (!paymentReference || !req.file) {
+            req.flash('error', 'Please provide payment reference and upload proof of payment');
+            return res.redirect(`/property-owner/properties/pay-verification/${property._id}`);
         }
+        
+        // Validate amount
+        if (parseFloat(paymentAmount) !== 20000) {
+            req.flash('error', 'Payment amount must be ₦20,000');
+            return res.redirect(`/property-owner/properties/pay-verification/${property._id}`);
+        }
+        
+        // Handle file upload for payment proof
+        let paymentProofUrl = '';
+        if (req.file) {
+            paymentProofUrl = '/uploads/payments/' + req.file.filename;
+        }
+        
+        // Update property with payment information (pending admin verification)
+        property.verificationStatus = 'payment_confirmed';
+        property.status = 'payment_confirmed';
+        property.verificationPaymentReference = paymentReference;
+        property.verificationPaymentDate = paymentDate || new Date();
+        property.verificationPaymentConfirmed = true;
+        property.verificationPaymentConfirmedBy = req.session.userId;
+        property.verificationPaymentConfirmedAt = new Date();
+        property.verificationPaymentProofUrl = paymentProofUrl;
+        
+        await property.save();
+        
+        req.flash('success', 'Payment proof submitted successfully! Your property will be verified by admin within 24-48 hours.');
+        res.redirect('/property-owner/dashboard');
+        
     } catch (error) {
         console.error('Process verification payment error:', error);
         req.flash('error', 'Error processing payment. Please try again.');
-        res.redirect(`/properties/pay-verification/${req.params.id}`);
-    }
-};
-
-// Verification payment callback
-exports.verificationCallback = async (req, res) => {
-    try {
-        const { reference } = req.query;
-        
-        const response = await axios.get(`https://api.paystack.co/transaction/verify/${reference}`, {
-            headers: { Authorization: `Bearer ${process.env.PAYSTACK_SECRET_KEY}` }
-        });
-        
-        if (response.data.data.status === 'success') {
-            const { propertyId, userId } = response.data.data.metadata;
-            
-            // Update property with payment confirmation
-            await Property.findByIdAndUpdate(propertyId, {
-                verificationStatus: 'payment_confirmed',
-                status: 'payment_confirmed',
-                verificationPaymentReference: reference,
-                verificationPaymentDate: new Date(),
-                verificationPaymentConfirmed: true
-            });
-            
-            req.flash('success', 'Payment successful! Your property is now pending admin verification.');
-            return res.redirect('/dashboard');
-        }
-        
-        req.flash('error', 'Payment verification failed');
-        res.redirect('/dashboard');
-    } catch (error) {
-        console.error('Verification callback error:', error);
-        req.flash('error', 'Payment verification failed');
-        res.redirect('/dashboard');
+        res.redirect(`/property-owner/properties/pay-verification/${req.params.id}`);
     }
 };
 
@@ -345,7 +319,7 @@ exports.updateProperty = async (req, res) => {
             const imagesToRemove = Array.isArray(removeImages) ? removeImages : [removeImages];
             imagesToRemove.forEach(imageUrl => {
                 const filename = path.basename(imageUrl);
-                const filepath = path.join(__dirname, '../public/uploads', filename);
+                const filepath = path.join(__dirname, '../public/uploads/properties', filename);
                 if (fs.existsSync(filepath)) fs.unlinkSync(filepath);
             });
             property.images = property.images.filter(img => !imagesToRemove.includes(img.url));
@@ -355,7 +329,7 @@ exports.updateProperty = async (req, res) => {
         if (req.files && req.files.length > 0) {
             req.files.forEach(file => {
                 property.images.push({
-                    url: '/uploads/' + file.filename,
+                    url: '/uploads/properties/' + file.filename,
                     isPrimary: property.images.length === 0
                 });
             });
@@ -390,7 +364,7 @@ exports.updateProperty = async (req, res) => {
         await property.save();
         
         req.flash('success', 'Property updated successfully!');
-        res.redirect(`/dashboard`);
+        res.redirect('/dashboard');
     } catch (error) {
         console.error('Update property error:', error);
         req.flash('error', 'Error updating property');
@@ -416,7 +390,7 @@ exports.deleteProperty = async (req, res) => {
         // Remove images from filesystem
         property.images.forEach(image => {
             const filename = path.basename(image.url);
-            const filepath = path.join(__dirname, '../public/uploads', filename);
+            const filepath = path.join(__dirname, '../public/uploads/properties', filename);
             if (fs.existsSync(filepath)) fs.unlinkSync(filepath);
         });
         

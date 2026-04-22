@@ -2,13 +2,10 @@
 <html lang="en-US">
 
 <head>
-    <title>Properties | RevaampAPA - Find Verified Properties in Nigeria</title>
+    <title><%= title %></title>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <meta name="HandheldFriendly" content="true">
-    <meta name="author" content="RevaampAPA" />
-    <meta name="description" content="Browse verified properties for sale and rent across Nigeria. Find your dream home, land, or commercial property on RevaampAPA." />
-
+    
     <!-- switzer font css -->
     <link rel="stylesheet" href="/fonts/css/switzer.css" type="text/css" media="all">
     <!-- font awesome css -->
@@ -27,270 +24,232 @@
     <!-- Favicon -->
     <link rel="shortcut icon" href="/favicon.ico" type="image/x-icon">
     <link rel="icon" href="/favicon.ico" type="image/x-icon">
+    
+    <style>
+        .property-card {
+            transition: transform 0.3s;
+            cursor: pointer;
+        }
+        .property-card:hover {
+            transform: translateY(-5px);
+        }
+        .property-image {
+            width: 100%;
+            height: 250px;
+            object-fit: cover;
+            border-radius: 12px 12px 0 0;
+        }
+        .filter-sidebar {
+            background: #f8f9fa;
+            padding: 25px;
+            border-radius: 12px;
+            margin-bottom: 30px;
+        }
+        .filter-sidebar select,
+        .filter-sidebar input {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            margin-bottom: 15px;
+        }
+        .filter-sidebar button {
+            width: 100%;
+            padding: 12px;
+            background: #03A6A6;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+        }
+        .property-price {
+            font-size: 20px;
+            color: #03A6A6;
+            font-weight: 700;
+        }
+        .property-location {
+            font-size: 14px;
+            color: #6c757d;
+        }
+        .pagination {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-top: 40px;
+        }
+        .pagination a {
+            padding: 8px 15px;
+            background: #f8f9fa;
+            color: #333;
+            text-decoration: none;
+            border-radius: 8px;
+        }
+        .pagination a.active {
+            background: #03A6A6;
+            color: white;
+        }
+    </style>
 </head>
 
 <body>
 
-    <!-- wrapper -->
     <div id="smooth-wrapper" class="mil-wrapper">
 
-        <!-- preloader -->
         <div class="mil-preloader">
             <div class="mil-load"></div>
             <p class="h2 mil-mb-30"><span class="mil-light mil-counter" data-number="100">100</span><span class="mil-light">%</span></p>
         </div>
-        <!-- preloader end -->
 
-        <!-- scroll progress -->
         <div class="mil-progress-track">
             <div class="mil-progress"></div>
         </div>
-        <!-- scroll progress end -->
 
-        <!-- back to top -->
         <div class="progress-wrap active-progress"></div>
 
         <!-- top panel -->
         <div class="mil-top-panel">
             <div class="container">
                 <a href="/" class="mil-logo">
-                    <img src="/img/logo.png" alt="RevaampAPA" width="83" height="32">
+                    <img src="/img/logo.png" alt="RevaampAP" width="83" height="32">
                 </a>
                 <nav class="mil-top-menu">
                     <ul>
                         <li><a href="/">Home</a></li>
-                        <li class="mil-active"><a href="/properties">Properties</a></li>
-                        <li><a href="/projects">Projects</a></li>
+                        <li><a href="/properties" class="mil-active">Properties</a></li>
+                        <li><a href="/how-it-works">How It Works</a></li>
                         <li><a href="/about">About</a></li>
                         <li><a href="/contact">Contact</a></li>
+                        <% if (user) { %>
+                            <li><a href="/dashboard">Dashboard</a></li>
+                            <li><a href="/logout">Logout</a></li>
+                        <% } else { %>
+                            <li><a href="/login">Login</a></li>
+                            <li><a href="/register">Register</a></li>
+                        <% } %>
                     </ul>
                 </nav>
                 <div class="mil-menu-buttons">
-                    <% if (typeof user !== 'undefined' && user) { %>
-                        <div class="dropdown" style="position: relative;">
-                            <a href="#" class="mil-btn mil-sm dropdown-toggle" data-bs-toggle="dropdown">
-                                <i class="fa fa-user-circle"></i> <%= user.name %>
-                                <i class="fa fa-chevron-down" style="margin-left: 8px; font-size: 12px;"></i>
-                            </a>
-                            <ul class="dropdown-menu">
-                                <li><a href="/dashboard"><i class="fa fa-tachometer"></i> Dashboard</a></li>
-                                <li><a href="/dashboard/settings"><i class="fa fa-cog"></i> Settings</a></li>
-                                <li><hr></li>
-                                <li><a href="/logout"><i class="fa fa-sign-out-alt"></i> Logout</a></li>
-                            </ul>
-                        </div>
-                    <% } else { %>
-                        <a href="/login" class="mil-btn mil-sm">Log in</a>
-                        <a href="/register" class="mil-btn mil-sm mil-light">Get Started</a>
-                    <% } %>
                     <div class="mil-menu-btn">
                         <span></span>
                     </div>
                 </div>
             </div>
         </div>
-        <!-- top panel end -->
 
-        <!-- content -->
         <div id="smooth-content">
 
-            <!-- banner -->
             <div class="mil-banner mil-banner-inner mil-dissolve">
                 <div class="container">
                     <div class="row align-items-center justify-content-center">
                         <div class="col-xl-8">
                             <div class="mil-banner-text mil-text-center">
-                                <div class="mil-text-m mil-mb-20 mil-up">Find Your Dream Property</div>
-                                <h1 class="mil-mb-60 mil-up">Verified Properties in Nigeria</h1>
-                                <ul class="mil-breadcrumbs mil-center mil-up">
+                                <div class="mil-text-m mil-mb-20 mil-up">Find Your Perfect Property</div>
+                                <h1 class="mil-mb-60 mil-up">Properties for Sale & Rent</h1>
+                                <ul class="mil-breadcrumbs mil-pub-info mil-center mil-up">
                                     <li><a href="/">Home</a></li>
-                                    <li><a href="/properties">Properties</a></li>
+                                    <li>Properties</li>
                                 </ul>
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
-            <!-- banner end -->
 
-            <!-- search and filter section -->
-            <div class="mil-blog-list mil-p-0-80">
+            <div class="mil-blog-list mil-p-80-80">
                 <div class="container">
                     <div class="row">
-                        <div class="col-xl-3 col-lg-4 mil-mb-60">
-                            <!-- Filter Sidebar -->
-                            <div class="mil-price-card mil-up">
-                                <h4 class="mil-mb-30">Filter Properties</h4>
-                                
-                                <form action="/properties" method="GET" id="filterForm">
-                                    <!-- Search -->
-                                    <div class="mil-mb-30">
-                                        <label class="mil-text-s mil-soft mil-mb-10">Search</label>
-                                        <input type="text" name="search" class="mil-input" placeholder="Search by title or location" value="<%= filters.search || '' %>">
-                                    </div>
-
-                                    <!-- Property Type -->
-                                    <div class="mil-mb-30">
-                                        <label class="mil-text-s mil-soft mil-mb-10">Property Type</label>
-                                        <select name="type" class="mil-input">
-                                            <option value="">All Types</option>
-                                            <option value="land" <%= filters.type === 'land' ? 'selected' : '' %>>Land</option>
-                                            <option value="building" <%= filters.type === 'building' ? 'selected' : '' %>>Building/House</option>
-                                            <option value="shortlet" <%= filters.type === 'shortlet' ? 'selected' : '' %>>Shortlet Apartment</option>
-                                            <option value="shop" <%= filters.type === 'shop' ? 'selected' : '' %>>Shop/Commercial</option>
-                                            <option value="business_complex" <%= filters.type === 'business_complex' ? 'selected' : '' %>>Business Complex</option>
-                                        </select>
-                                    </div>
-
-                                    <!-- Transaction Type -->
-                                    <div class="mil-mb-30">
-                                        <label class="mil-text-s mil-soft mil-mb-10">Transaction Type</label>
-                                        <select name="transactionType" class="mil-input">
-                                            <option value="">All</option>
-                                            <option value="sale" <%= filters.transactionType === 'sale' ? 'selected' : '' %>>For Sale</option>
-                                            <option value="rent" <%= filters.transactionType === 'rent' ? 'selected' : '' %>>For Rent</option>
-                                            <option value="lease" <%= filters.transactionType === 'lease' ? 'selected' : '' %>>For Lease</option>
-                                        </select>
-                                    </div>
-
-                                    <!-- Location - State -->
-                                    <div class="mil-mb-30">
-                                        <label class="mil-text-s mil-soft mil-mb-10">State</label>
-                                        <select name="state" class="mil-input" id="stateSelect">
-                                            <option value="">All States</option>
-                                            <option value="Lagos" <%= filters.state === 'Lagos' ? 'selected' : '' %>>Lagos</option>
-                                            <option value="Abuja" <%= filters.state === 'Abuja' ? 'selected' : '' %>>Abuja</option>
-                                            <option value="Rivers" <%= filters.state === 'Rivers' ? 'selected' : '' %>>Rivers</option>
-                                            <option value="Ogun" <%= filters.state === 'Ogun' ? 'selected' : '' %>>Ogun</option>
-                                            <option value="Oyo" <%= filters.state === 'Oyo' ? 'selected' : '' %>>Oyo</option>
-                                            <option value="Kano" <%= filters.state === 'Kano' ? 'selected' : '' %>>Kano</option>
-                                            <option value="Kaduna" <%= filters.state === 'Kaduna' ? 'selected' : '' %>>Kaduna</option>
-                                            <option value="Enugu" <%= filters.state === 'Enugu' ? 'selected' : '' %>>Enugu</option>
-                                            <option value="Delta" <%= filters.state === 'Delta' ? 'selected' : '' %>>Delta</option>
-                                        </select>
-                                    </div>
-
-                                    <!-- Price Range -->
-                                    <div class="mil-mb-30">
-                                        <label class="mil-text-s mil-soft mil-mb-10">Price Range (₦)</label>
-                                        <div class="row">
-                                            <div class="col-6">
-                                                <input type="number" name="minPrice" class="mil-input" placeholder="Min" value="<%= filters.minPrice || '' %>">
-                                            </div>
-                                            <div class="col-6">
-                                                <input type="number" name="maxPrice" class="mil-input" placeholder="Max" value="<%= filters.maxPrice || '' %>">
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                    <!-- Bedrooms -->
-                                    <div class="mil-mb-30">
-                                        <label class="mil-text-s mil-soft mil-mb-10">Bedrooms</label>
-                                        <select name="bedrooms" class="mil-input">
-                                            <option value="">Any</option>
-                                            <option value="1" <%= filters.bedrooms === '1' ? 'selected' : '' %>>1+</option>
-                                            <option value="2" <%= filters.bedrooms === '2' ? 'selected' : '' %>>2+</option>
-                                            <option value="3" <%= filters.bedrooms === '3' ? 'selected' : '' %>>3+</option>
-                                            <option value="4" <%= filters.bedrooms === '4' ? 'selected' : '' %>>4+</option>
-                                            <option value="5" <%= filters.bedrooms === '5' ? 'selected' : '' %>>5+</option>
-                                        </select>
-                                    </div>
-
-                                    <!-- Sort By -->
-                                    <div class="mil-mb-30">
-                                        <label class="mil-text-s mil-soft mil-mb-10">Sort By</label>
-                                        <select name="sort" class="mil-input">
-                                            <option value="newest" <%= filters.sort === 'newest' ? 'selected' : '' %>>Newest First</option>
-                                            <option value="price-asc" <%= filters.sort === 'price-asc' ? 'selected' : '' %>>Price: Low to High</option>
-                                            <option value="price-desc" <%= filters.sort === 'price-desc' ? 'selected' : '' %>>Price: High to Low</option>
-                                            <option value="popular" <%= filters.sort === 'popular' ? 'selected' : '' %>>Most Popular</option>
-                                        </select>
-                                    </div>
-
-                                    <div class="mil-buttons-frame">
-                                        <button type="submit" class="mil-btn mil-sm">Apply Filters</button>
-                                        <a href="/properties" class="mil-btn mil-sm mil-light">Reset</a>
-                                    </div>
+                        <!-- Filter Sidebar -->
+                        <div class="col-xl-3">
+                            <div class="filter-sidebar">
+                                <h4 class="mil-mb-20">Filter Properties</h4>
+                                <form method="GET" action="/properties">
+                                    <select name="propertyType">
+                                        <option value="">All Types</option>
+                                        <option value="shortlet" <%= filters.propertyType === 'shortlet' ? 'selected' : '' %>>Shortlet</option>
+                                        <option value="land" <%= filters.propertyType === 'land' ? 'selected' : '' %>>Land</option>
+                                        <option value="building" <%= filters.propertyType === 'building' ? 'selected' : '' %>>Building</option>
+                                        <option value="shop" <%= filters.propertyType === 'shop' ? 'selected' : '' %>>Shop</option>
+                                        <option value="business_complex" <%= filters.propertyType === 'business_complex' ? 'selected' : '' %>>Business Complex</option>
+                                    </select>
+                                    
+                                    <select name="transactionType">
+                                        <option value="">All Transactions</option>
+                                        <option value="rent" <%= filters.transactionType === 'rent' ? 'selected' : '' %>>For Rent</option>
+                                        <option value="sale" <%= filters.transactionType === 'sale' ? 'selected' : '' %>>For Sale</option>
+                                        <option value="lease" <%= filters.transactionType === 'lease' ? 'selected' : '' %>>For Lease</option>
+                                    </select>
+                                    
+                                    <select name="state">
+                                        <option value="">All States</option>
+                                        <option value="Abuja" <%= filters.state === 'Abuja' ? 'selected' : '' %>>Abuja</option>
+                                        <option value="Lagos" <%= filters.state === 'Lagos' ? 'selected' : '' %>>Lagos</option>
+                                        <option value="Kano" <%= filters.state === 'Kano' ? 'selected' : '' %>>Kano</option>
+                                        <option value="Rivers" <%= filters.state === 'Rivers' ? 'selected' : '' %>>Rivers</option>
+                                    </select>
+                                    
+                                    <input type="text" name="search" placeholder="Search by title or location" value="<%= filters.search || '' %>">
+                                    
+                                    <button type="submit">Apply Filters</button>
                                 </form>
                             </div>
                         </div>
 
-                        <div class="col-xl-9 col-lg-8">
-                            <!-- Results count -->
-                            <div class="mil-flex-between mil-mb-30 mil-up">
-                                <p class="mil-text-s mil-soft">Showing <strong><%= properties.length %></strong> of <strong><%= total %></strong> properties</p>
-                                <div class="mil-view-toggle">
-                                    <button class="mil-view-btn mil-active" data-view="grid"><i class="fa fa-th"></i></button>
-                                    <button class="mil-view-btn" data-view="list"><i class="fa fa-list"></i></button>
-                                </div>
+                        <!-- Property Listings -->
+                        <div class="col-xl-9">
+                            <div class="mil-mb-30">
+                                <p class="mil-text-m mil-soft"><%= total %> properties found</p>
                             </div>
-
-                            <!-- Properties Grid -->
-                            <div class="row mil-grid-view" id="propertiesGrid">
-                                <% if (typeof properties !== 'undefined' && properties && properties.length > 0) { %>
-                                    <% for(var i = 0; i < properties.length; i++) { %>
-                                        <% var property = properties[i]; %>
-                                        <div class="col-xl-4 col-md-6 mil-mb-30">
-                                            <div class="mil-price-card mil-up property-card" style="height: 100%;">
-                                                <div class="property-image" style="position: relative; overflow: hidden; border-radius: 15px; margin-bottom: 20px;">
-                                                    <% if(property.images && property.images.length > 0) { %>
-                                                        <img src="<%= property.images[0].url %>" alt="<%= property.title %>" style="width: 100%; height: 220px; object-fit: cover; transition: transform 0.3s ease;">
-                                                    <% } else { %>
-                                                        <img src="/img/property-placeholder.jpg" alt="<%= property.title %>" style="width: 100%; height: 220px; object-fit: cover;">
-                                                    <% } %>
-                                                    <div class="property-badges" style="position: absolute; top: 10px; left: 10px; display: flex; gap: 8px;">
-                                                        <% if(property.verificationStatus === 'verified') { %>
-                                                            <span class="mil-badge" style="background: #28a745; color: white; padding: 4px 10px; border-radius: 5px; font-size: 11px;">✓ Verified</span>
-                                                        <% } %>
-                                                        <% if(property.featured) { %>
-                                                            <span class="mil-badge" style="background: #ffc107; color: #856404; padding: 4px 10px; border-radius: 5px; font-size: 11px;">★ Featured</span>
+                            
+                            <div class="row">
+                                <% if (properties && properties.length > 0) { %>
+                                    <% properties.forEach(function(property) { %>
+                                        <div class="col-xl-6 col-lg-6 mil-mb-30">
+                                            <div class="mil-price-card property-card mil-up" onclick="window.location.href='/properties/<%= property.slug %>'">
+                                                <% if (property.images && property.images.length > 0) { %>
+                                                    <img src="<%= property.images[0].url %>" alt="<%= property.title %>" class="property-image">
+                                                <% } else { %>
+                                                    <div class="property-image" style="background: #f0f0f0; display: flex; align-items: center; justify-content: center;">
+                                                        <i class="fa fa-building" style="font-size: 48px; color: #ccc;"></i>
+                                                    </div>
+                                                <% } %>
+                                                <div style="padding: 20px;">
+                                                    <div class="mil-mb-15">
+                                                        <span class="property-price">₦<%= property.price.toLocaleString() %></span>
+                                                        <% if (property.priceNegotiable) { %>
+                                                            <span class="mil-text-s mil-soft"> (Negotiable)</span>
                                                         <% } %>
                                                     </div>
-                                                    <div class="property-type-badge" style="position: absolute; bottom: 10px; right: 10px;">
-                                                        <span class="mil-badge" style="background: rgba(0,0,0,0.7); color: white; padding: 4px 10px; border-radius: 5px; font-size: 11px;">
-                                                            <%= property.propertyType ? property.propertyType.replace('_', ' ') : 'Property' %>
+                                                    <h5 class="mil-mb-10"><%= property.title.substring(0, 40) %></h5>
+                                                    <p class="property-location mil-mb-15">
+                                                        <i class="fa fa-map-marker"></i> <%= property.location.city ? property.location.city + ', ' : '' %><%= property.location.state || 'Nigeria' %>
+                                                    </p>
+                                                    <div class="mil-mb-15">
+                                                        <span class="mil-badge" style="background: #03A6A6; color: white; padding: 3px 8px; border-radius: 4px; font-size: 11px;">
+                                                            <%= property.propertyType.replace('_', ' ') %>
+                                                        </span>
+                                                        <span class="mil-badge" style="background: #6c757d; color: white; padding: 3px 8px; border-radius: 4px; font-size: 11px; margin-left: 5px;">
+                                                            <%= property.transactionType %>
                                                         </span>
                                                     </div>
-                                                </div>
-                                                <div class="property-content">
-                                                    <div class="mil-flex-between mil-mb-10">
-                                                        <h5 class="property-price" style="color: #03A6A6;">₦<%= property.price ? property.price.toLocaleString() : '0' %></h5>
-                                                        <span class="mil-text-xs mil-soft">
-                                                            <%= property.transactionType === 'sale' ? 'For Sale' : (property.transactionType === 'rent' ? 'For Rent' : 'For Lease') %>
-                                                        </span>
-                                                    </div>
-                                                    <h4 class="property-title mil-mb-10">
-                                                        <a href="/properties/<%= property.slug || property._id %>" style="color: #333; text-decoration: none;"><%= property.title %></a>
-                                                    </h4>
-                                                    <p class="mil-text-s mil-soft mil-mb-15"><i class="fa fa-map-marker"></i> <%= property.location ? property.location.city + ', ' + property.location.state : 'Location TBD' %></p>
-                                                    <div class="property-features mil-flex-between mil-mb-20">
-                                                        <div class="feature-item">
-                                                            <i class="fa fa-bed"></i> <span><%= property.features && property.features.bedrooms ? property.features.bedrooms : '0' %> beds</span>
-                                                        </div>
-                                                        <div class="feature-item">
-                                                            <i class="fa fa-bath"></i> <span><%= property.features && property.features.bathrooms ? property.features.bathrooms : '0' %> baths</span>
-                                                        </div>
-                                                        <div class="feature-item">
-                                                            <i class="fa fa-car"></i> <span><%= property.features && property.features.parkingSpaces ? property.features.parkingSpaces : '0' %> parking</span>
-                                                        </div>
-                                                    </div>
-                                                    <div class="property-footer">
-                                                        <a href="/properties/<%= property.slug || property._id %>" class="mil-link mil-accent">View Details →</a>
-                                                        <% if (typeof user !== 'undefined' && user) { %>
-                                                            <button class="mil-link mil-soft save-property" data-id="<%= property._id %>"><i class="fa fa-heart-o"></i></button>
+                                                    <div class="mil-text-s mil-soft">
+                                                        <% if (property.features.bedrooms) { %>
+                                                            <span><i class="fa fa-bed"></i> <%= property.features.bedrooms %> beds</span>
+                                                        <% } %>
+                                                        <% if (property.features.bathrooms) { %>
+                                                            <span class="mil-ml-15"><i class="fa fa-bath"></i> <%= property.features.bathrooms %> baths</span>
                                                         <% } %>
                                                     </div>
                                                 </div>
                                             </div>
                                         </div>
-                                    <% } %>
+                                    <% }); %>
                                 <% } else { %>
                                     <div class="col-xl-12">
-                                        <div class="mil-price-card mil-up mil-text-center" style="padding: 60px 20px;">
-                                            <i class="fa fa-building-o" style="font-size: 60px; opacity: 0.3; margin-bottom: 20px;"></i>
-                                            <h3 class="mil-mb-15">No Properties Found</h3>
-                                            <p class="mil-text-m mil-soft mil-mb-30">We couldn't find any properties matching your criteria.</p>
-                                            <a href="/properties" class="mil-btn mil-md">Clear Filters</a>
+                                        <div class="mil-text-center mil-p-60">
+                                            <i class="fa fa-home" style="font-size: 64px; color: #ccc;"></i>
+                                            <h4 class="mil-mt-30">No Properties Found</h4>
+                                            <p class="mil-text-m mil-soft">Try adjusting your filters or check back later.</p>
                                         </div>
                                     </div>
                                 <% } %>
@@ -298,106 +257,36 @@
 
                             <!-- Pagination -->
                             <% if (totalPages > 1) { %>
-                                <div class="mil-pagination mil-up mil-mt-30">
-                                    <div class="mil-pagination-list">
-                                        <% if (currentPage > 1) { %>
-                                            <a href="?page=<%= currentPage - 1 %><%= filters.search ? '&search=' + encodeURIComponent(filters.search) : '' %><%= filters.type ? '&type=' + filters.type : '' %><%= filters.state ? '&state=' + filters.state : '' %><%= filters.transactionType ? '&transactionType=' + filters.transactionType : '' %><%= filters.sort ? '&sort=' + filters.sort : '' %>" class="mil-pagination-item">&laquo; Prev</a>
-                                        <% } %>
-                                        <% for(var i = 1; i <= totalPages; i++) { %>
-                                            <% if (i === 1 || i === totalPages || (i >= currentPage - 2 && i <= currentPage + 2)) { %>
-                                                <a href="?page=<%= i %><%= filters.search ? '&search=' + encodeURIComponent(filters.search) : '' %><%= filters.type ? '&type=' + filters.type : '' %><%= filters.state ? '&state=' + filters.state : '' %><%= filters.transactionType ? '&transactionType=' + filters.transactionType : '' %><%= filters.sort ? '&sort=' + filters.sort : '' %>" class="mil-pagination-item <%= i === currentPage ? 'mil-active' : '' %>"><%= i %></a>
-                                            <% } else if (i === currentPage - 3 || i === currentPage + 3) { %>
-                                                <span class="mil-pagination-dots">...</span>
-                                            <% } %>
-                                        <% } %>
-                                        <% if (currentPage < totalPages) { %>
-                                            <a href="?page=<%= currentPage + 1 %><%= filters.search ? '&search=' + encodeURIComponent(filters.search) : '' %><%= filters.type ? '&type=' + filters.type : '' %><%= filters.state ? '&state=' + filters.state : '' %><%= filters.transactionType ? '&transactionType=' + filters.transactionType : '' %><%= filters.sort ? '&sort=' + filters.sort : '' %>" class="mil-pagination-item">Next &raquo;</a>
-                                        <% } %>
-                                    </div>
+                                <div class="pagination">
+                                    <% for (var i = 1; i <= totalPages; i++) { %>
+                                        <a href="?page=<%= i %><%= filters.propertyType ? '&propertyType=' + filters.propertyType : '' %><%= filters.transactionType ? '&transactionType=' + filters.transactionType : '' %><%= filters.state ? '&state=' + filters.state : '' %><%= filters.search ? '&search=' + filters.search : '' %>" 
+                                           class="<%= currentPage === i ? 'active' : '' %>"><%= i %></a>
+                                    <% } %>
                                 </div>
                             <% } %>
                         </div>
                     </div>
                 </div>
             </div>
-            <!-- search and filter section end -->
 
-            <!-- call to action - Become a Promoter -->
-            <div class="mil-cta mil-up">
-                <div class="container">
-                    <div class="mil-out-frame mil-p-80-80" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
-                        <div class="row justify-content-between align-items-center">
-                            <div class="col-xl-8 mil-sm-text-center">
-                                <h2 class="mil-light mil-mb-30 mil-up">Want to Earn Agency Commission?</h2>
-                                <p class="mil-text-m mil-mb-30 mil-dark-soft mil-up">Join our promoter network and earn by sharing properties on your social media. No investment required!</p>
-                            </div>
-                            <div class="col-xl-4 mil-sm-text-center">
-                                <div class="mil-buttons-frame mil-up">
-                                    <a href="/promoter/register" class="mil-btn mil-md mil-light">Become a Promoter (Free)</a>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <!-- call to action end -->
-
-            <!-- footer -->
             <footer class="mil-p-80-0">
                 <div class="container">
-                    <div class="row">
-                        <div class="col-xl-3">
-                            <a href="/" class="mil-footer-logo mil-mb-60">
-                                <img src="/img/logo-2.png" alt="RevaampAPA" width="28" height="32">
-                            </a>
-                        </div>
-                        <div class="col-xl-3 mil-mb-60">
-                            <h6 class="mil-mb-60">Useful Links</h6>
-                            <ul class="mil-footer-list">
-                                <li class="mil-text-m mil-soft mil-mb-15"><a href="/">Home</a></li>
-                                <li class="mil-text-m mil-soft mil-mb-15"><a href="/about">About Us</a></li>
-                                <li class="mil-text-m mil-soft mil-mb-15"><a href="/contact">Contact Us</a></li>
-                                <li class="mil-text-m mil-soft mil-mb-15"><a href="/properties">Properties</a></li>
-                                <li class="mil-text-m mil-soft mil-mb-15"><a href="/projects">Projects</a></li>
-                            </ul>
-                        </div>
-                        <div class="col-xl-3 mil-mb-60">
-                            <h6 class="mil-mb-60">For Partners</h6>
-                            <ul class="mil-footer-list">
-                                <li class="mil-text-m mil-soft mil-mb-15"><a href="/business-partner/register">Become a Partner</a></li>
-                                <li class="mil-text-m mil-soft mil-mb-15"><a href="/partner/benefits">Partner Benefits</a></li>
-                                <li class="mil-text-m mil-soft mil-mb-15"><a href="/partner/resources">Resources</a></li>
-                            </ul>
-                        </div>
-                        <div class="col-xl-3 mil-mb-80">
-                            <h6 class="mil-mb-60">Newsletter</h6>
-                            <p class="mil-text-xs mil-soft mil-mb-15">Subscribe to get the latest updates</p>
-                            <form class="mil-subscripe-form-footer" id="footerNewsletterForm">
-                                <input class="mil-input" type="email" placeholder="Email">
-                                <button type="submit"><i class="far fa-envelope-open mil-dark"></i></button>
-                            </form>
-                        </div>
-                    </div>
                     <div class="mil-footer-bottom">
                         <div class="row">
                             <div class="col-xl-6">
-                                <p class="mil-text-s mil-soft">© 2024 RevaampAPA. All rights reserved.</p>
+                                <p class="mil-text-s mil-soft">© 2024 RevaampAP. All rights reserved.</p>
                             </div>
                             <div class="col-xl-6">
-                                <p class="mil-text-s mil-text-right mil-sm-text-left mil-soft">Website Design & Development by <a href="https://shedfactory.co" target="_blank" style="color: #667eea; text-decoration: none;">Shed Factory</a></p>
+                                <p class="mil-text-s mil-text-right mil-sm-text-left mil-soft">Find your dream property today</p>
                             </div>
                         </div>
                     </div>
                 </div>
             </footer>
-            <!-- footer end -->
 
         </div>
-        <!-- content end -->
     </div>
-    <!-- wrapper end -->
 
-    <!-- jquery js -->
     <script src="/js/plugins/jquery.min.js"></script>
     <script src="/js/plugins/swiper.min.js"></script>
     <script src="/js/plugins/gsap.min.js"></script>
@@ -407,194 +296,6 @@
     <script src="/js/plugins/magnific-popup.js"></script>
     <script src="/js/main.js"></script>
 
-    <script>
-        // Newsletter subscription
-        function initNewsletter() {
-            const newsletterForm = document.getElementById('footerNewsletterForm');
-            if (newsletterForm) {
-                newsletterForm.addEventListener('submit', async (e) => {
-                    e.preventDefault();
-                    const email = newsletterForm.querySelector('input[type="email"]').value;
-                    try {
-                        const response = await fetch('/api/subscribe', {
-                            method: 'POST',
-                            headers: { 'Content-Type': 'application/json' },
-                            body: JSON.stringify({ email })
-                        });
-                        const data = await response.json();
-                        alert(data.success ? 'Successfully subscribed to newsletter!' : 'Error subscribing. Please try again.');
-                        if (data.success) newsletterForm.reset();
-                    } catch (error) {
-                        console.error('Newsletter error:', error);
-                        alert('Error subscribing. Please try again.');
-                    }
-                });
-            }
-        }
-
-        // Grid/List view toggle
-        function initViewToggle() {
-            const gridView = document.querySelector('.mil-grid-view');
-            const viewBtns = document.querySelectorAll('.mil-view-btn');
-            
-            viewBtns.forEach(btn => {
-                btn.addEventListener('click', function() {
-                    const view = this.getAttribute('data-view');
-                    viewBtns.forEach(b => b.classList.remove('mil-active'));
-                    this.classList.add('mil-active');
-                    
-                    if (view === 'list') {
-                        gridView.classList.add('mil-list-view');
-                        document.querySelectorAll('.col-xl-4').forEach(col => {
-                            col.classList.remove('col-xl-4');
-                            col.classList.add('col-xl-12');
-                        });
-                    } else {
-                        gridView.classList.remove('mil-list-view');
-                        document.querySelectorAll('.col-xl-12').forEach(col => {
-                            col.classList.remove('col-xl-12');
-                            col.classList.add('col-xl-4');
-                        });
-                    }
-                });
-            });
-        }
-
-        // Save property
-        function initSaveProperty() {
-            document.querySelectorAll('.save-property').forEach(btn => {
-                btn.addEventListener('click', async function(e) {
-                    e.preventDefault();
-                    const propertyId = this.getAttribute('data-id');
-                    try {
-                        const response = await fetch('/api/save-property', {
-                            method: 'POST',
-                            headers: { 'Content-Type': 'application/json' },
-                            body: JSON.stringify({ propertyId })
-                        });
-                        const data = await response.json();
-                        if (data.success) {
-                            this.innerHTML = '<i class="fa fa-heart" style="color: #dc3545;"></i>';
-                            alert('Property saved to favorites!');
-                        } else {
-                            alert('Please login to save properties.');
-                        }
-                    } catch (error) {
-                        console.error('Save property error:', error);
-                    }
-                });
-            });
-        }
-
-        document.addEventListener('DOMContentLoaded', function() {
-            initNewsletter();
-            initViewToggle();
-            initSaveProperty();
-        });
-    </script>
-
-    <style>
-        .dropdown-menu { display: none; }
-        .dropdown:hover .dropdown-menu { display: block; }
-        .mil-input {
-            width: 100%;
-            padding: 10px 12px;
-            border: 1px solid #e0e0e0;
-            border-radius: 8px;
-            font-size: 14px;
-        }
-        .mil-input:focus {
-            outline: none;
-            border-color: #03A6A6;
-        }
-        .mil-flex-between {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-        .mil-mb-10 { margin-bottom: 10px; }
-        .mil-mb-20 { margin-bottom: 20px; }
-        .mil-mb-30 { margin-bottom: 30px; }
-        .mil-mt-30 { margin-top: 30px; }
-        .property-features {
-            display: flex;
-            gap: 15px;
-        }
-        .feature-item {
-            font-size: 13px;
-            color: #666;
-        }
-        .feature-item i {
-            margin-right: 5px;
-            color: #03A6A6;
-        }
-        .property-footer {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding-top: 15px;
-            border-top: 1px solid #eee;
-        }
-        .mil-view-btn {
-            background: none;
-            border: 1px solid #e0e0e0;
-            padding: 8px 12px;
-            border-radius: 8px;
-            cursor: pointer;
-            transition: all 0.3s ease;
-        }
-        .mil-view-btn.mil-active {
-            background: #03A6A6;
-            color: white;
-            border-color: #03A6A6;
-        }
-        .mil-list-view .property-card {
-            display: flex;
-            gap: 20px;
-        }
-        .mil-list-view .property-image {
-            width: 250px;
-            flex-shrink: 0;
-        }
-        .mil-list-view .property-content {
-            flex: 1;
-        }
-        @media (max-width: 768px) {
-            .mil-list-view .property-card {
-                flex-direction: column;
-            }
-            .mil-list-view .property-image {
-                width: 100%;
-            }
-        }
-        .mil-pagination {
-            display: flex;
-            justify-content: center;
-            margin-top: 30px;
-        }
-        .mil-pagination-list {
-            display: flex;
-            gap: 8px;
-            flex-wrap: wrap;
-        }
-        .mil-pagination-item {
-            display: inline-block;
-            padding: 8px 14px;
-            background: #f0f0f0;
-            border-radius: 8px;
-            text-decoration: none;
-            color: #333;
-            transition: all 0.3s ease;
-        }
-        .mil-pagination-item:hover,
-        .mil-pagination-item.mil-active {
-            background: #03A6A6;
-            color: white;
-        }
-        .mil-pagination-dots {
-            padding: 8px 5px;
-            color: #999;
-        }
-    </style>
 </body>
+
 </html>

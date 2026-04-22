@@ -13,6 +13,7 @@ const fs = require('fs');
 const User = require('./models/User');
 const Property = require('./models/Property');
 const Transaction = require('./models/Transaction');
+const Inquiry = require('./models/Inquiry'); // Added Inquiry model
 
 // Initialize app
 const app = express();
@@ -130,7 +131,7 @@ app.use('/', require('./routes/authRoutes'));
 // Property Owner routes
 app.use('/property-owner', require('./routes/propertyOwnerRoutes'));
 
-// In app.js, add this line with your other routes
+// Project routes
 app.use('/projects', require('./routes/projectRoutes'));
 
 // Promoter routes
@@ -145,11 +146,8 @@ app.use('/properties', require('./routes/propertyRoutes'));
 // Blog routes
 app.use('/blog', require('./routes/blogRoutes'));
 
-// Project routes
-app.use('/projects', require('./routes/projectRoutes'));
-
-// Inquiry routes
-app.use('/inquiries', require('./routes/inquiryRoutes'));
+// Inquiry routes - MOUNTED AT ROOT for superadmin routes to work properly
+app.use('/', require('./routes/inquiryRoutes'));
 
 // Referral tracking route (public)
 app.get('/r/:code', require('./controllers/referralController').handleReferral);
@@ -157,10 +155,9 @@ app.get('/r/:code', require('./controllers/referralController').handleReferral);
 // Project Subscriber routes
 app.use('/project-subscriber', require('./routes/projectSubscriberRoutes'));
 
-// app.js - Add this line with other routes
-
 // Solicitor routes
 app.use('/solicitor', require('./routes/solicitorRoutes'));
+
 // ============= PUBLIC PAGES =============
 
 // Home page
@@ -214,10 +211,10 @@ app.get('/', async (req, res) => {
     }
 });
 
-// In app.js, make sure this route exists
+// About page
 app.get('/about', (req, res) => {
     res.render('about', {
-        title: 'About Us - RevaampAPA',
+        title: 'About Us - RevaampAP',
         currentPath: '/about',
         user: req.session.userId ? { name: req.session.userName } : null
     });
@@ -226,7 +223,7 @@ app.get('/about', (req, res) => {
 // Contact page route
 app.get('/contact', (req, res) => {
     res.render('contact', {
-        title: 'Contact Us - RevaampAPA',
+        title: 'Contact Us - RevaampAP',
         currentPath: '/contact',
         user: req.session.userId ? { name: req.session.userName } : null
     });
@@ -367,9 +364,6 @@ app.post('/api/subscribe', async (req, res) => {
         // Here you would typically save to a newsletter database
         console.log(`📧 Newsletter subscription: ${email}`);
         
-        // You could also send an email notification
-        // await emailService.sendNewsletterConfirmation(email);
-        
         res.json({ success: true, message: 'Successfully subscribed!' });
     } catch (error) {
         console.error('Newsletter error:', error);
@@ -377,7 +371,7 @@ app.post('/api/subscribe', async (req, res) => {
     }
 });
 
-// Add this API endpoint for contact form submission
+// Contact form submission endpoint
 app.post('/api/contact', async (req, res) => {
     try {
         const { name, email, phone, subject, message } = req.body;
@@ -389,9 +383,6 @@ app.post('/api/contact', async (req, res) => {
         
         // Here you can save to database or send email
         console.log('Contact form submission:', { name, email, phone, subject, message });
-        
-        // You can also send an email notification
-        // await emailService.sendContactNotification({ name, email, phone, subject, message });
         
         res.json({ success: true, message: 'Message sent successfully' });
     } catch (error) {

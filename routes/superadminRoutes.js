@@ -57,4 +57,11 @@ router.get('/profile', superadminController.getProfile);
 router.post('/update-profile', superadminController.updateProfile);
 router.post('/change-password', superadminController.changePassword);
 
+// Payment verification routes
+router.get('/payments/pending', superadminController.getPendingPayments);
+router.post('/payments/verify/:id', superadminController.verifyPayment);
+router.post('/payments/reject/:id', superadminController.rejectPayment);
+
+
+
 module.exports = router;
