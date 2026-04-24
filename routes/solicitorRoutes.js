@@ -5,18 +5,18 @@ const solicitorController = require('../controllers/solicitorController');
 const authMiddleware = require('../middleware/auth');
 const upload = require('../middleware/upload');
 
-// ============= PUBLIC ROUTES =============
+// ============= PUBLIC ROUTES (Accessible to everyone, including logged-in users) =============
 
 // REVAAMP Partner Solicitor Registration
+// Note: No authentication middleware here - anyone can access
 router.get('/register', solicitorController.getSolicitorRegister);
 router.post('/register', upload.uploadSolicitorDocs, solicitorController.postSolicitorRegister);
 
 // Hectare by Hectare Solicitor Registration
-// Note: The route is /hectare/register, not /hectare-solicitor/register
 router.get('/hectare/register', solicitorController.getHectareSolicitorRegister);
 router.post('/hectare/register', upload.uploadSingleDocument, solicitorController.postHectareSolicitorRegister);
 
-// ============= PROTECTED ROUTES =============
+// ============= PROTECTED ROUTES (Require solicitor login) =============
 
 // REVAAMP Partner Solicitor Dashboard
 router.get('/dashboard', 

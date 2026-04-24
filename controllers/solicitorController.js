@@ -11,18 +11,42 @@ function getBaseUrl(req) {
 
 // ============= REVAAMP PARTNER SOLICITOR REGISTRATION =============
 
-// Get registration page
-exports.getSolicitorRegister = (req, res) => {
-    if (req.session.userId) {
-        return res.redirect('/dashboard');
+// Get registration page - FIXED: Allow logged-in users to register as solicitor
+exports.getSolicitorRegister = async (req, res) => {
+    try {
+        // Check if user is ALREADY a solicitor (different from being logged in)
+        if (req.session.userType === 'solicitor') {
+            req.flash('info', 'You are already registered as a REVAAMP Partner Solicitor');
+            return res.redirect('/solicitor/dashboard');
+        }
+        
+        // Pre-fill form with existing user data if logged in
+        let userData = null;
+        if (req.session.userId) {
+            const user = await User.findById(req.session.userId).select('-password');
+            if (user) {
+                userData = {
+                    name: user.name,
+                    email: user.email,
+                    phone: user.phone
+                };
+            }
+        }
+        
+        res.render('solicitor-register', {
+            title: 'Become a REVAAMP Partner Solicitor',
+            currentPath: '/solicitor/register',
+            user: req.session.userId ? { name: req.session.userName, type: req.session.userType } : null,
+            userData: userData
+        });
+    } catch (error) {
+        console.error('Get solicitor register error:', error);
+        req.flash('error', 'Error loading registration page');
+        res.redirect('/');
     }
-    res.render('solicitor-register', {
-        title: 'Become a REVAAMP Partner Solicitor',
-        currentPath: '/solicitor/register'
-    });
 };
 
-// Post registration
+// Post registration - FIXED: Handle existing user session
 exports.postSolicitorRegister = async (req, res) => {
     try {
         const {
@@ -31,18 +55,8 @@ exports.postSolicitorRegister = async (req, res) => {
         } = req.body;
 
         // Validation
-        if (!name || !email || !phone || !password || !lawFirm || !barNumber || !countryOfPractice || !territory) {
+        if (!name || !email || !phone || !lawFirm || !barNumber || !countryOfPractice || !territory) {
             req.flash('error', 'Please fill in all required fields');
-            return res.redirect('/solicitor/register');
-        }
-
-        if (password !== confirmPassword) {
-            req.flash('error', 'Passwords do not match');
-            return res.redirect('/solicitor/register');
-        }
-
-        if (password.length < 8) {
-            req.flash('error', 'Password must be at least 8 characters long');
             return res.redirect('/solicitor/register');
         }
 
@@ -66,12 +80,37 @@ exports.postSolicitorRegister = async (req, res) => {
             }
         }
 
+        // Check if password validation is needed (for new users)
+        let finalPassword = password;
+        
+        if (req.session.userId) {
+            // User is already logged in from another role - no password needed
+            const existingUser = await User.findById(req.session.userId);
+            if (existingUser) {
+                finalPassword = existingUser.password; // Use existing password
+            }
+        } else {
+            // New user - require password validation
+            if (!password || !confirmPassword) {
+                req.flash('error', 'Password is required');
+                return res.redirect('/solicitor/register');
+            }
+            if (password !== confirmPassword) {
+                req.flash('error', 'Passwords do not match');
+                return res.redirect('/solicitor/register');
+            }
+            if (password.length < 8) {
+                req.flash('error', 'Password must be at least 8 characters long');
+                return res.redirect('/solicitor/register');
+            }
+        }
+
         // Create new solicitor
         const solicitor = new Solicitor({
             name: name.trim(),
             email: email.toLowerCase().trim(),
             phone: phone.trim(),
-            password: password,
+            password: finalPassword,
             lawFirm: lawFirm.trim(),
             barNumber: barNumber.trim(),
             countryOfPractice: countryOfPractice.trim(),
@@ -99,7 +138,13 @@ exports.postSolicitorRegister = async (req, res) => {
         console.log(`✅ REVAAMP Partner Solicitor registered: ${solicitor.email}`);
 
         req.flash('success', 'Registration successful! Your application is pending review. You will be notified once approved.');
-        res.redirect('/login');
+        
+        // If user was already logged in, redirect to dashboard
+        if (req.session.userId) {
+            res.redirect('/solicitor/dashboard');
+        } else {
+            res.redirect('/login');
+        }
 
     } catch (error) {
         console.error('Solicitor registration error:', error);
@@ -114,18 +159,42 @@ exports.postSolicitorRegister = async (req, res) => {
 
 // ============= HECTARE BY HECTARE SOLICITOR REGISTRATION =============
 
-// Get registration page
-exports.getHectareSolicitorRegister = (req, res) => {
-    if (req.session.userId) {
-        return res.redirect('/dashboard');
+// Get registration page - FIXED: Allow logged-in users to register as hectare solicitor
+exports.getHectareSolicitorRegister = async (req, res) => {
+    try {
+        // Check if user is ALREADY a hectare solicitor (different from being logged in)
+        if (req.session.userType === 'hectare_solicitor') {
+            req.flash('info', 'You are already registered as a Hectare by Hectare Solicitor');
+            return res.redirect('/hectare-solicitor/dashboard');
+        }
+        
+        // Pre-fill form with existing user data if logged in
+        let userData = null;
+        if (req.session.userId) {
+            const user = await User.findById(req.session.userId).select('-password');
+            if (user) {
+                userData = {
+                    name: user.name,
+                    email: user.email,
+                    phone: user.phone
+                };
+            }
+        }
+        
+        res.render('hectare-solicitor-register', {
+            title: 'Become a Hectare by Hectare Solicitor',
+            currentPath: '/hectare-solicitor/register',
+            user: req.session.userId ? { name: req.session.userName, type: req.session.userType } : null,
+            userData: userData
+        });
+    } catch (error) {
+        console.error('Get hectare solicitor register error:', error);
+        req.flash('error', 'Error loading registration page');
+        res.redirect('/');
     }
-    res.render('hectare-solicitor-register', {
-        title: 'Become a Hectare by Hectare Solicitor',
-        currentPath: '/hectare-solicitor/register'
-    });
 };
 
-// Post registration
+// Post registration - FIXED: Handle existing user session
 exports.postHectareSolicitorRegister = async (req, res) => {
     try {
         const {
@@ -134,18 +203,8 @@ exports.postHectareSolicitorRegister = async (req, res) => {
         } = req.body;
 
         // Validation
-        if (!name || !email || !phone || !password || !lawFirm || !barNumber || !countryOfPractice) {
+        if (!name || !email || !phone || !lawFirm || !barNumber || !countryOfPractice) {
             req.flash('error', 'Please fill in all required fields');
-            return res.redirect('/hectare-solicitor/register');
-        }
-
-        if (password !== confirmPassword) {
-            req.flash('error', 'Passwords do not match');
-            return res.redirect('/hectare-solicitor/register');
-        }
-
-        if (password.length < 8) {
-            req.flash('error', 'Password must be at least 8 characters long');
             return res.redirect('/hectare-solicitor/register');
         }
 
@@ -163,12 +222,37 @@ exports.postHectareSolicitorRegister = async (req, res) => {
             barCertificateUrl = '/uploads/documents/' + req.file.filename;
         }
 
+        // Check if password validation is needed (for new users)
+        let finalPassword = password;
+        
+        if (req.session.userId) {
+            // User is already logged in from another role - no password needed
+            const existingUser = await User.findById(req.session.userId);
+            if (existingUser) {
+                finalPassword = existingUser.password; // Use existing password
+            }
+        } else {
+            // New user - require password validation
+            if (!password || !confirmPassword) {
+                req.flash('error', 'Password is required');
+                return res.redirect('/hectare-solicitor/register');
+            }
+            if (password !== confirmPassword) {
+                req.flash('error', 'Passwords do not match');
+                return res.redirect('/hectare-solicitor/register');
+            }
+            if (password.length < 8) {
+                req.flash('error', 'Password must be at least 8 characters long');
+                return res.redirect('/hectare-solicitor/register');
+            }
+        }
+
         // Create new hectare solicitor
         const hectareSolicitor = new HectareSolicitor({
             name: name.trim(),
             email: email.toLowerCase().trim(),
             phone: phone.trim(),
-            password: password,
+            password: finalPassword,
             lawFirm: lawFirm.trim(),
             barNumber: barNumber.trim(),
             countryOfPractice: countryOfPractice.trim(),
@@ -188,7 +272,13 @@ exports.postHectareSolicitorRegister = async (req, res) => {
         console.log(`✅ Hectare by Hectare Solicitor registered: ${hectareSolicitor.email}`);
 
         req.flash('success', 'Registration successful! Your application is pending review. You will be notified once approved.');
-        res.redirect('/login');
+        
+        // If user was already logged in, redirect to dashboard
+        if (req.session.userId) {
+            res.redirect('/hectare-solicitor/dashboard');
+        } else {
+            res.redirect('/login');
+        }
 
     } catch (error) {
         console.error('Hectare Solicitor registration error:', error);

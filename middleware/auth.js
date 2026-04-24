@@ -2,6 +2,35 @@
 const User = require('../models/User');
 
 const authMiddleware = {
+    // Redirect if already logged in (for login/register pages)
+    redirectIfAuthenticated: (req, res, next) => {
+        if (req.session.userId) {
+            // Redirect based on user type
+            const userType = req.session.userType;
+            const redirectMap = {
+                'property_owner': '/property-owner/dashboard',
+                'promoter': '/promoter/dashboard',
+                'superadmin': '/superadmin/dashboard',
+                'admin': '/superadmin/dashboard',
+                'solicitor': '/solicitor/dashboard',
+                'hectare_solicitor': '/hectare-solicitor/dashboard',
+                'business_partner': '/business-partner/dashboard',
+                'project_subscriber': '/project-subscriber/dashboard'
+            };
+            
+            const redirectUrl = redirectMap[userType] || '/dashboard';
+            return res.redirect(redirectUrl);
+        }
+        next();
+    },
+
+    // Allow registration pages even when logged in (for multi-role registration)
+    allowRegistration: (req, res, next) => {
+        // This middleware allows logged-in users to access registration pages
+        // so they can register for additional roles
+        next();
+    },
+
     // Check if user is logged in
     isAuthenticated: (req, res, next) => {
         if (req.session.userId) {
