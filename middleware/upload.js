@@ -49,7 +49,8 @@ const documentStorage = multer.diskStorage({
     },
     filename: (req, file, cb) => {
         const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
-        cb(null, 'doc-' + uniqueSuffix + path.extname(file.originalname));
+        const fieldName = file.fieldname;
+        cb(null, fieldName + '-' + uniqueSuffix + path.extname(file.originalname));
     }
 });
 
@@ -114,7 +115,7 @@ const uploadProfile = multer({
 
 const uploadDocument = multer({
     storage: documentStorage,
-    limits: { fileSize: 5 * 1024 * 1024 },
+    limits: { fileSize: 10 * 1024 * 1024 },
     fileFilter: documentFileFilter
 });
 
@@ -129,6 +130,27 @@ const uploadPaymentProof = multer({
     limits: { fileSize: 5 * 1024 * 1024 },
     fileFilter: documentFileFilter
 });
+
+// Solicitor document upload middleware (for multiple files)
+const uploadSolicitorDocs = multer({
+    storage: documentStorage,
+    limits: { fileSize: 10 * 1024 * 1024 },
+    fileFilter: documentFileFilter
+}).fields([
+    { name: 'barCertificate', maxCount: 1 },
+    { name: 'firmRegistration', maxCount: 1 },
+    { name: 'professionalProfile', maxCount: 1 }
+]);
+
+// Hectare Solicitor document upload middleware
+const uploadHectareSolicitorDocs = multer({
+    storage: documentStorage,
+    limits: { fileSize: 10 * 1024 * 1024 },
+    fileFilter: documentFileFilter
+}).fields([
+    { name: 'barCertificate', maxCount: 1 },
+    { name: 'professionalProfile', maxCount: 1 }
+]);
 
 // Single file upload helpers
 const single = (fieldName) => {
@@ -169,12 +191,6 @@ const uploadBankGuaranteeDoc = uploadBankGuarantee.single('guaranteeDocument');
 // Handle payment proof upload
 const uploadPaymentProofDoc = uploadPaymentProof.single('paymentProof');
 
-// Handle solicitor document uploads
-const uploadSolicitorDocs = uploadDocument.fields([
-    { name: 'barCertificate', maxCount: 1 },
-    { name: 'firmRegistration', maxCount: 1 }
-]);
-
 // Export the configured middleware
 module.exports = {
     upload: {
@@ -186,7 +202,8 @@ module.exports = {
     uploadSingleDocument,
     uploadBankGuaranteeDoc,
     uploadPaymentProofDoc,
-    uploadSolicitorDocs,
+    uploadSolicitorDocs,           // ADD THIS
+    uploadHectareSolicitorDocs,    // ADD THIS
     uploadProperty,
     uploadProfile,
     uploadDocument,

@@ -3,7 +3,6 @@ const mongoose = require('mongoose');
 const bcrypt = require('bcryptjs');
 
 const hectareSolicitorSchema = new mongoose.Schema({
-    // Basic Information
     name: {
         type: String,
         required: true,
@@ -18,90 +17,116 @@ const hectareSolicitorSchema = new mongoose.Schema({
     },
     phone: {
         type: String,
-        required: true
+        required: true,
+        trim: true
     },
     password: {
         type: String,
         required: true
     },
-    userType: {
-        type: String,
-        enum: ['hectare_solicitor', 'solicitor', 'admin', 'superadmin'],
-        default: 'hectare_solicitor'
-    },
-    
-    // Professional Information
-    lawFirm: {
-        type: String,
-        required: true
-    },
     barNumber: {
         type: String,
-        required: true
+        required: true,
+        trim: true
     },
     countryOfPractice: {
         type: String,
-        required: true
+        required: true,
+        trim: true
     },
-    experience: String,
-    specialization: [String],
-    
-    // Documents
+    // Optional fields - NOT required for Hectare Solicitor
+    lawFirm: {
+        type: String,
+        trim: true,
+        default: '',
+        required: false  // Make this NOT required
+    },
+    experience: {
+        type: String,
+        default: '',
+        required: false  // Make this NOT required
+    },
+    territory: {
+        type: String,
+        default: '',
+        required: false
+    },
+    // Optional document uploads
     barCertificate: {
-        url: String,
-        filename: String,
-        uploadedAt: Date
+        url: {
+            type: String,
+            default: ''
+        },
+        filename: {
+            type: String,
+            default: ''
+        },
+        uploadedAt: {
+            type: Date,
+            default: Date.now
+        }
     },
-    
-    // Hectare by Hectare Specific
+    professionalProfile: {
+        url: {
+            type: String,
+            default: ''
+        },
+        filename: {
+            type: String,
+            default: ''
+        },
+        uploadedAt: {
+            type: Date,
+            default: Date.now
+        }
+    },
     hectareProfile: {
         isActive: {
             type: Boolean,
             default: false
         },
         approvedAt: Date,
-        approvedBy: {
-            type: mongoose.Schema.Types.ObjectId,
-            ref: 'User'
+        rejectionReason: String,
+        registeredAt: {
+            type: Date,
+            default: Date.now
         },
-        assignedCooperative: {
-            type: mongoose.Schema.Types.ObjectId,
-            ref: 'Cooperative'
-        },
-        cooperativeSocieties: [{
-            type: mongoose.Schema.Types.ObjectId,
-            ref: 'Cooperative'
-        }],
-        servicesProvided: [{
-            type: String,
-            enum: ['legal_advice', 'corporate_governance', 'dispute_resolution', 'compliance', 'due_diligence', 'transaction_structuring']
-        }],
         earnings: {
-            totalFees: { type: Number, default: 0 },
-            pendingPayments: { type: Number, default: 0 },
-            paidToDate: { type: Number, default: 0 }
+            totalFees: {
+                type: Number,
+                default: 0
+            },
+            pendingPayments: {
+                type: Number,
+                default: 0
+            },
+            paidFees: {
+                type: Number,
+                default: 0
+            }
         },
-        skillsAcquired: [String]
+        cooperativeSocietiesAssigned: [{
+            type: mongoose.Schema.Types.ObjectId,
+            ref: 'Cooperative'
+        }],
+        skillsAcquired: [{
+            type: String
+        }],
+        performanceMetrics: {
+            transactionsHandled: {
+                type: Number,
+                default: 0
+            },
+            clientSatisfaction: {
+                type: Number,
+                default: 0
+            },
+            responseTime: {
+                type: Number,
+                default: 0
+            }
+        }
     },
-    
-    // Profile Image
-    profileImage: {
-        type: String,
-        default: 'default-avatar.jpg'
-    },
-    
-    // Account Status
-    isSuspended: {
-        type: Boolean,
-        default: false
-    },
-    suspensionReason: String,
-    suspendedAt: Date,
-    
-    // Password Reset
-    resetPasswordToken: String,
-    resetPasswordExpires: Date,
-    
     createdAt: {
         type: Date,
         default: Date.now
@@ -115,7 +140,6 @@ const hectareSolicitorSchema = new mongoose.Schema({
 // Hash password before saving
 hectareSolicitorSchema.pre('save', async function(next) {
     if (!this.isModified('password')) return next();
-    
     try {
         const salt = await bcrypt.genSalt(10);
         this.password = await bcrypt.hash(this.password, salt);
@@ -125,15 +149,15 @@ hectareSolicitorSchema.pre('save', async function(next) {
     }
 });
 
+// Compare password method
+hectareSolicitorSchema.methods.comparePassword = async function(candidatePassword) {
+    return await bcrypt.compare(candidatePassword, this.password);
+};
+
 // Update timestamp on save
 hectareSolicitorSchema.pre('save', function(next) {
     this.updatedAt = Date.now();
     next();
 });
-
-// Compare password method
-hectareSolicitorSchema.methods.comparePassword = async function(candidatePassword) {
-    return await bcrypt.compare(candidatePassword, this.password);
-};
 
 module.exports = mongoose.model('HectareSolicitor', hectareSolicitorSchema);

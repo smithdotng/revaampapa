@@ -61,6 +61,21 @@ const solicitorSchema = new mongoose.Schema({
         filename: String,
         uploadedAt: Date
     },
+
+    professionalProfile: {
+        url: {
+            type: String,
+            default: ''
+        },
+        filename: {
+            type: String,
+            default: ''
+        },
+        uploadedAt: {
+            type: Date,
+            default: Date.now
+        }
+    },
     
     // REVAAMP Partner Solicitor Specific
     partnerProfile: {
