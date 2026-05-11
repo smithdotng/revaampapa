@@ -967,10 +967,13 @@ exports.getForgotPassword = (req, res) => {
     });
 };
 
-// Forgot password handler
+
+// Forgot password handler - DEBUG VERSION
 exports.postForgotPassword = async (req, res) => {
     try {
         const { email } = req.body;
+        
+        console.log('🔐 STEP 1: Forgot password for:', email);
         
         let user = await User.findOne({ email: email.toLowerCase() });
         
@@ -987,23 +990,83 @@ exports.postForgotPassword = async (req, res) => {
             return res.redirect('/forgot-password');
         }
         
+        console.log('✅ STEP 2: User found:', user.email);
+        
         // Generate reset token
         const resetToken = crypto.randomBytes(32).toString('hex');
         user.resetPasswordToken = resetToken;
-        user.resetPasswordExpires = Date.now() + 3600000; // 1 hour
+        user.resetPasswordExpires = Date.now() + 3600000;
         await user.save();
         
-        // Send reset email
-        try {
-            await emailService.sendPasswordResetEmail(user, resetToken);
-        } catch (emailError) {
-            console.error('Email error:', emailError.message);
-        }
+        console.log('✅ STEP 3: Token saved');
         
-        req.flash('success', 'Password reset link sent to your email. Please check your inbox.');
+        // Build reset URL
+        const baseUrl = process.env.BASE_URL || 'http://localhost:3000';
+        const resetUrl = `${baseUrl}/reset-password/${resetToken}`;
+        console.log('🔗 STEP 4: Reset URL:', resetUrl);
+        
+        // DIRECT EMAIL SEND - bypass the email utility for testing
+        const nodemailer = require('nodemailer');
+        
+        const transporter = nodemailer.createTransport({
+            host: process.env.EMAIL_HOST,
+            port: 465,
+            secure: true,
+            auth: {
+                user: process.env.EMAIL_USER,
+                pass: process.env.EMAIL_PASS
+            },
+            tls: {
+                rejectUnauthorized: false
+            }
+        });
+        
+        const html = `
+            <!DOCTYPE html>
+            <html>
+            <head>
+                <style>
+                    body { font-family: Arial, sans-serif; }
+                    .container { max-width: 600px; margin: 0 auto; padding: 20px; }
+                    .header { background: #03A6A6; color: white; padding: 20px; text-align: center; }
+                    .button { display: inline-block; padding: 12px 24px; background: #03A6A6; color: white; text-decoration: none; border-radius: 5px; }
+                </style>
+            </head>
+            <body>
+                <div class="container">
+                    <div class="header">
+                        <h2>Password Reset Request</h2>
+                    </div>
+                    <div class="content">
+                        <p>Hello ${user.name},</p>
+                        <p>Click the button below to reset your password:</p>
+                        <p style="text-align: center;">
+                            <a href="${resetUrl}" class="button">Reset Password</a>
+                        </p>
+                        <p>Or copy this link: ${resetUrl}</p>
+                        <p>This link expires in 1 hour.</p>
+                    </div>
+                </div>
+            </body>
+            </html>
+        `;
+        
+        console.log('📧 STEP 5: Sending email directly...');
+        
+        const info = await transporter.sendMail({
+            from: `"RevaampAP" <${process.env.EMAIL_USER}>`,
+            to: user.email,
+            subject: 'Password Reset Request - RevaampAP',
+            html: html
+        });
+        
+        console.log('✅ STEP 6: Email sent! Message ID:', info.messageId);
+        
+        req.flash('success', 'Password reset link has been sent to your email. Please check your inbox.');
         res.redirect('/login');
+        
     } catch (error) {
-        console.error('Forgot password error:', error);
+        console.error('❌ Error:', error);
         req.flash('error', 'Error sending reset email. Please try again.');
         res.redirect('/forgot-password');
     }
@@ -1048,6 +1111,55 @@ exports.getResetPassword = async (req, res) => {
         res.redirect('/forgot-password');
     }
 };
+
+// Send password reset email
+const sendPasswordResetEmail = async (user, resetToken) => {
+    const baseUrl = process.env.BASE_URL || 'http://localhost:3000';
+    const resetUrl = `${baseUrl}/reset-password/${resetToken}`;
+    
+    console.log('📧 sendPasswordResetEmail called for:', user.email);
+    console.log('🔗 Reset URL:', resetUrl);
+    
+    const html = `
+        <!DOCTYPE html>
+        <html>
+        <head>
+            <style>
+                body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }
+                .container { max-width: 600px; margin: 0 auto; padding: 20px; }
+                .header { background: #03A6A6; color: white; padding: 20px; text-align: center; border-radius: 10px 10px 0 0; }
+                .content { padding: 30px; background: #f9f9f9; }
+                .button { display: inline-block; padding: 12px 30px; background: #03A6A6; color: white; text-decoration: none; border-radius: 5px; margin: 20px 0; }
+                .footer { text-align: center; padding: 20px; font-size: 12px; color: #999; }
+            </style>
+        </head>
+        <body>
+            <div class="container">
+                <div class="header">
+                    <h1>Password Reset Request</h1>
+                </div>
+                <div class="content">
+                    <h2>Hello ${user.name || 'User'},</h2>
+                    <p>You requested to reset your password for your RevaampAP account.</p>
+                    <p>Click the button below to reset your password:</p>
+                    <a href="${resetUrl}" class="button">Reset Password</a>
+                    <p>If the button doesn't work, copy and paste this link into your browser:</p>
+                    <p><a href="${resetUrl}">${resetUrl}</a></p>
+                    <p>This link will expire in 1 hour.</p>
+                    <p>If you didn't request this, please ignore this email.</p>
+                </div>
+                <div class="footer">
+                    <p>&copy; 2024 RevaampAP. All rights reserved.</p>
+                </div>
+            </div>
+        </body>
+        </html>
+    `;
+    
+    // Use the sendEmail function - make sure it's using transporter
+    return await sendEmail(user.email, 'Password Reset Request - RevaampAP', html);
+};
+
 
 // Reset password handler
 exports.postResetPassword = async (req, res) => {

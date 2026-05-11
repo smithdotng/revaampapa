@@ -4,16 +4,36 @@ const nodemailer = require('nodemailer');
 // Configure email transporter (optional - for production)
 let transporter = null;
 
+// Hostinger SMTP Configuration
 if (process.env.EMAIL_HOST && process.env.EMAIL_USER && process.env.EMAIL_PASS) {
     transporter = nodemailer.createTransport({
         host: process.env.EMAIL_HOST,
-        port: process.env.EMAIL_PORT || 587,
-        secure: false,
+        port: 465, // Hostinger requires 465 for SSL
+        secure: true, // true for 465, false for other ports
         auth: {
             user: process.env.EMAIL_USER,
             pass: process.env.EMAIL_PASS
+        },
+        tls: {
+            rejectUnauthorized: false // Important for Hostinger
+        },
+        connectionTimeout: 10000,
+        greetingTimeout: 10000,
+        socketTimeout: 20000
+    });
+    
+    // Verify connection on startup
+    transporter.verify((error, success) => {
+        if (error) {
+            console.error('❌ Hostinger SMTP Connection Error:', error.message);
+            console.error('   Please check your email credentials in .env file');
+        } else {
+            console.log('✅ Hostinger SMTP is ready to send emails');
         }
     });
+} else {
+    console.log('⚠️ Email not configured. Using console fallback.');
+    console.log('   Add to .env: EMAIL_HOST, EMAIL_USER, EMAIL_PASS');
 }
 
 // Helper function to log emails during development
@@ -480,3 +500,8 @@ module.exports = {
     sendCommissionPayoutEmail
 };
 
+// Add this at the end of utils/email.js to verify the module loads correctly
+console.log('📧 Email utility loaded. Email configured:', !!transporter);
+console.log('   - EMAIL_HOST:', process.env.EMAIL_HOST || 'not set');
+console.log('   - EMAIL_USER:', process.env.EMAIL_USER || 'not set');
+console.log('   - EMAIL_PASS:', process.env.EMAIL_PASS ? '***set***' : 'not set');
