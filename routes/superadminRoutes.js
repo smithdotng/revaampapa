@@ -3,6 +3,7 @@ const express = require('express');
 const router = express.Router();
 const superadminController = require('../controllers/superadminController');
 const authMiddleware = require('../middleware/auth');
+const upload = require('../middleware/upload');  // ADD THIS LINE
 
 // All routes require superadmin authentication
 router.use(authMiddleware.isAuthenticated);
@@ -57,11 +58,19 @@ router.get('/profile', superadminController.getProfile);
 router.post('/update-profile', superadminController.updateProfile);
 router.post('/change-password', superadminController.changePassword);
 
-// Payment verification routes
+// ============= PAYMENT VERIFICATION =============
 router.get('/payments/pending', superadminController.getPendingPayments);
 router.post('/payments/verify/:id', superadminController.verifyPayment);
 router.post('/payments/reject/:id', superadminController.rejectPayment);
 
-
+// ============= HOTEL MANAGEMENT =============
+router.get('/hotels', superadminController.getAllHotels);
+router.get('/hotels/add', superadminController.getAddHotel);
+router.post('/hotels/add', upload.uploadMultiple, superadminController.postAddHotel);
+router.get('/hotels/:id/edit', superadminController.getEditHotel);
+router.post('/hotels/:id/edit', upload.uploadMultiple, superadminController.updateHotel);
+router.delete('/hotels/:id', superadminController.deleteHotel);
+router.post('/hotels/:id/toggle-status', superadminController.toggleHotelStatus);
+router.post('/hotels/:id/toggle-featured', superadminController.toggleHotelFeatured);
 
 module.exports = router;

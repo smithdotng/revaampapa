@@ -5,6 +5,7 @@ const Transaction = require('../models/Transaction');
 const Withdrawal = require('../models/Withdrawal');
 const Promotion = require('../models/Promotion');
 const Inquiry = require('../models/Inquiry');
+const Hotel = require('../models/Hotel');
 
 // In superadminController.js, update the getDashboard method
 // ============= DASHBOARD =============
@@ -1252,5 +1253,285 @@ exports.rejectPayment = async (req, res) => {
     } catch (error) {
         console.error('Reject payment error:', error);
         res.status(500).json({ error: 'Error rejecting payment' });
+    }
+};
+
+// ============= HOTEL MANAGEMENT =============
+
+// Get all hotels
+exports.getAllHotels = async (req, res) => {
+    try {
+        const Hotel = require('../models/Hotel');
+        const user = await User.findById(req.session.userId);
+        const { status, featured, page = 1 } = req.query;
+        const limit = 20;
+        const skip = (page - 1) * limit;
+        
+        let query = {};
+        if (status === 'active') query.isActive = true;
+        if (status === 'inactive') query.isActive = false;
+        if (featured === 'true') query.featured = true;
+        
+        const hotels = await Hotel.find(query)
+            .sort('-createdAt')
+            .skip(skip)
+            .limit(limit);
+        
+        const total = await Hotel.countDocuments(query);
+        
+        const stats = {
+            total: await Hotel.countDocuments(),
+            active: await Hotel.countDocuments({ isActive: true }),
+            inactive: await Hotel.countDocuments({ isActive: false }),
+            featured: await Hotel.countDocuments({ featured: true })
+        };
+        
+        res.render('superadmin/hotels', {
+            title: 'Hotel Management - RevaampAP',
+            user: user,
+            hotels: hotels,
+            stats: stats,
+            currentPage: parseInt(page),
+            totalPages: Math.ceil(total / limit),
+            total: total,
+            filters: req.query,
+            currentPath: '/superadmin/hotels'
+        });
+    } catch (error) {
+        console.error('Get hotels error:', error);
+        req.flash('error', 'Error loading hotels');
+        res.redirect('/superadmin/dashboard');
+    }
+};
+
+// Get add hotel form
+exports.getAddHotel = async (req, res) => {
+    try {
+        const user = await User.findById(req.session.userId);
+        
+        res.render('superadmin/add-hotel', {
+            title: 'Add New Hotel - RevaampAP',
+            user: user,
+            hotel: null,
+            currentPath: '/superadmin/hotels/add'
+        });
+    } catch (error) {
+        console.error('Get add hotel error:', error);
+        req.flash('error', 'Error loading form');
+        res.redirect('/superadmin/hotels');
+    }
+};
+
+// Post add hotel
+exports.postAddHotel = async (req, res) => {
+    try {
+        const Hotel = require('../models/Hotel');
+        const {
+            name, description, address, city, state, country,
+            phone, email, website, commissionRate,
+            amenities, featured, rating
+        } = req.body;
+        
+        // Handle images
+        const images = [];
+        if (req.files && req.files.length > 0) {
+            req.files.forEach((file, index) => {
+                images.push({
+                    url: '/uploads/hotels/' + file.filename,
+                    isPrimary: index === 0
+                });
+            });
+        }
+        
+        // Process amenities (handle array from checkboxes)
+        let amenitiesArray = [];
+        if (amenities) {
+            amenitiesArray = Array.isArray(amenities) ? amenities : [amenities];
+        }
+        
+        const hotel = new Hotel({
+            name: name.trim(),
+            description: description.trim(),
+            location: { 
+                address: address || '', 
+                city: city || '', 
+                state: state || '', 
+                country: country || 'Nigeria' 
+            },
+            images: images,
+            contactInfo: { 
+                phone: phone || '', 
+                email: email || '', 
+                website: website || '' 
+            },
+            commissionRate: parseFloat(commissionRate) || 30,
+            amenities: amenitiesArray,
+            featured: featured === 'on',
+            rating: parseFloat(rating) || 0,
+            isActive: true,
+            createdBy: req.session.userId
+        });
+        
+        await hotel.save();
+        
+        req.flash('success', 'Hotel added successfully!');
+        res.redirect('/superadmin/hotels');
+    } catch (error) {
+        console.error('Add hotel error:', error);
+        req.flash('error', 'Error adding hotel: ' + error.message);
+        res.redirect('/superadmin/hotels/add');
+    }
+};
+
+// Get edit hotel form
+exports.getEditHotel = async (req, res) => {
+    try {
+        const Hotel = require('../models/Hotel');
+        const user = await User.findById(req.session.userId);
+        const hotel = await Hotel.findById(req.params.id);
+        
+        if (!hotel) {
+            req.flash('error', 'Hotel not found');
+            return res.redirect('/superadmin/hotels');
+        }
+        
+        res.render('superadmin/add-hotel', {
+            title: 'Edit Hotel - RevaampAP',
+            user: user,
+            hotel: hotel,
+            currentPath: '/superadmin/hotels'
+        });
+    } catch (error) {
+        console.error('Get edit hotel error:', error);
+        req.flash('error', 'Error loading hotel');
+        res.redirect('/superadmin/hotels');
+    }
+};
+
+// Update hotel
+exports.updateHotel = async (req, res) => {
+    try {
+        const Hotel = require('../models/Hotel');
+        const hotel = await Hotel.findById(req.params.id);
+        
+        if (!hotel) {
+            req.flash('error', 'Hotel not found');
+            return res.redirect('/superadmin/hotels');
+        }
+        
+        const {
+            name, description, address, city, state, country,
+            phone, email, website, commissionRate,
+            amenities, featured, rating, isActive
+        } = req.body;
+        
+        // Process amenities
+        let amenitiesArray = [];
+        if (amenities) {
+            amenitiesArray = Array.isArray(amenities) ? amenities : [amenities];
+        }
+        
+        hotel.name = name.trim();
+        hotel.description = description.trim();
+        hotel.location = { 
+            address: address || '', 
+            city: city || '', 
+            state: state || '', 
+            country: country || 'Nigeria' 
+        };
+        hotel.contactInfo = { 
+            phone: phone || '', 
+            email: email || '', 
+            website: website || '' 
+        };
+        hotel.commissionRate = parseFloat(commissionRate) || 30;
+        hotel.amenities = amenitiesArray;
+        hotel.featured = featured === 'on';
+        hotel.rating = parseFloat(rating) || 0;
+        hotel.isActive = isActive === 'on';
+        
+        // Handle new images
+        if (req.files && req.files.length > 0) {
+            req.files.forEach((file, index) => {
+                if (index === 0 && hotel.images.length === 0) {
+                    hotel.images.push({
+                        url: '/uploads/hotels/' + file.filename,
+                        isPrimary: true
+                    });
+                } else {
+                    hotel.images.push({
+                        url: '/uploads/hotels/' + file.filename,
+                        isPrimary: false
+                    });
+                }
+            });
+        }
+        
+        await hotel.save();
+        
+        req.flash('success', 'Hotel updated successfully!');
+        res.redirect('/superadmin/hotels');
+    } catch (error) {
+        console.error('Update hotel error:', error);
+        req.flash('error', 'Error updating hotel: ' + error.message);
+        res.redirect('/superadmin/hotels');
+    }
+};
+
+// Delete hotel
+exports.deleteHotel = async (req, res) => {
+    try {
+        const Hotel = require('../models/Hotel');
+        const hotel = await Hotel.findById(req.params.id);
+        
+        if (!hotel) {
+            return res.status(404).json({ error: 'Hotel not found' });
+        }
+        
+        await hotel.deleteOne();
+        res.json({ success: true });
+    } catch (error) {
+        console.error('Delete hotel error:', error);
+        res.status(500).json({ error: 'Error deleting hotel' });
+    }
+};
+
+// Toggle hotel status (activate/deactivate)
+exports.toggleHotelStatus = async (req, res) => {
+    try {
+        const Hotel = require('../models/Hotel');
+        const hotel = await Hotel.findById(req.params.id);
+        
+        if (!hotel) {
+            return res.status(404).json({ error: 'Hotel not found' });
+        }
+        
+        hotel.isActive = !hotel.isActive;
+        await hotel.save();
+        
+        res.json({ success: true, isActive: hotel.isActive });
+    } catch (error) {
+        console.error('Toggle hotel status error:', error);
+        res.status(500).json({ error: 'Error toggling status' });
+    }
+};
+
+// Toggle featured hotel
+exports.toggleHotelFeatured = async (req, res) => {
+    try {
+        const Hotel = require('../models/Hotel');
+        const hotel = await Hotel.findById(req.params.id);
+        
+        if (!hotel) {
+            return res.status(404).json({ error: 'Hotel not found' });
+        }
+        
+        hotel.featured = !hotel.featured;
+        await hotel.save();
+        
+        res.json({ success: true, featured: hotel.featured });
+    } catch (error) {
+        console.error('Toggle hotel featured error:', error);
+        res.status(500).json({ error: 'Error toggling featured' });
     }
 };

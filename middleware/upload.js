@@ -11,9 +11,11 @@ const documentUploadDir = path.join(__dirname, '../public/uploads/documents');
 const blogUploadDir = path.join(__dirname, '../public/uploads/blogs');
 const bankGuaranteeUploadDir = path.join(__dirname, '../public/uploads/bank-guarantees');
 const paymentUploadDir = path.join(__dirname, '../public/uploads/payments');
+const hotelUploadDir = path.join(__dirname, '../public/uploads/hotels');
+
 
 // Create directories if they don't exist
-const dirs = [uploadDir, profileUploadDir, propertyUploadDir, documentUploadDir, blogUploadDir, bankGuaranteeUploadDir, paymentUploadDir];
+const dirs = [uploadDir, profileUploadDir, propertyUploadDir, documentUploadDir, blogUploadDir, bankGuaranteeUploadDir, paymentUploadDir, hotelUploadDir];
 dirs.forEach(dir => {
     if (!fs.existsSync(dir)) {
         fs.mkdirSync(dir, { recursive: true });
@@ -191,22 +193,23 @@ const uploadBankGuaranteeDoc = uploadBankGuarantee.single('guaranteeDocument');
 // Handle payment proof upload
 const uploadPaymentProofDoc = uploadPaymentProof.single('paymentProof');
 
-// Export the configured middleware
+// At the end of your upload.js file, make sure you have:
 module.exports = {
     upload: {
         single: single,
         array: array,
         fields: fields
     },
-    uploadMultiple,
+    uploadMultiple,           // For multiple property/hotel images
     uploadSingleDocument,
     uploadBankGuaranteeDoc,
     uploadPaymentProofDoc,
-    uploadSolicitorDocs,           // ADD THIS
-    uploadHectareSolicitorDocs,    // ADD THIS
+    uploadSolicitorDocs,
+    uploadHectareSolicitorDocs,
     uploadProperty,
     uploadProfile,
     uploadDocument,
     uploadBankGuarantee,
     uploadPaymentProof
 };
+

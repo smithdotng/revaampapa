@@ -4,6 +4,7 @@ const router = express.Router();
 const promoterController = require('../controllers/promoterController');
 const authMiddleware = require('../middleware/auth');
 const upload = require('../middleware/upload');
+const promoterHotelController = require('../controllers/promoterHotelController');
 
 // All routes require authentication and promoter role
 router.use(authMiddleware.isAuthenticated);
@@ -53,6 +54,10 @@ router.post('/withdraw', promoterController.requestWithdrawal);
 // Analytics
 router.get('/analytics', promoterController.getAnalyticsPage);
 
+// Hotel promotion routes
+router.get('/hotels', authMiddleware.isAuthenticated, authMiddleware.isPromoter, promoterHotelController.getPromoterHotels);
+router.get('/hotels/:id', authMiddleware.isAuthenticated, authMiddleware.isPromoter, promoterHotelController.getHotelDetail);
+router.post('/hotels/track-share', authMiddleware.isAuthenticated, authMiddleware.isPromoter, promoterHotelController.trackShare);
 // Settings
 router.get('/settings', promoterController.getSettingsPage);
 router.post('/update-profile', promoterController.updateProfile);

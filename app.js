@@ -158,6 +158,9 @@ app.use('/project-subscriber', require('./routes/projectSubscriberRoutes'));
 // Solicitor routes
 app.use('/solicitor', require('./routes/solicitorRoutes'));
 
+// Hotel routes
+app.use('/hotels', require('./routes/hotelRoutes'));
+
 // ============= PUBLIC PAGES =============
 
 // Home page

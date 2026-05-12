@@ -141,7 +141,12 @@ propertyOwnerProfile: {
             default: false
         },
         rejectionReason: String,
-        rejectionDate: Date
+        rejectionDate: Date,
+        uniqueLinks: [{
+        code: String,
+        hotelId: { type: mongoose.Schema.Types.ObjectId, ref: 'Hotel' },
+        createdAt: { type: Date, default: Date.now }
+        }]
     },
     
     // Business Partner specific fields (requires payment)
@@ -205,7 +210,12 @@ propertyOwnerProfile: {
             ref: 'User'
         },
         paymentVerifiedAt: Date,
-        paymentNotes: String
+        paymentNotes: String,
+        uniqueLinks: [{
+        code: String,
+        hotelId: { type: mongoose.Schema.Types.ObjectId, ref: 'Hotel' },
+        createdAt: { type: Date, default: Date.now }
+        }]
     },
     
     // Project Management Subscriber specific fields
