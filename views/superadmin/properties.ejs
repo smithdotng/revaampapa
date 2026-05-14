@@ -297,17 +297,19 @@
                                                             </button>
                                                          </td>
                                                          <td><%= new Date(property.createdAt).toLocaleDateString() %></td>
+                                                         
                                                          <td>
-                                                            <div class="action-buttons">
-                                                                <a href="/superadmin/properties/<%= property._id %>" class="mil-link mil-accent">View</a>
-                                                                <% if (property.verificationStatus === 'payment_confirmed') { %>
-                                                                    <button onclick="verifyProperty('<%= property._id %>')" class="mil-link" style="color: #28a745;">Verify</button>
-                                                                <% } %>
-                                                                <button onclick="confirmDelete('<%= property._id %>', '<%= property.title.replace(/'/g, "\\'") %>')" class="delete-btn" title="Delete Property">
-                                                                    <i class="fa fa-trash"></i> Delete
-                                                                </button>
-                                                            </div>
-                                                         </td>
+    <div class="action-buttons">
+        <a href="/superadmin/properties/<%= property._id %>/edit" class="mil-link mil-accent">Edit</a>
+        <a href="/superadmin/properties/<%= property._id %>" class="mil-link mil-accent">View</a>
+        <% if (property.verificationStatus === 'payment_confirmed') { %>
+            <button onclick="verifyProperty('<%= property._id %>')" class="mil-link" style="color: #28a745;">Verify</button>
+        <% } %>
+        <button onclick="confirmDelete('<%= property._id %>', '<%= property.title.replace(/'/g, "\\'") %>')" class="delete-btn" title="Delete Property">
+            <i class="fa fa-trash"></i> Delete
+        </button>
+    </div>
+</td>
                                                      </tr>
                                                 <% }); %>
                                             </tbody>

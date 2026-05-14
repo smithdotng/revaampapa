@@ -22,7 +22,9 @@ router.post('/properties/:id/verify', superadminController.verifyProperty);
 router.post('/properties/:id/reject', superadminController.rejectProperty);
 router.post('/properties/:id/feature', superadminController.featureProperty);
 router.delete('/properties/:id', superadminController.deleteProperty);
-
+// Add these routes to your superadminRoutes.js
+router.get('/properties/:id/edit', superadminController.getEditProperty);
+router.put('/properties/:id/edit', upload.uploadMultiple, superadminController.updateProperty);
 // ============= PROMOTER MANAGEMENT =============
 router.get('/promoters', superadminController.getPromoters);
 router.get('/promoters/pending', superadminController.getPendingPromoters);

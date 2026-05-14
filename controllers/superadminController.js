@@ -1258,10 +1258,11 @@ exports.rejectPayment = async (req, res) => {
 
 // ============= HOTEL MANAGEMENT =============
 
+/// ============= HOTEL MANAGEMENT =============
+
 // Get all hotels
 exports.getAllHotels = async (req, res) => {
     try {
-        const Hotel = require('../models/Hotel');
         const user = await User.findById(req.session.userId);
         const { status, featured, page = 1 } = req.query;
         const limit = 20;
@@ -1325,11 +1326,10 @@ exports.getAddHotel = async (req, res) => {
 // Post add hotel
 exports.postAddHotel = async (req, res) => {
     try {
-        const Hotel = require('../models/Hotel');
         const {
             name, description, address, city, state, country,
             phone, email, website, commissionRate,
-            amenities, featured, rating
+            amenities, featured, rating, isActive
         } = req.body;
         
         // Handle images
@@ -1368,7 +1368,7 @@ exports.postAddHotel = async (req, res) => {
             amenities: amenitiesArray,
             featured: featured === 'on',
             rating: parseFloat(rating) || 0,
-            isActive: true,
+            isActive: isActive === 'on' || true,
             createdBy: req.session.userId
         });
         
@@ -1386,7 +1386,6 @@ exports.postAddHotel = async (req, res) => {
 // Get edit hotel form
 exports.getEditHotel = async (req, res) => {
     try {
-        const Hotel = require('../models/Hotel');
         const user = await User.findById(req.session.userId);
         const hotel = await Hotel.findById(req.params.id);
         
@@ -1411,7 +1410,6 @@ exports.getEditHotel = async (req, res) => {
 // Update hotel
 exports.updateHotel = async (req, res) => {
     try {
-        const Hotel = require('../models/Hotel');
         const hotel = await Hotel.findById(req.params.id);
         
         if (!hotel) {
@@ -1481,7 +1479,6 @@ exports.updateHotel = async (req, res) => {
 // Delete hotel
 exports.deleteHotel = async (req, res) => {
     try {
-        const Hotel = require('../models/Hotel');
         const hotel = await Hotel.findById(req.params.id);
         
         if (!hotel) {
@@ -1499,7 +1496,6 @@ exports.deleteHotel = async (req, res) => {
 // Toggle hotel status (activate/deactivate)
 exports.toggleHotelStatus = async (req, res) => {
     try {
-        const Hotel = require('../models/Hotel');
         const hotel = await Hotel.findById(req.params.id);
         
         if (!hotel) {
@@ -1519,7 +1515,6 @@ exports.toggleHotelStatus = async (req, res) => {
 // Toggle featured hotel
 exports.toggleHotelFeatured = async (req, res) => {
     try {
-        const Hotel = require('../models/Hotel');
         const hotel = await Hotel.findById(req.params.id);
         
         if (!hotel) {
@@ -1533,5 +1528,138 @@ exports.toggleHotelFeatured = async (req, res) => {
     } catch (error) {
         console.error('Toggle hotel featured error:', error);
         res.status(500).json({ error: 'Error toggling featured' });
+    }
+};
+
+// ============= EDIT PROPERTY =============
+
+// Get edit property page
+exports.getEditProperty = async (req, res) => {
+    try {
+        const user = await User.findById(req.session.userId);
+        const property = await Property.findById(req.params.id)
+            .populate('owner', 'name email phone');
+        
+        if (!property) {
+            req.flash('error', 'Property not found');
+            return res.redirect('/superadmin/properties');
+        }
+        
+        res.render('superadmin/edit-property', {
+            title: `Edit Property: ${property.title} - RevaampAP`,
+            user: user,
+            property: property,
+            currentPath: '/superadmin/properties'
+        });
+    } catch (error) {
+        console.error('Get edit property error:', error);
+        req.flash('error', 'Error loading property edit form');
+        res.redirect('/superadmin/properties');
+    }
+};
+
+// Update property
+exports.updateProperty = async (req, res) => {
+    try {
+        const property = await Property.findById(req.params.id);
+        
+        if (!property) {
+            req.flash('error', 'Property not found');
+            return res.redirect('/superadmin/properties');
+        }
+        
+        const {
+            title, description, propertyType, transactionType,
+            price, priceNegotiable,
+            address, city, state, lga, landmark,
+            bedrooms, bathrooms, toilets, parkingSpaces,
+            floorArea, landArea,
+            furnished, serviced, security, powerSupply, borehole,
+            verificationStatus, status, featured,
+            removedImages
+        } = req.body;
+        
+        // Update basic info
+        property.title = title;
+        property.description = description;
+        property.propertyType = propertyType;
+        property.transactionType = transactionType;
+        property.price = parseFloat(price);
+        property.priceNegotiable = priceNegotiable === 'on';
+        
+        // Update location
+        property.location = {
+            address: address || '',
+            city: city || '',
+            state: state || '',
+            lga: lga || '',
+            landmark: landmark || ''
+        };
+        
+        // Update features
+        property.features = {
+            bedrooms: bedrooms ? parseInt(bedrooms) : undefined,
+            bathrooms: bathrooms ? parseInt(bathrooms) : undefined,
+            toilets: toilets ? parseInt(toilets) : undefined,
+            parkingSpaces: parkingSpaces ? parseInt(parkingSpaces) : undefined,
+            floorArea: floorArea ? parseFloat(floorArea) : undefined,
+            landArea: landArea ? parseFloat(landArea) : undefined,
+            furnished: furnished === 'on',
+            serviced: serviced === 'on',
+            security: security === 'on',
+            powerSupply: powerSupply === 'on',
+            borehole: borehole === 'on'
+        };
+        
+        // Update status
+        if (verificationStatus) property.verificationStatus = verificationStatus;
+        if (status) property.status = status;
+        property.featured = featured === 'on';
+        
+        // Handle removed images
+        if (removedImages && removedImages !== '') {
+            let removedUrls = [];
+            try {
+                removedUrls = JSON.parse(removedImages);
+            } catch (e) {
+                removedUrls = [];
+            }
+            
+            if (removedUrls.length > 0) {
+                property.images = property.images.filter(img => !removedUrls.includes(img.url));
+            }
+        }
+        
+        // Handle new images
+        if (req.files && req.files.length > 0) {
+            const startIndex = property.images.length;
+            req.files.forEach((file, index) => {
+                property.images.push({
+                    url: '/uploads/properties/' + file.filename,
+                    isPrimary: (startIndex === 0 && index === 0) || (property.images.length === 0)
+                });
+            });
+        }
+        
+        // Ensure at least one primary image
+        if (property.images.length > 0 && !property.images.some(img => img.isPrimary)) {
+            property.images[0].isPrimary = true;
+        }
+        
+        // Update slug if title changed
+        if (title !== property.title) {
+            const slugify = require('slugify');
+            property.slug = slugify(title, { lower: true, strict: true }) + '-' + Date.now();
+        }
+        
+        await property.save();
+        
+        req.flash('success', 'Property updated successfully!');
+        res.redirect('/superadmin/properties');
+        
+    } catch (error) {
+        console.error('Update property error:', error);
+        req.flash('error', 'Error updating property: ' + error.message);
+        res.redirect(`/superadmin/properties/${req.params.id}/edit`);
     }
 };
