@@ -13,7 +13,7 @@ const fs = require('fs');
 const User = require('./models/User');
 const Property = require('./models/Property');
 const Transaction = require('./models/Transaction');
-const Inquiry = require('./models/Inquiry'); // Added Inquiry model
+const Inquiry = require('./models/Inquiry');
 
 // Initialize app
 const app = express();
@@ -23,12 +23,15 @@ const connectDB = async () => {
     try {
         await mongoose.connect(process.env.MONGODB_URI || 'mongodb://localhost:27017/revaampap', {
             useNewUrlParser: true,
-            useUnifiedTopology: true
+            useUnifiedTopology: true,
+            serverSelectionTimeoutMS: 60000,
+            socketTimeoutMS: 60000,
+            connectTimeoutMS: 60000
         });
         console.log('✅ MongoDB connected successfully');
     } catch (error) {
         console.error('❌ MongoDB connection error:', error);
-        process.exit(1);
+        setTimeout(connectDB, 5000);
     }
 };
 connectDB();
@@ -112,7 +115,8 @@ const uploadDirs = [
     'public/uploads/qrcodes',
     'public/uploads/blogs',
     'public/uploads/properties',
-    'public/uploads/documents'
+    'public/uploads/documents',
+    'public/uploads/hotels'
 ];
 
 uploadDirs.forEach(dir => {
@@ -146,11 +150,8 @@ app.use('/properties', require('./routes/propertyRoutes'));
 // Blog routes
 app.use('/blog', require('./routes/blogRoutes'));
 
-// Inquiry routes - MOUNTED AT ROOT for superadmin routes to work properly
+// Inquiry routes
 app.use('/', require('./routes/inquiryRoutes'));
-
-// Referral tracking route (public)
-app.get('/r/:code', require('./controllers/referralController').handleReferral);
 
 // Project Subscriber routes
 app.use('/project-subscriber', require('./routes/projectSubscriberRoutes'));
@@ -161,12 +162,86 @@ app.use('/solicitor', require('./routes/solicitorRoutes'));
 // Hotel routes
 app.use('/hotels', require('./routes/hotelRoutes'));
 
+// ============= REFERRAL TRACKING ROUTES =============
+// Referral tracking route for promoter referral links
+app.get('/referral/track/:code', async (req, res) => {
+    try {
+        const { code } = req.params;
+        const ReferralClick = require('./models/ReferralClick');
+        const User = require('./models/User');
+        
+        console.log(`🔗 Referral link clicked with code: ${code}`);
+        
+        // Extract user ID from the code (format: PROMO-{userId})
+        let promoterId = null;
+        
+        if (code.startsWith('PROMO-')) {
+            // Extract the ID part after PROMO-
+            const extractedId = code.replace('PROMO-', '');
+            console.log(`Extracted ID from code: ${extractedId}`);
+            
+            // Try to find user by this ID
+            const user = await User.findById(extractedId);
+            if (user) {
+                promoterId = user._id;
+                console.log(`✅ Found promoter by ID: ${user.email}`);
+            } else {
+                console.log(`⚠️ No user found with ID: ${extractedId}`);
+            }
+        } else {
+            // Try to find by the code directly in the database
+            const user = await User.findOne({ 'promoterProfile.referralCode': code });
+            if (user) {
+                promoterId = user._id;
+                console.log(`✅ Found promoter by referral code: ${user.email}`);
+            }
+        }
+        
+        if (promoterId) {
+            // Track the click
+            const click = new ReferralClick({
+                referrer: promoterId,
+                referralCode: code,
+                referralType: 'promoter',
+                ipAddress: req.ip,
+                userAgent: req.headers['user-agent'],
+                referrerUrl: req.headers.referer || 'direct',
+                clickedAt: new Date()
+            });
+            
+            await click.save();
+            console.log(`✅ Referral click saved to database, ID: ${click._id}`);
+            
+            // Update promoter's click count
+            await User.findByIdAndUpdate(promoterId, {
+                $inc: { 
+                    'referralStats.totalClicks': 1,
+                    'referralStats.referralClicks': 1 
+                }
+            });
+            
+            console.log(`✅ Promoter stats updated for ${promoterId}`);
+        } else {
+            console.log(`⚠️ No promoter found for code: ${code}`);
+        }
+        
+        // Redirect to promoter registration page with referral code
+        res.redirect(`/promoter/register?ref=${code}`);
+        
+    } catch (error) {
+        console.error('Referral tracking error:', error);
+        res.redirect('/promoter/register');
+    }
+});
+
+// Legacy referral tracking route (for backward compatibility)
+app.get('/r/:code', require('./controllers/referralController').handleReferral);
+
 // ============= PUBLIC PAGES =============
 
 // Home page
 app.get('/', async (req, res) => {
     try {
-        // Get featured properties for homepage
         const featuredProperties = await Property.find({ 
             verificationStatus: 'verified',
             status: 'available',
@@ -176,7 +251,6 @@ app.get('/', async (req, res) => {
         .limit(6)
         .sort('-createdAt');
         
-        // Get recent properties
         const recentProperties = await Property.find({ 
             verificationStatus: 'verified',
             status: 'available'
@@ -185,14 +259,13 @@ app.get('/', async (req, res) => {
         .limit(9)
         .sort('-createdAt');
         
-        // Get statistics
         const totalProperties = await Property.countDocuments({ verificationStatus: 'verified', status: 'available' });
         const totalPromoters = await User.countDocuments({ userType: 'promoter', 'promoterProfile.isApproved': true });
         const totalTransactions = await Transaction.countDocuments({ paymentStatus: 'completed' });
         
         res.render('index', {
             title: 'RevaampAP - Property Promotion Platform',
-            metaDescription: 'Find verified properties and earn 70% commission as a promoter. Nigeria\'s trusted property marketplace.',
+            metaDescription: 'Find verified properties and earn 70% commission as a promoter.',
             currentPath: '/',
             featuredProperties,
             recentProperties,
@@ -223,7 +296,7 @@ app.get('/about', (req, res) => {
     });
 });
 
-// Contact page route
+// Contact page
 app.get('/contact', (req, res) => {
     res.render('contact', {
         title: 'Contact Us - RevaampAP',
@@ -280,7 +353,6 @@ app.get('/dashboard', async (req, res) => {
             return res.redirect('/login');
         }
         
-        // Redirect based on user type
         if (user.userType === 'property_owner') {
             return res.redirect('/property-owner/dashboard');
         } else if (user.userType === 'promoter') {
@@ -299,7 +371,7 @@ app.get('/dashboard', async (req, res) => {
 
 // ============= API ROUTES =============
 
-// Get featured properties for homepage
+// Get featured properties
 app.get('/api/properties/featured', async (req, res) => {
     try {
         const properties = await Property.find({ 
@@ -336,7 +408,7 @@ app.get('/api/properties/recent', async (req, res) => {
     }
 });
 
-// Get statistics for homepage
+// Get statistics
 app.get('/api/stats', async (req, res) => {
     try {
         const propertyCount = await Property.countDocuments({ verificationStatus: 'verified', status: 'available' });
@@ -364,7 +436,6 @@ app.post('/api/subscribe', async (req, res) => {
             return res.json({ success: false, message: 'Invalid email address' });
         }
         
-        // Here you would typically save to a newsletter database
         console.log(`📧 Newsletter subscription: ${email}`);
         
         res.json({ success: true, message: 'Successfully subscribed!' });
@@ -374,17 +445,15 @@ app.post('/api/subscribe', async (req, res) => {
     }
 });
 
-// Contact form submission endpoint
+// Contact form submission
 app.post('/api/contact', async (req, res) => {
     try {
         const { name, email, phone, subject, message } = req.body;
         
-        // Validate required fields
         if (!name || !email || !subject || !message) {
             return res.json({ success: false, message: 'Please fill in all required fields' });
         }
         
-        // Here you can save to database or send email
         console.log('Contact form submission:', { name, email, phone, subject, message });
         
         res.json({ success: true, message: 'Message sent successfully' });
@@ -409,7 +478,6 @@ app.use((req, res) => {
 app.use((err, req, res, next) => {
     console.error('Global error:', err);
     
-    // Handle specific error types
     if (err.name === 'ValidationError') {
         req.flash('error', 'Validation error: ' + err.message);
         return res.redirect('back');
@@ -425,7 +493,6 @@ app.use((err, req, res, next) => {
         return res.redirect('back');
     }
     
-    // Default error response
     res.status(500).render('500', {
         title: 'Server Error - RevaampAP',
         message: process.env.NODE_ENV === 'development' ? err.message : 'Something went wrong on our end. Please try again later.',

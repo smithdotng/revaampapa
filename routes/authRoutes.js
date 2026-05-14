@@ -48,4 +48,6 @@ router.get('/logout', authController.logout);
 // ============= PENDING PAGE =============
 router.get('/agent/pending', authController.agentPending);
 
+
+
 module.exports = router;

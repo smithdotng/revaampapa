@@ -14,8 +14,13 @@ router.use(authMiddleware.isPromoter);
 router.get('/dashboard', promoterController.getDashboard);
 router.get('/', promoterController.getDashboard);
 
-// Referral link
-router.get('/referral-link', promoterController.getReferralLinkPage);
+// Generate referral link API
+router.get('/api/generate-referral-link', promoterController.generateReferralLink);
+
+// Share Analytics
+router.get('/share-analytics', promoterController.getShareAnalyticsPage);
+router.get('/api/share-analytics', promoterController.getShareAnalytics);
+router.post('/api/track-share', promoterController.trackShare);
 
 // Property Introduction
 router.get('/submit-property', promoterController.getSubmitPropertyPage);
@@ -52,7 +57,7 @@ router.get('/api/voucher-link', promoterController.getVoucherLink);
 router.get('/api/business-partner-link', promoterController.getBusinessPartnerLink);
 router.get('/api/aggregator-link', promoterController.getAggregatorLink);
 router.get('/api/promoter-referral-link', promoterController.getPromoterReferralLink);
-
+router.get('/api/generate-referral-link', promoterController.generateReferralLink);
 // Earnings
 router.get('/earnings', promoterController.getEarningsPage);
 router.post('/withdraw', promoterController.requestWithdrawal);
@@ -60,7 +65,7 @@ router.post('/withdraw', promoterController.requestWithdrawal);
 // Analytics
 router.get('/analytics', promoterController.getAnalyticsPage);
 
-// Hotel promotion routes
+// Hotel promotion routes (make sure promoterHotelController exists)
 router.get('/hotels', promoterHotelController.getPromoterHotels);
 router.get('/hotels/:id', promoterHotelController.getHotelDetail);
 router.post('/hotels/track-share', promoterHotelController.trackShare);

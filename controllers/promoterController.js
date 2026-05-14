@@ -14,6 +14,7 @@ const BuyerIntroduction = require('../models/BuyerIntroduction');
 const HotelPartner = require('../models/HotelPartner');
 const Referral = require('../models/Referral');
 const Interest = require('../models/Interest');
+const ShareTracking = require('../models/ShareTracking');
 
 const ClickTracking = require('../models/ClickTracking');
 const HotelClick = require('../models/HotelClick');
@@ -155,20 +156,32 @@ exports.getDashboard = async (req, res) => {
 
 // ============= REFERRAL LINK PAGES =============
 
-// Get referral link page
-exports.getReferralLinkPage = async (req, res) => {
+// Generate referral link
+exports.generateReferralLink = async (req, res) => {
     try {
         const user = await User.findById(req.session.userId);
         
-        res.render('promoter/referral-link', {
-            title: 'My Referral Link - RevaampAP',
-            user: user,
-            baseUrl: getBaseUrl(req)
-        });
+        // Use the user's ID as part of the referral code for consistency
+        const userId = user._id.toString();
+        // Use a simpler code format: PROMO-{userId}
+        // This ensures we can find the promoter when the link is clicked
+        const referralCode = `PROMO-${userId}`;
+        
+        if (!user.promoterProfile) {
+            user.promoterProfile = {};
+        }
+        user.promoterProfile.referralCode = referralCode;
+        await user.save();
+        
+        const baseUrl = process.env.BASE_URL || `http://localhost:${process.env.PORT || 3000}`;
+        const referralLink = `${baseUrl}/referral/track/${referralCode}`;
+        
+        console.log(`✅ Referral link generated for ${user.email}: ${referralLink}`);
+        
+        res.json({ success: true, link: referralLink, code: referralCode });
     } catch (error) {
-        console.error('Get referral link page error:', error);
-        req.flash('error', 'Error loading page');
-        res.redirect('/promoter/dashboard');
+        console.error('Generate referral link error:', error);
+        res.json({ success: false, error: error.message });
     }
 };
 
@@ -899,9 +912,12 @@ exports.getReferralStatsAPI = async (req, res) => {
 // (These are the methods used by the dashboard tabs)
 
 // Get clicks data for promoter
+// Get clicks data for promoter - Add referral clicks
 exports.getClicks = async (req, res) => {
     try {
-        // Get clicks from both property promotions and hotel promotions
+        const ReferralClick = require('../models/ReferralClick');
+        
+        // Get clicks from property promotions
         const propertyClicks = await ClickTracking.find({ 
             promoter: req.session.userId,
             type: 'property'
@@ -910,10 +926,18 @@ exports.getClicks = async (req, res) => {
         .sort('-clickedAt')
         .limit(100);
         
+        // Get clicks from hotel promotions
         const hotelClicks = await HotelClick.find({ 
             promoter: req.session.userId
         })
         .populate('hotel', 'name')
+        .sort('-clickedAt')
+        .limit(100);
+        
+        // Get referral link clicks
+        const referralClicks = await ReferralClick.find({ 
+            referrer: req.session.userId
+        })
         .sort('-clickedAt')
         .limit(100);
         
@@ -939,10 +963,26 @@ exports.getClicks = async (req, res) => {
             referrer: click.referrer || 'Direct'
         }));
         
+        // Format referral clicks
+        const formattedReferralClicks = referralClicks.map(click => ({
+            itemTitle: 'Referral Link',
+            type: 'Referral',
+            ipAddress: click.ipAddress || 'N/A',
+            deviceInfo: click.userAgent ? click.userAgent.substring(0, 50) : 'N/A',
+            clickedAt: click.clickedAt,
+            converted: click.converted || false,
+            referrer: click.referrerUrl || 'Direct'
+        }));
+        
         // Combine and sort by date
-        const allClicks = [...formattedPropertyClicks, ...formattedHotelClicks].sort((a, b) => 
+        const allClicks = [...formattedPropertyClicks, ...formattedHotelClicks, ...formattedReferralClicks].sort((a, b) => 
             new Date(b.clickedAt) - new Date(a.clickedAt)
         );
+        
+        // Update total clicks count in user profile
+        await User.findByIdAndUpdate(req.session.userId, {
+            'referralStats.totalClicks': allClicks.length
+        });
         
         res.json({ success: true, clicks: allClicks });
     } catch (error) {
@@ -954,11 +994,22 @@ exports.getClicks = async (req, res) => {
 // Get referrals data for promoter
 exports.getReferrals = async (req, res) => {
     try {
+        const ReferralClick = require('../models/ReferralClick');
+        const User = require('../models/User');
+        
+        // Get referral clicks count - use the promoter's ID directly
+        const referralClicks = await ReferralClick.countDocuments({ 
+            referrer: req.session.userId 
+        });
+        
+        console.log(`Referral clicks for promoter ${req.session.userId}: ${referralClicks}`);
+        
         // Find users referred by this promoter
         const referrals = await User.find({ referredBy: req.session.userId })
             .select('name email phone userType promoterProfile createdAt totalEarningsFromReferrals')
             .sort('-createdAt');
         
+        // Get total earnings from referrals
         let totalEarnings = 0;
         const formattedReferrals = referrals.map(ref => {
             const referralEarnings = ref.totalEarningsFromReferrals || 0;
@@ -980,12 +1031,13 @@ exports.getReferrals = async (req, res) => {
             referrals: formattedReferrals,
             stats: {
                 totalReferrals: referrals.length,
-                totalEarnings: totalEarnings
+                totalEarnings: totalEarnings,
+                totalClicks: referralClicks
             }
         });
     } catch (error) {
         console.error('Get referrals error:', error);
-        res.json({ success: true, referrals: [], stats: { totalReferrals: 0, totalEarnings: 0 } });
+        res.json({ success: true, referrals: [], stats: { totalReferrals: 0, totalEarnings: 0, totalClicks: 0 } });
     }
 };
 
@@ -1047,6 +1099,8 @@ exports.getConversions = async (req, res) => {
     }
 };
 
+// ... (all your existing code up to trackClick)
+
 // Track click (for API)
 exports.trackClick = async (req, res) => {
     try {
@@ -1070,5 +1124,193 @@ exports.trackClick = async (req, res) => {
     } catch (error) {
         console.error('Track click error:', error);
         res.json({ success: false });
+    }
+};
+
+// Track share for analytics (save to database)
+exports.trackShare = async (req, res) => {
+    try {
+        const { platform, link, linkType, propertyId, hotelId, referralCode } = req.body;
+        
+        // Determine link type if not provided
+        let finalLinkType = linkType || 'referral';
+        if (propertyId) finalLinkType = 'property';
+        if (hotelId) finalLinkType = 'hotel';
+        if (referralCode) finalLinkType = 'referral';
+        
+        // Save share tracking to database
+        const share = new ShareTracking({
+            promoter: req.session.userId,
+            linkType: finalLinkType,
+            platform: platform,
+            link: link,
+            propertyId: propertyId || null,
+            hotelId: hotelId || null,
+            referralCode: referralCode || null,
+            ipAddress: req.ip,
+            userAgent: req.headers['user-agent'],
+            sharedAt: new Date()
+        });
+        
+        await share.save();
+        
+        console.log(`📢 Share tracked: ${platform} - Promoter: ${req.session.userId} - Type: ${finalLinkType}`);
+        
+        res.json({ success: true, shareId: share._id });
+    } catch (error) {
+        console.error('Track share error:', error);
+        res.json({ success: false, error: error.message });
+    }
+};
+
+// Get share analytics for promoter
+exports.getShareAnalytics = async (req, res) => {
+    try {
+        const { period = 'week', platform, linkType } = req.query;
+        
+        // Calculate date range
+        const endDate = new Date();
+        let startDate = new Date();
+        
+        if (period === 'week') {
+            startDate.setDate(startDate.getDate() - 7);
+        } else if (period === 'month') {
+            startDate.setMonth(startDate.getMonth() - 1);
+        } else if (period === 'year') {
+            startDate.setFullYear(startDate.getFullYear() - 1);
+        } else if (period === 'all') {
+            startDate = new Date(2020, 0, 1);
+        }
+        
+        // Build query
+        let query = {
+            promoter: req.session.userId,
+            sharedAt: { $gte: startDate, $lte: endDate }
+        };
+        
+        if (platform && platform !== 'all') {
+            query.platform = platform;
+        }
+        
+        if (linkType && linkType !== 'all') {
+            query.linkType = linkType;
+        }
+        
+        // Get shares
+        const shares = await ShareTracking.find(query)
+            .populate('propertyId', 'title')
+            .populate('hotelId', 'name')
+            .sort('-sharedAt');
+        
+        // Get statistics by platform
+        const platformStats = await ShareTracking.aggregate([
+            { $match: { promoter: req.session.userId, sharedAt: { $gte: startDate } } },
+            { $group: { _id: '$platform', count: { $sum: 1 } } },
+            { $sort: { count: -1 } }
+        ]);
+        
+        // Get statistics by link type
+        const linkTypeStats = await ShareTracking.aggregate([
+            { $match: { promoter: req.session.userId, sharedAt: { $gte: startDate } } },
+            { $group: { _id: '$linkType', count: { $sum: 1 } } },
+            { $sort: { count: -1 } }
+        ]);
+        
+        // Get daily share counts for chart
+        const dailyStats = await ShareTracking.aggregate([
+            { $match: { promoter: req.session.userId, sharedAt: { $gte: startDate } } },
+            {
+                $group: {
+                    _id: { $dateToString: { format: '%Y-%m-%d', date: '$sharedAt' } },
+                    count: { $sum: 1 }
+                }
+            },
+            { $sort: { '_id': 1 } }
+        ]);
+        
+        // Get total shares
+        const totalShares = shares.length;
+        
+        res.json({
+            success: true,
+            shares: shares.map(s => ({
+                id: s._id,
+                platform: s.platform,
+                linkType: s.linkType,
+                link: s.link,
+                itemTitle: s.propertyId?.title || s.hotelId?.name || null,
+                sharedAt: s.sharedAt,
+                ipAddress: s.ipAddress
+            })),
+            stats: {
+                totalShares,
+                platformStats,
+                linkTypeStats,
+                dailyStats
+            }
+        });
+    } catch (error) {
+        console.error('Get share analytics error:', error);
+        res.json({ success: false, error: error.message });
+    }
+};
+
+// Get share analytics page
+exports.getShareAnalyticsPage = async (req, res) => {
+    try {
+        const user = await User.findById(req.session.userId);
+        
+        res.render('promoter/share-analytics', {
+            title: 'Share Analytics - RevaampAP',
+            user: user,
+            currentPath: '/promoter/share-analytics'
+        });
+    } catch (error) {
+        console.error('Get share analytics page error:', error);
+        req.flash('error', 'Error loading analytics');
+        res.redirect('/promoter/dashboard');
+    }
+};
+
+// Generate referral link - FIXED VERSION
+exports.generateReferralLink = async (req, res) => {
+    try {
+        const user = await User.findById(req.session.userId);
+        
+        if (!user) {
+            return res.json({ success: false, error: 'User not found' });
+        }
+        
+        // Use the user's actual ID - THIS IS KEY
+        const userId = user._id.toString();
+        
+        // Create a simple code format: PROMO-{userId}
+        // No timestamp - just the user ID
+        const referralCode = `PROMO-${userId}`;
+        
+        console.log(`Generating referral link for user: ${user.email}`);
+        console.log(`User ID: ${userId}`);
+        console.log(`Referral code: ${referralCode}`);
+        
+        // Initialize promoterProfile if it doesn't exist
+        if (!user.promoterProfile) {
+            user.promoterProfile = {};
+        }
+        
+        // Save the referral code
+        user.promoterProfile.referralCode = referralCode;
+        await user.save();
+        
+        console.log(`✅ Referral code saved to user profile`);
+        
+        const baseUrl = process.env.BASE_URL || `http://localhost:${process.env.PORT || 3000}`;
+        const referralLink = `${baseUrl}/referral/track/${referralCode}`;
+        
+        console.log(`✅ Referral link generated: ${referralLink}`);
+        
+        res.json({ success: true, link: referralLink, code: referralCode });
+    } catch (error) {
+        console.error('Generate referral link error:', error);
+        res.json({ success: false, error: error.message });
     }
 };
