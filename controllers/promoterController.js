@@ -15,6 +15,12 @@ const HotelPartner = require('../models/HotelPartner');
 const Referral = require('../models/Referral');
 const Interest = require('../models/Interest');
 
+const ClickTracking = require('../models/ClickTracking');
+const HotelClick = require('../models/HotelClick');
+const Hotel = require('../models/Hotel');
+const HotelBooking = require('../models/HotelBooking');
+const crypto = require('crypto');
+
 // Helper function to get base URL
 function getBaseUrl(req) {
     if (process.env.BASE_URL) return process.env.BASE_URL;
@@ -463,61 +469,6 @@ exports.getPromotionsPage = async (req, res) => {
     }
 };
 
-// Create promotion (API)
-exports.createPromotionAPI = async (req, res) => {
-    try {
-        const { propertyId } = req.params;
-        const baseUrl = getBaseUrl(req);
-        
-        let promotion = await Promotion.findOne({
-            promoter: req.session.userId,
-            property: propertyId
-        });
-        
-        if (promotion) {
-            return res.json({ 
-                success: true, 
-                exists: true, 
-                promotion,
-                message: 'Promotion already exists for this property'
-            });
-        }
-        
-        const property = await Property.findById(propertyId);
-        if (!property) {
-            return res.status(404).json({ error: 'Property not found' });
-        }
-        
-        promotion = new Promotion({
-            promoter: req.session.userId,
-            property: propertyId
-        });
-        
-        // Generate unique referral code
-        const prefix = 'RVMP';
-        const promoterCode = req.session.userId.toString().slice(-6).toUpperCase();
-        const propertyCode = propertyId.toString().slice(-6).toUpperCase();
-        const random = Math.random().toString(36).substring(2, 8).toUpperCase();
-        promotion.referralCode = `${prefix}-${promoterCode}-${propertyCode}-${random}`;
-        promotion.referralLink = `${baseUrl}/r/${promotion.referralCode}`;
-        
-        await promotion.save();
-        
-        res.json({
-            success: true,
-            created: true,
-            promotion: {
-                _id: promotion._id,
-                referralCode: promotion.referralCode,
-                referralLink: promotion.referralLink
-            }
-        });
-    } catch (error) {
-        console.error('Create promotion API error:', error);
-        res.status(500).json({ error: 'Error creating promotion' });
-    }
-};
-
 // Create promotion (POST redirect)
 exports.createPromotion = async (req, res) => {
     try {
@@ -561,6 +512,34 @@ exports.createPromotion = async (req, res) => {
         console.error('Create promotion error:', error);
         req.flash('error', 'Error creating promotion');
         res.redirect('/promoter/available-properties');
+    }
+};
+
+// API: Create promotion API (for the promote button)
+exports.createPromotionAPI = async (req, res) => {
+    try {
+        const { propertyId } = req.params;
+        const property = await Property.findById(propertyId);
+        
+        if (!property) {
+            return res.status(404).json({ success: false, message: 'Property not found' });
+        }
+        
+        // Generate unique referral link
+        const uniqueCode = crypto.randomBytes(16).toString('hex');
+        const referralLink = `${process.env.BASE_URL || 'http://localhost:3000'}/property/${property.slug}?ref=${uniqueCode}`;
+        
+        res.json({ 
+            success: true, 
+            promotion: {
+                referralLink: referralLink,
+                propertyId: property._id,
+                propertyTitle: property.title
+            }
+        });
+    } catch (error) {
+        console.error('Create promotion API error:', error);
+        res.status(500).json({ success: false, message: 'Error creating promotion' });
     }
 };
 
@@ -913,5 +892,183 @@ exports.getReferralStatsAPI = async (req, res) => {
     } catch (error) {
         console.error('Get referral stats error:', error);
         res.status(500).json({ error: 'Error loading referral stats' });
+    }
+};
+
+// ============= GET CLICKS, REFERRALS & CONVERSIONS =============
+// (These are the methods used by the dashboard tabs)
+
+// Get clicks data for promoter
+exports.getClicks = async (req, res) => {
+    try {
+        // Get clicks from both property promotions and hotel promotions
+        const propertyClicks = await ClickTracking.find({ 
+            promoter: req.session.userId,
+            type: 'property'
+        })
+        .populate('property', 'title')
+        .sort('-clickedAt')
+        .limit(100);
+        
+        const hotelClicks = await HotelClick.find({ 
+            promoter: req.session.userId
+        })
+        .populate('hotel', 'name')
+        .sort('-clickedAt')
+        .limit(100);
+        
+        // Format property clicks
+        const formattedPropertyClicks = propertyClicks.map(click => ({
+            itemTitle: click.property?.title || 'N/A',
+            type: 'Property',
+            ipAddress: click.ipAddress || 'N/A',
+            deviceInfo: click.userAgent ? click.userAgent.substring(0, 50) : 'N/A',
+            clickedAt: click.clickedAt,
+            converted: click.converted || false,
+            referrer: click.referrer || 'Direct'
+        }));
+        
+        // Format hotel clicks
+        const formattedHotelClicks = hotelClicks.map(click => ({
+            itemTitle: click.hotel?.name || 'N/A',
+            type: 'Hotel',
+            ipAddress: click.ipAddress || 'N/A',
+            deviceInfo: click.userAgent ? click.userAgent.substring(0, 50) : 'N/A',
+            clickedAt: click.clickedAt,
+            converted: click.converted || false,
+            referrer: click.referrer || 'Direct'
+        }));
+        
+        // Combine and sort by date
+        const allClicks = [...formattedPropertyClicks, ...formattedHotelClicks].sort((a, b) => 
+            new Date(b.clickedAt) - new Date(a.clickedAt)
+        );
+        
+        res.json({ success: true, clicks: allClicks });
+    } catch (error) {
+        console.error('Get clicks error:', error);
+        res.json({ success: true, clicks: [] });
+    }
+};
+
+// Get referrals data for promoter
+exports.getReferrals = async (req, res) => {
+    try {
+        // Find users referred by this promoter
+        const referrals = await User.find({ referredBy: req.session.userId })
+            .select('name email phone userType promoterProfile createdAt totalEarningsFromReferrals')
+            .sort('-createdAt');
+        
+        let totalEarnings = 0;
+        const formattedReferrals = referrals.map(ref => {
+            const referralEarnings = ref.totalEarningsFromReferrals || 0;
+            totalEarnings += referralEarnings;
+            
+            return {
+                name: ref.name || 'N/A',
+                email: ref.email,
+                phone: ref.phone || 'N/A',
+                userType: ref.userType || 'promoter',
+                isApproved: ref.promoterProfile?.isApproved || false,
+                createdAt: ref.createdAt,
+                earningsFromReferral: referralEarnings
+            };
+        });
+        
+        res.json({ 
+            success: true, 
+            referrals: formattedReferrals,
+            stats: {
+                totalReferrals: referrals.length,
+                totalEarnings: totalEarnings
+            }
+        });
+    } catch (error) {
+        console.error('Get referrals error:', error);
+        res.json({ success: true, referrals: [], stats: { totalReferrals: 0, totalEarnings: 0 } });
+    }
+};
+
+// Get conversions data for promoter
+exports.getConversions = async (req, res) => {
+    try {
+        // Get completed transactions from property sales
+        const propertyTransactions = await Transaction.find({ 
+            promoter: req.session.userId,
+            paymentStatus: 'completed'
+        })
+        .populate('property', 'title')
+        .populate('buyer', 'name email')
+        .sort('-createdAt')
+        .limit(100);
+        
+        // Get hotel bookings that have been converted
+        const hotelBookings = await HotelBooking.find({ 
+            promoter: req.session.userId,
+            paymentStatus: 'completed'
+        })
+        .populate('hotel', 'name')
+        .sort('-createdAt')
+        .limit(100);
+        
+        // Format property conversions
+        const formattedPropertyConversions = propertyTransactions.map(trans => ({
+            itemTitle: trans.property?.title || 'N/A',
+            type: 'Property',
+            buyerName: trans.buyer?.name || trans.buyerName || 'N/A',
+            buyerEmail: trans.buyer?.email || trans.buyerEmail || 'N/A',
+            amount: trans.amount || 0,
+            commission: trans.commissionSplit?.promoter?.amount || 0,
+            createdAt: trans.createdAt,
+            status: 'Completed'
+        }));
+        
+        // Format hotel conversions
+        const formattedHotelConversions = hotelBookings.map(booking => ({
+            itemTitle: booking.hotel?.name || 'N/A',
+            type: 'Hotel',
+            buyerName: booking.guestName || 'N/A',
+            buyerEmail: booking.guestEmail || 'N/A',
+            amount: booking.totalAmount || 0,
+            commission: booking.commissionAmount || 0,
+            createdAt: booking.createdAt,
+            status: 'Completed'
+        }));
+        
+        // Combine and sort by date
+        const allConversions = [...formattedPropertyConversions, ...formattedHotelConversions].sort((a, b) => 
+            new Date(b.createdAt) - new Date(a.createdAt)
+        );
+        
+        res.json({ success: true, conversions: allConversions });
+    } catch (error) {
+        console.error('Get conversions error:', error);
+        res.json({ success: true, conversions: [] });
+    }
+};
+
+// Track click (for API)
+exports.trackClick = async (req, res) => {
+    try {
+        const { code, propertyId, hotelId } = req.body;
+        
+        const click = new ClickTracking({
+            promoter: req.session.userId,
+            property: propertyId || null,
+            hotel: hotelId || null,
+            type: propertyId ? 'property' : (hotelId ? 'hotel' : 'referral'),
+            referralLink: code,
+            ipAddress: req.ip,
+            userAgent: req.headers['user-agent'],
+            referrer: req.headers.referer,
+            clickedAt: new Date()
+        });
+        
+        await click.save();
+        
+        res.json({ success: true });
+    } catch (error) {
+        console.error('Track click error:', error);
+        res.json({ success: false });
     }
 };

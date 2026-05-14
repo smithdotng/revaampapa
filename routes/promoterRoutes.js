@@ -41,6 +41,12 @@ router.get('/api/earnings-data', promoterController.getEarningsDataAPI);
 router.get('/api/interests', promoterController.getInterestsAPI);
 router.get('/api/referral-stats', promoterController.getReferralStatsAPI);
 
+// Clicks, Referrals & Conversions API Routes
+router.get('/api/clicks', promoterController.getClicks);
+router.get('/api/referrals', promoterController.getReferrals);
+router.get('/api/conversions', promoterController.getConversions);
+router.post('/api/track-click', promoterController.trackClick);
+
 // Referral Links API
 router.get('/api/voucher-link', promoterController.getVoucherLink);
 router.get('/api/business-partner-link', promoterController.getBusinessPartnerLink);
@@ -55,9 +61,10 @@ router.post('/withdraw', promoterController.requestWithdrawal);
 router.get('/analytics', promoterController.getAnalyticsPage);
 
 // Hotel promotion routes
-router.get('/hotels', authMiddleware.isAuthenticated, authMiddleware.isPromoter, promoterHotelController.getPromoterHotels);
-router.get('/hotels/:id', authMiddleware.isAuthenticated, authMiddleware.isPromoter, promoterHotelController.getHotelDetail);
-router.post('/hotels/track-share', authMiddleware.isAuthenticated, authMiddleware.isPromoter, promoterHotelController.trackShare);
+router.get('/hotels', promoterHotelController.getPromoterHotels);
+router.get('/hotels/:id', promoterHotelController.getHotelDetail);
+router.post('/hotels/track-share', promoterHotelController.trackShare);
+
 // Settings
 router.get('/settings', promoterController.getSettingsPage);
 router.post('/update-profile', promoterController.updateProfile);
