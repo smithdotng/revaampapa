@@ -3,7 +3,7 @@ const express = require('express');
 const router = express.Router();
 const superadminController = require('../controllers/superadminController');
 const authMiddleware = require('../middleware/auth');
-const upload = require('../middleware/upload');  // ADD THIS LINE
+const upload = require('../middleware/upload');
 
 // All routes require superadmin authentication
 router.use(authMiddleware.isAuthenticated);
@@ -14,17 +14,24 @@ router.get('/dashboard', superadminController.getDashboard);
 router.get('/', superadminController.getDashboard);
 
 // ============= PROPERTY MANAGEMENT =============
+// List routes (no parameters)
 router.get('/properties', superadminController.getProperties);
 router.get('/properties/pending', superadminController.getPendingProperties);
-router.get('/properties/:id', superadminController.getPropertyDetails);
+
+// Edit routes (specific paths with /edit)
+router.get('/properties/:id/edit', superadminController.getEditProperty);
+router.post('/properties/:id/edit', upload.uploadMultiple, superadminController.updateProperty);
+
+// Action routes (specific actions)
 router.post('/properties/:id/confirm-payment', superadminController.confirmPayment);
 router.post('/properties/:id/verify', superadminController.verifyProperty);
 router.post('/properties/:id/reject', superadminController.rejectProperty);
 router.post('/properties/:id/feature', superadminController.featureProperty);
 router.delete('/properties/:id', superadminController.deleteProperty);
-// Add these routes to your superadminRoutes.js
-router.get('/properties/:id/edit', superadminController.getEditProperty);
-router.put('/properties/:id/edit', upload.uploadMultiple, superadminController.updateProperty);
+
+// Detail route (parameterized - MUST be last)
+router.get('/properties/:id', superadminController.getPropertyDetails);
+
 // ============= PROMOTER MANAGEMENT =============
 router.get('/promoters', superadminController.getPromoters);
 router.get('/promoters/pending', superadminController.getPendingPromoters);

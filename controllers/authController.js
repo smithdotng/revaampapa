@@ -234,8 +234,9 @@ exports.postRegister = async (req, res) => {
 
 // ============= PROMOTER REGISTRATION (FREE) =============
 
-// Promoter registration page
+// In authController.js - Update getPromoterRegister
 exports.getPromoterRegister = (req, res) => {
+    // If user is already logged in, redirect to dashboard
     if (req.session.userId) {
         return res.redirect('/dashboard');
     }
@@ -244,6 +245,7 @@ exports.getPromoterRegister = (req, res) => {
         currentPath: '/promoter/register'
     });
 };
+
 
 // Promoter registration handler (FREE - no payment)
 exports.postPromoterRegister = async (req, res) => {
@@ -339,7 +341,7 @@ exports.postPromoterRegister = async (req, res) => {
 
 // ============= BUSINESS PARTNER REGISTRATION =============
 
-// Business Partner registration page
+// Update getBusinessPartnerRegister
 exports.getBusinessPartnerRegister = (req, res) => {
     if (req.session.userId) {
         return res.redirect('/dashboard');
@@ -442,7 +444,7 @@ exports.postBusinessPartnerRegister = async (req, res) => {
 
 // ============= PROJECT SUBSCRIBER REGISTRATION =============
 
-// Project Subscriber registration page
+// Update getProjectSubscriberRegister
 exports.getProjectSubscriberRegister = (req, res) => {
     if (req.session.userId) {
         return res.redirect('/dashboard');
