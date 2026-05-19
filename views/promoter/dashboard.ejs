@@ -43,8 +43,8 @@
         .mil-flex-between { display: flex; justify-content: space-between; align-items: center; }
         .mil-mb-10 { margin-bottom: 10px; }
         .mil-mb-20 { margin-bottom: 20px; }
-        .promote-btn { cursor: pointer; transition: all 0.3s ease; }
-        .promote-btn:hover { transform: translateY(-2px); }
+        .share-link-btn { cursor: pointer; transition: all 0.3s ease; background: #03A6A6; color: white; border: none; padding: 10px 15px; border-radius: 8px; font-size: 14px; width: 100%; }
+        .share-link-btn:hover { transform: translateY(-2px); background: #028484; }
         .property-card { transition: transform 0.3s ease; }
         .property-card:hover { transform: translateY(-5px); }
         .badge-new { background: #28a745; color: white; padding: 4px 8px; border-radius: 4px; font-size: 11px; }
@@ -65,6 +65,103 @@
         .tab-content.active { display: block; }
         .referral-link-container { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
         .referral-link-input { flex: 1; padding: 12px; border: none; border-radius: 8px; background: rgba(255,255,255,0.15); color: white; font-size: 14px; word-break: break-all; }
+        
+        /* Share Modal Styles */
+        .share-modal {
+            display: none;
+            position: fixed;
+            z-index: 10001;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.5);
+            align-items: center;
+            justify-content: center;
+        }
+        .share-modal-content {
+            background-color: white;
+            border-radius: 16px;
+            width: 90%;
+            max-width: 500px;
+            max-height: 80vh;
+            overflow-y: auto;
+            animation: modalSlideIn 0.3s ease;
+        }
+        @keyframes modalSlideIn {
+            from { transform: translateY(-50px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+        .share-modal-header {
+            padding: 20px;
+            border-bottom: 1px solid #eee;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .share-modal-header h3 {
+            margin: 0;
+            color: #333;
+        }
+        .share-modal-close {
+            background: none;
+            border: none;
+            font-size: 24px;
+            cursor: pointer;
+            color: #999;
+        }
+        .share-modal-close:hover {
+            color: #333;
+        }
+        .share-modal-body {
+            padding: 20px;
+        }
+        .share-link-box {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            word-break: break-all;
+        }
+        .share-link-box code {
+            font-size: 12px;
+            color: #03A6A6;
+        }
+        .share-options {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        .share-option-btn {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 16px;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            width: 100%;
+        }
+        .share-option-btn:hover {
+            transform: translateX(5px);
+        }
+        .share-wa { background: #25d366; color: white; }
+        .share-fb { background: #3b5998; color: white; }
+        .share-twitter { background: #1da1f2; color: white; }
+        .share-linkedin { background: #0077b5; color: white; }
+        .share-copy { background: #6c757d; color: white; }
+        .share-option-btn i { font-size: 20px; width: 25px; }
+        .share-message-preview {
+            background: #f0f0f0;
+            padding: 12px;
+            border-radius: 8px;
+            font-size: 12px;
+            color: #666;
+            margin-bottom: 15px;
+        }
         @media (max-width: 768px) {
             .mil-table th, .mil-table td { padding: 8px; font-size: 12px; }
             .referral-link-container { flex-direction: column; }
@@ -146,7 +243,7 @@
                 </div>
             </div>
             
-             <!-- Commission Structure Banner -->
+            <!-- Commission Structure Banner -->
             <div class="mil-cta mil-up">
                 <div class="container">
                     <div class="mil-out-frame mil-p-80-80" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
@@ -160,7 +257,6 @@
                 </div>
             </div>
             <!-- Commission Structure Banner End -->
-        
 
             <!-- ============= REFERRAL LINK SECTION ============= -->
             <div class="mil-blog-list mil-p-80-80">
@@ -204,8 +300,97 @@
                 </div>
             </div>
             <!-- ============= REFERRAL LINK SECTION END ============= -->
+            
+             <!-- All Properties Section - Promotable Properties -->
+            <div class="mil-blog-list mil-p-80-80">
+                <div class="container">
+                    <div class="mil-text-center">
+                        <h2 class="mil-mb-30 mil-up">Properties Available for Promotion</h2>
+                        <p class="mil-text-m mil-soft mil-mb-60 mil-up">Click "Share Link" on any property to get your unique referral link and share it on social media!</p>
+                    </div>
+                    <div class="row" id="propertiesGrid">
+                        <% if (typeof properties !== 'undefined' && properties && properties.length > 0) { %>
+                            <% properties.forEach(function(property) { %>
+                                <div class="col-xl-4 col-md-6 mil-mb-30">
+                                    <div class="mil-price-card mil-up property-card" style="height: 100%;">
+                                        <div class="property-image" style="position: relative; overflow: hidden; border-radius: 15px; margin-bottom: 20px;">
+                                            <% if(property.images && property.images.length > 0) { %>
+                                                <img src="<%= property.images[0].url %>" alt="<%= property.title %>" style="width: 100%; height: 220px; object-fit: cover;">
+                                            <% } else { %>
+                                                <img src="/img/property-placeholder.jpg" alt="<%= property.title %>" style="width: 100%; height: 220px; object-fit: cover;">
+                                            <% } %>
+                                            <div class="property-badges" style="position: absolute; top: 10px; left: 10px;">
+                                                <span class="mil-badge" style="background: #28a745; color: white; padding: 4px 10px; border-radius: 5px; font-size: 11px;">✓ Verified</span>
+                                            </div>
+                                        </div>
+                                        <div class="property-content">
+                                            <div class="mil-flex-between mil-mb-10">
+                                                <h5 class="property-price" style="color: #03A6A6;">₦<%= property.price ? property.price.toLocaleString() : '0' %></h5>
+                                                <span class="mil-text-xs mil-soft"><%= property.transactionType === 'sale' ? 'For Sale' : 'For Rent' %></span>
+                                            </div>
+                                            <h4 class="property-title mil-mb-10"><%= property.title %></h4>
+                                            <p class="mil-text-s mil-soft mil-mb-15"><i class="fa fa-map-marker"></i> <%= property.location ? property.location.city + ', ' + property.location.state : 'Location TBD' %></p>
+                                            <div class="property-features mil-flex-between mil-mb-20">
+                                                <div class="feature-item"><i class="fa fa-bed"></i> <span><%= property.features && property.features.bedrooms ? property.features.bedrooms : '0' %> beds</span></div>
+                                                <div class="feature-item"><i class="fa fa-bath"></i> <span><%= property.features && property.features.bathrooms ? property.features.bathrooms : '0' %> baths</span></div>
+                                                <div class="feature-item"><i class="fa fa-car"></i> <span><%= property.features && property.features.parkingSpaces ? property.features.parkingSpaces : '0' %> parking</span></div>
+                                            </div>
+                                            <div class="property-footer">
+                                                <button class="share-link-btn" onclick="openShareModal('<%= property._id %>', '<%= property.title.replace(/'/g, "\\'") %>')">
+                                                    <i class="fa fa-share-alt"></i> Share Link
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            <% }); %>
+                        <% } else { %>
+                            <div class="col-xl-12">
+                                <div class="mil-price-card mil-up mil-text-center" style="padding: 60px 20px;">
+                                    <i class="fa fa-building-o" style="font-size: 60px; opacity: 0.3; margin-bottom: 20px;"></i>
+                                    <h3 class="mil-mb-15">No Properties Available</h3>
+                                    <p class="mil-text-m mil-soft mil-mb-30">Check back soon for new properties to promote!</p>
+                                </div>
+                            </div>
+                        <% } %>
+                    </div>
+                </div>
+            </div>
+            <!-- All Properties End -->
 
-           
+            <!-- Share Modal -->
+            <div id="shareModal" class="share-modal">
+                <div class="share-modal-content">
+                    <div class="share-modal-header">
+                        <h3><i class="fa fa-share-alt"></i> Share Property</h3>
+                        <button class="share-modal-close" onclick="closeShareModal()">&times;</button>
+                    </div>
+                    <div class="share-modal-body">
+                        <div id="sharePropertyTitle" style="font-weight: 600; margin-bottom: 15px; color: #03A6A6;"></div>
+                        <div class="share-link-box">
+                            <code id="sharePropertyLink">Loading...</code>
+                        </div>
+                        <div class="share-message-preview" id="shareMessagePreview"></div>
+                        <div class="share-options">
+                            <button class="share-option-btn share-wa" onclick="shareToWhatsApp()">
+                                <i class="fa fa-whatsapp"></i> Share on WhatsApp
+                            </button>
+                            <button class="share-option-btn share-fb" onclick="shareToFacebook()">
+                                <i class="fa fa-facebook"></i> Share on Facebook
+                            </button>
+                            <button class="share-option-btn share-twitter" onclick="shareToTwitter()">
+                                <i class="fa fa-twitter"></i> Share on Twitter
+                            </button>
+                            <button class="share-option-btn share-linkedin" onclick="shareToLinkedIn()">
+                                <i class="fa fa-linkedin"></i> Share on LinkedIn
+                            </button>
+                            <button class="share-option-btn share-copy" onclick="copyShareLink()">
+                                <i class="fa fa-copy"></i> Copy Link
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
 
             <!-- ============= PROMOTIONS & REFERRALS TABS ============= -->
             <div class="mil-blog-list mil-p-80-80">
@@ -302,13 +487,13 @@
                 <div class="container">
                     <div class="mil-text-center">
                         <h2 class="mil-mb-30 mil-up">Properties Available for Promotion</h2>
-                        <p class="mil-text-m mil-soft mil-mb-60 mil-up">Click "Promote" on any property to get your unique referral link. When someone clicks and expresses interest, you earn commission!</p>
+                        <p class="mil-text-m mil-soft mil-mb-60 mil-up">Click "Share Link" on any property to get your unique referral link and share it on social media!</p>
                     </div>
                     <div class="row" id="propertiesGrid">
                         <% if (typeof properties !== 'undefined' && properties && properties.length > 0) { %>
                             <% properties.forEach(function(property) { %>
                                 <div class="col-xl-4 col-md-6 mil-mb-30">
-                                    <div class="mil-price-card mil-up" style="height: 100%;">
+                                    <div class="mil-price-card mil-up property-card" style="height: 100%;">
                                         <div class="property-image" style="position: relative; overflow: hidden; border-radius: 15px; margin-bottom: 20px;">
                                             <% if(property.images && property.images.length > 0) { %>
                                                 <img src="<%= property.images[0].url %>" alt="<%= property.title %>" style="width: 100%; height: 220px; object-fit: cover;">
@@ -332,8 +517,8 @@
                                                 <div class="feature-item"><i class="fa fa-car"></i> <span><%= property.features && property.features.parkingSpaces ? property.features.parkingSpaces : '0' %> parking</span></div>
                                             </div>
                                             <div class="property-footer">
-                                                <button class="mil-btn mil-sm mil-accent promote-btn" data-property-id="<%= property._id %>" data-property-title="<%= property.title %>">
-                                                    <i class="fa fa-bullhorn"></i> Promote & Get Link
+                                                <button class="share-link-btn" onclick="openShareModal('<%= property._id %>', '<%= property.title.replace(/'/g, "\\'") %>')">
+                                                    <i class="fa fa-share-alt"></i> Share Link
                                                 </button>
                                             </div>
                                         </div>
@@ -354,7 +539,41 @@
             </div>
             <!-- All Properties End -->
 
-                <!-- Stats Cards -->
+            <!-- Share Modal -->
+            <div id="shareModal" class="share-modal">
+                <div class="share-modal-content">
+                    <div class="share-modal-header">
+                        <h3><i class="fa fa-share-alt"></i> Share Property</h3>
+                        <button class="share-modal-close" onclick="closeShareModal()">&times;</button>
+                    </div>
+                    <div class="share-modal-body">
+                        <div id="sharePropertyTitle" style="font-weight: 600; margin-bottom: 15px; color: #03A6A6;"></div>
+                        <div class="share-link-box">
+                            <code id="sharePropertyLink">Loading...</code>
+                        </div>
+                        <div class="share-message-preview" id="shareMessagePreview"></div>
+                        <div class="share-options">
+                            <button class="share-option-btn share-wa" onclick="shareToWhatsApp()">
+                                <i class="fa fa-whatsapp"></i> Share on WhatsApp
+                            </button>
+                            <button class="share-option-btn share-fb" onclick="shareToFacebook()">
+                                <i class="fa fa-facebook"></i> Share on Facebook
+                            </button>
+                            <button class="share-option-btn share-twitter" onclick="shareToTwitter()">
+                                <i class="fa fa-twitter"></i> Share on Twitter
+                            </button>
+                            <button class="share-option-btn share-linkedin" onclick="shareToLinkedIn()">
+                                <i class="fa fa-linkedin"></i> Share on LinkedIn
+                            </button>
+                            <button class="share-option-btn share-copy" onclick="copyShareLink()">
+                                <i class="fa fa-copy"></i> Copy Link
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Stats Cards -->
             <div class="mil-blog-list mil-p-0-80">
                 <div class="container">
                     <div class="row">
@@ -529,6 +748,9 @@
 
     <script>
         let referralLink = null;
+        let currentSharePropertyId = null;
+        let currentSharePropertyTitle = null;
+        let currentSharePropertyLink = null;
 
         // Tab switching
         function showTab(tabName) {
@@ -579,7 +801,7 @@
             }
         }
 
-        // Share functions
+        // Share functions for referral link
         async function shareOnWhatsApp() {
             if (!referralLink) {
                 alert('Please generate your referral link first.');
@@ -607,6 +829,98 @@
             const text = `Become a promoter using my referral link and earn up to 90% commission on property sales!`;
             window.open(`https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}&url=${encodeURIComponent(referralLink)}`, '_blank', 'width=600,height=400');
             await trackShare('twitter', 'referral');
+        }
+
+        // Property Share Functions
+        async function openShareModal(propertyId, propertyTitle) {
+            currentSharePropertyId = propertyId;
+            currentSharePropertyTitle = propertyTitle;
+            
+            document.getElementById('sharePropertyTitle').innerHTML = `<i class="fa fa-home"></i> ${propertyTitle}`;
+            document.getElementById('shareModal').style.display = 'flex';
+            
+            // Generate or get existing promotion link
+            try {
+                const response = await fetch(`/promoter/api/promotion/${propertyId}`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' }
+                });
+                const data = await response.json();
+                if (data.success) {
+                    currentSharePropertyLink = data.promotion.referralLink;
+                    document.getElementById('sharePropertyLink').innerHTML = currentSharePropertyLink;
+                    
+                    const shareMessage = `🏠 Check out this amazing property: ${propertyTitle}\n\n💰 Price: ₦${data.promotion.price || 'Contact for price'}\n📍 Location: Prime location\n\n🔗 View details: ${currentSharePropertyLink}\n\nShare and earn commission!`;
+                    document.getElementById('shareMessagePreview').innerHTML = shareMessage.substring(0, 150) + '...';
+                } else {
+                    document.getElementById('sharePropertyLink').innerHTML = 'Error generating link. Please try again.';
+                }
+            } catch (error) {
+                console.error('Error generating property link:', error);
+                document.getElementById('sharePropertyLink').innerHTML = 'Error generating link.';
+            }
+        }
+
+        function closeShareModal() {
+            document.getElementById('shareModal').style.display = 'none';
+            currentSharePropertyId = null;
+            currentSharePropertyTitle = null;
+            currentSharePropertyLink = null;
+        }
+
+        function shareToWhatsApp() {
+            if (!currentSharePropertyLink) return;
+            const message = `🏠 Check out this amazing property: ${currentSharePropertyTitle}\n\n🔗 View details: ${currentSharePropertyLink}\n\nShare and earn commission!`;
+            window.open(`https://wa.me/?text=${encodeURIComponent(message)}`, '_blank');
+            trackPropertyShare('whatsapp');
+            closeShareModal();
+        }
+
+        function shareToFacebook() {
+            if (!currentSharePropertyLink) return;
+            window.open(`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(currentSharePropertyLink)}`, '_blank', 'width=600,height=400');
+            trackPropertyShare('facebook');
+            closeShareModal();
+        }
+
+        function shareToTwitter() {
+            if (!currentSharePropertyLink) return;
+            const text = `Check out this property: ${currentSharePropertyTitle}`;
+            window.open(`https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}&url=${encodeURIComponent(currentSharePropertyLink)}`, '_blank', 'width=600,height=400');
+            trackPropertyShare('twitter');
+            closeShareModal();
+        }
+
+        function shareToLinkedIn() {
+            if (!currentSharePropertyLink) return;
+            window.open(`https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(currentSharePropertyLink)}`, '_blank', 'width=600,height=400');
+            trackPropertyShare('linkedin');
+            closeShareModal();
+        }
+
+        function copyShareLink() {
+            if (!currentSharePropertyLink) return;
+            navigator.clipboard.writeText(currentSharePropertyLink);
+            alert('Link copied to clipboard!');
+            trackPropertyShare('copy');
+            closeShareModal();
+        }
+
+        async function trackPropertyShare(platform) {
+            try {
+                await fetch('/promoter/api/track-share', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ 
+                        platform, 
+                        link: currentSharePropertyLink, 
+                        linkType: 'property',
+                        propertyId: currentSharePropertyId
+                    })
+                });
+            } catch (error) {
+                console.error('Error tracking share:', error);
+            }
         }
 
         async function trackShare(platform, linkType) {
@@ -645,7 +959,7 @@
                                             <td>${promo.clicks || 0}</td>
                                             <td>${promo.inquiries || 0}</td>
                                             <td>${new Date(promo.createdAt).toLocaleDateString()}</td>
-                                            <td><button class="mil-btn mil-xs mil-accent" onclick="shareProperty('${promo.referralLink}', '${promo.property?.title}')"><i class="fa fa-share-alt"></i> Share</button></td>
+                                            <td><button class="mil-btn mil-xs mil-accent" onclick="openShareModal('${promo.property?._id}', '${promo.property?.title}')"><i class="fa fa-share-alt"></i> Share</button></td>
                                         </tr>
                                     `).join('')}
                                 </tbody>
@@ -653,7 +967,7 @@
                         </div>
                     `;
                 } else {
-                    container.innerHTML = '<div class="text-center py-4"><p>No active promotions yet. Click "Promote" on any property to get started!</p></div>';
+                    container.innerHTML = '<div class="text-center py-4"><p>No active promotions yet. Click "Share Link" on any property to get started!</p></div>';
                 }
             } catch (error) {
                 console.error('Error loading promotions:', error);
@@ -694,7 +1008,6 @@
                     container.innerHTML = '<div class="text-center py-4"><p>No referrals yet. Share your referral link to invite others!</p></div>';
                 }
                 
-                // Update summary stats
                 document.getElementById('referralClicksCount').innerText = data.stats?.totalClicks || 0;
                 document.getElementById('totalReferralsCount').innerText = data.stats?.totalReferrals || 0;
                 document.getElementById('referralEarningsCount').innerHTML = `₦${(data.stats?.totalEarnings || 0).toLocaleString()}`;
@@ -716,7 +1029,7 @@
                     container.innerHTML = `
                         <div class="mil-table-responsive">
                             <table class="mil-table">
-                                <thead><tr><th>Item</th><th>Type</th><th>IP</th><th>Device</th><th>Clicked At</th><th>Status</th></tr></thead>
+                                <thead><tr><th>Item</th><th>Type</th><th>IP</th><th>Device</th><th>Clicked At</th><th>Status</th></td></thead>
                                 <tbody>
                                     ${data.clicks.map(click => `
                                         <tr>
@@ -782,47 +1095,13 @@
             navigator.clipboard.writeText(text).then(() => alert('Link copied!'), () => alert('Failed to copy'));
         }
 
-        function shareProperty(link, title) {
-            if (navigator.share) {
-                navigator.share({ title, text: 'Check out this property on RevaampAP!', url: link });
-            } else {
-                copyToClipboard(link);
-                alert('Link copied! Share it on your social media.');
+        // Close modal when clicking outside
+        window.onclick = function(event) {
+            const modal = document.getElementById('shareModal');
+            if (event.target === modal) {
+                closeShareModal();
             }
         }
-
-        // Create promotion for property
-        async function createPromotion(propertyId, propertyTitle) {
-            const btn = event.target.closest('.promote-btn');
-            const originalText = btn.innerHTML;
-            btn.innerHTML = '<i class="fa fa-spinner fa-spin"></i> Creating...';
-            btn.disabled = true;
-            
-            try {
-                const response = await fetch(`/promoter/api/promotion/${propertyId}`, { method: 'POST', headers: { 'Content-Type': 'application/json' } });
-                const data = await response.json();
-                if (data.success) {
-                    alert(`Promotion created for "${propertyTitle}"!\n\nShare this link: ${data.promotion.referralLink}`);
-                    loadPromotions();
-                } else {
-                    alert(data.message || 'Error creating promotion.');
-                }
-            } catch (error) {
-                console.error('Error:', error);
-                alert('Error creating promotion.');
-            } finally {
-                btn.innerHTML = originalText;
-                btn.disabled = false;
-            }
-        }
-
-        // Attach promote button handlers
-        document.querySelectorAll('.promote-btn').forEach(btn => {
-            btn.addEventListener('click', function(e) {
-                e.preventDefault();
-                createPromotion(this.dataset.propertyId, this.dataset.propertyTitle);
-            });
-        });
 
         // Newsletter subscription
         function initNewsletter() {
