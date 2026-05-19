@@ -529,6 +529,7 @@ exports.createPromotion = async (req, res) => {
 };
 
 // API: Create promotion API (for the promote button)
+// API: Create promotion API (for the share button)
 exports.createPromotionAPI = async (req, res) => {
     try {
         const { propertyId } = req.params;
@@ -538,16 +539,41 @@ exports.createPromotionAPI = async (req, res) => {
             return res.status(404).json({ success: false, message: 'Property not found' });
         }
         
-        // Generate unique referral link
+        // Generate unique referral code for tracking
         const uniqueCode = crypto.randomBytes(16).toString('hex');
-        const referralLink = `${process.env.BASE_URL || 'http://localhost:3000'}/property/${property.slug}?ref=${uniqueCode}`;
+        
+        // Store the promotion in database
+        let promotion = await Promotion.findOne({
+            promoter: req.session.userId,
+            property: propertyId
+        });
+        
+        if (!promotion) {
+            promotion = new Promotion({
+                promoter: req.session.userId,
+                property: propertyId,
+                referralCode: uniqueCode,
+                referralLink: `${process.env.BASE_URL || 'http://localhost:3000'}/property/${property.slug}?ref=${uniqueCode}`,
+                createdAt: new Date()
+            });
+            await promotion.save();
+        }
+        
+        // The actual property URL with referral parameter for tracking
+        const propertyUrl = `${process.env.BASE_URL || 'http://localhost:3000'}/properties/${property.slug}?ref=${promotion.referralCode}`;
+        
+        // Also provide a tracked link for click tracking
+        const trackedLink = `${process.env.BASE_URL || 'http://localhost:3000'}/r/${promotion.referralCode}`;
         
         res.json({ 
             success: true, 
             promotion: {
-                referralLink: referralLink,
+                referralLink: propertyUrl,  // This is the actual property page URL
+                trackedLink: trackedLink,   // This is for tracking clicks if needed
                 propertyId: property._id,
-                propertyTitle: property.title
+                propertyTitle: property.title,
+                propertySlug: property.slug,
+                price: property.price
             }
         });
     } catch (error) {
@@ -557,6 +583,7 @@ exports.createPromotionAPI = async (req, res) => {
 };
 
 // API: Get all promotions for the promoter
+// API: Get all promotions for the promoter
 exports.getPromoterPromotions = async (req, res) => {
     try {
         const promotions = await Promotion.find({ promoter: req.session.userId })
@@ -565,12 +592,11 @@ exports.getPromoterPromotions = async (req, res) => {
         
         const baseUrl = getBaseUrl(req);
         
-        // Get click and interest counts for each promotion
         const enrichedPromotions = await Promise.all(promotions.map(async (promo) => {
             const property = promo.property;
-            const referralLink = `${baseUrl}/r/${promo.referralCode}`;
+            // Use the actual property URL with referral parameter
+            const referralLink = `${baseUrl}/properties/${property.slug}?ref=${promo.referralCode}`;
             
-            // Get interest count for this promotion
             const interestCount = await Interest.countDocuments({ 
                 promotion: promo._id 
             });
