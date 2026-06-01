@@ -15,6 +15,7 @@ const Property = require('./models/Property');
 const Transaction = require('./models/Transaction');
 const Inquiry = require('./models/Inquiry');
 
+
 // Initialize app
 const app = express();
 
@@ -162,6 +163,9 @@ app.use('/solicitor', require('./routes/solicitorRoutes'));
 // Hotel routes
 app.use('/hotels', require('./routes/hotelRoutes'));
 
+
+const businessPartnerRoutes = require('./routes/businessPartnerRoutes');
+app.use('/business-partner', businessPartnerRoutes);
 // ============= REFERRAL TRACKING ROUTES =============
 // Referral tracking route for promoter referral links
 app.get('/referral/track/:code', async (req, res) => {
