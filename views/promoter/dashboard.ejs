@@ -26,6 +26,9 @@
     <!-- Chart.js -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
+    <!-- QRCode.js -->
+    <script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
+
     <!-- Favicon -->
     <link rel="shortcut icon" href="/favicon.ico" type="image/x-icon">
     <link rel="icon" href="/favicon.ico" type="image/x-icon">
@@ -152,6 +155,7 @@
         .share-fb { background: #3b5998; color: white; }
         .share-twitter { background: #1da1f2; color: white; }
         .share-linkedin { background: #0077b5; color: white; }
+        .share-qr { background: #03A6A6; color: white; }
         .share-copy { background: #6c757d; color: white; }
         .share-option-btn i { font-size: 20px; width: 25px; }
         .share-message-preview {
@@ -161,6 +165,47 @@
             font-size: 12px;
             color: #666;
             margin-bottom: 15px;
+        }
+        
+        /* QR Modal Styles */
+        .qr-modal {
+            display: none;
+            position: fixed;
+            z-index: 10002;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.8);
+            align-items: center;
+            justify-content: center;
+        }
+        .qr-modal-content {
+            background-color: white;
+            border-radius: 20px;
+            width: 90%;
+            max-width: 400px;
+            text-align: center;
+            padding: 30px;
+            animation: modalSlideIn 0.3s ease;
+        }
+        .qr-code-container {
+            background: white;
+            padding: 20px;
+            border-radius: 12px;
+            margin: 20px 0;
+            display: flex;
+            justify-content: center;
+        }
+        .qr-download-btn {
+            background: #03A6A6;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            margin-top: 15px;
+            width: 100%;
         }
         @media (max-width: 768px) {
             .mil-table th, .mil-table td { padding: 8px; font-size: 12px; }
@@ -287,6 +332,9 @@
                                         <button class="mil-btn mil-md mil-light" onclick="shareOnTwitter()">
                                             <i class="fa fa-twitter"></i> Share on Twitter
                                         </button>
+                                        <button class="mil-btn mil-md mil-light" onclick="showQRCodeForReferral()">
+                                            <i class="fa fa-qrcode"></i> Share QR Code
+                                        </button>
                                     </div>
                                     <div class="mil-mt-20">
                                         <small style="color: rgba(255,255,255,0.7);">
@@ -301,7 +349,7 @@
             </div>
             <!-- ============= REFERRAL LINK SECTION END ============= -->
             
-             <!-- All Properties Section - Promotable Properties -->
+            <!-- All Properties Section - Promotable Properties -->
             <div class="mil-blog-list mil-p-80-80">
                 <div class="container">
                     <div class="mil-text-center">
@@ -384,11 +432,30 @@
                             <button class="share-option-btn share-linkedin" onclick="shareToLinkedIn()">
                                 <i class="fa fa-linkedin"></i> Share on LinkedIn
                             </button>
+                            <button class="share-option-btn share-qr" onclick="showQRCodeForProperty()">
+                                <i class="fa fa-qrcode"></i> Generate QR Code
+                            </button>
                             <button class="share-option-btn share-copy" onclick="copyShareLink()">
                                 <i class="fa fa-copy"></i> Copy Link
                             </button>
                         </div>
                     </div>
+                </div>
+            </div>
+
+            <!-- QR Code Modal -->
+            <div id="qrModal" class="qr-modal">
+                <div class="qr-modal-content">
+                    <h3><i class="fa fa-qrcode"></i> Scan QR Code</h3>
+                    <div class="qr-code-container" id="qrCodeContainer"></div>
+                    <p id="qrDescription" style="margin: 10px 0; color: #666;">Scan to view this property</p>
+                    <button class="qr-download-btn" onclick="downloadQRCode()">
+                        <i class="fa fa-download"></i> Download QR Code
+                    </button>
+                    <button class="share-option-btn share-wa" style="margin-top: 10px;" onclick="shareQRCode()">
+                        <i class="fa fa-whatsapp"></i> Share QR Code
+                    </button>
+                    <button class="share-modal-close" style="margin-top: 15px; background: none; border: none; color: #999; cursor: pointer;" onclick="closeQRModal()">Close</button>
                 </div>
             </div>
 
@@ -481,97 +548,6 @@
                 </div>
             </div>
             <!-- ============= PROMOTIONS & REFERRALS TABS END ============= -->
-
-            <!-- All Properties Section - Promotable Properties -->
-            <div class="mil-blog-list mil-p-80-80">
-                <div class="container">
-                    <div class="mil-text-center">
-                        <h2 class="mil-mb-30 mil-up">Properties Available for Promotion</h2>
-                        <p class="mil-text-m mil-soft mil-mb-60 mil-up">Click "Share Link" on any property to get your unique referral link and share it on social media!</p>
-                    </div>
-                    <div class="row" id="propertiesGrid">
-                        <% if (typeof properties !== 'undefined' && properties && properties.length > 0) { %>
-                            <% properties.forEach(function(property) { %>
-                                <div class="col-xl-4 col-md-6 mil-mb-30">
-                                    <div class="mil-price-card mil-up property-card" style="height: 100%;">
-                                        <div class="property-image" style="position: relative; overflow: hidden; border-radius: 15px; margin-bottom: 20px;">
-                                            <% if(property.images && property.images.length > 0) { %>
-                                                <img src="<%= property.images[0].url %>" alt="<%= property.title %>" style="width: 100%; height: 220px; object-fit: cover;">
-                                            <% } else { %>
-                                                <img src="/img/property-placeholder.jpg" alt="<%= property.title %>" style="width: 100%; height: 220px; object-fit: cover;">
-                                            <% } %>
-                                            <div class="property-badges" style="position: absolute; top: 10px; left: 10px;">
-                                                <span class="mil-badge" style="background: #28a745; color: white; padding: 4px 10px; border-radius: 5px; font-size: 11px;">✓ Verified</span>
-                                            </div>
-                                        </div>
-                                        <div class="property-content">
-                                            <div class="mil-flex-between mil-mb-10">
-                                                <h5 class="property-price" style="color: #03A6A6;">₦<%= property.price ? property.price.toLocaleString() : '0' %></h5>
-                                                <span class="mil-text-xs mil-soft"><%= property.transactionType === 'sale' ? 'For Sale' : 'For Rent' %></span>
-                                            </div>
-                                            <h4 class="property-title mil-mb-10"><%= property.title %></h4>
-                                            <p class="mil-text-s mil-soft mil-mb-15"><i class="fa fa-map-marker"></i> <%= property.location ? property.location.city + ', ' + property.location.state : 'Location TBD' %></p>
-                                            <div class="property-features mil-flex-between mil-mb-20">
-                                                <div class="feature-item"><i class="fa fa-bed"></i> <span><%= property.features && property.features.bedrooms ? property.features.bedrooms : '0' %> beds</span></div>
-                                                <div class="feature-item"><i class="fa fa-bath"></i> <span><%= property.features && property.features.bathrooms ? property.features.bathrooms : '0' %> baths</span></div>
-                                                <div class="feature-item"><i class="fa fa-car"></i> <span><%= property.features && property.features.parkingSpaces ? property.features.parkingSpaces : '0' %> parking</span></div>
-                                            </div>
-                                            <div class="property-footer">
-                                                <button class="share-link-btn" onclick="openShareModal('<%= property._id %>', '<%= property.title.replace(/'/g, "\\'") %>')">
-                                                    <i class="fa fa-share-alt"></i> Share Link
-                                                </button>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            <% }); %>
-                        <% } else { %>
-                            <div class="col-xl-12">
-                                <div class="mil-price-card mil-up mil-text-center" style="padding: 60px 20px;">
-                                    <i class="fa fa-building-o" style="font-size: 60px; opacity: 0.3; margin-bottom: 20px;"></i>
-                                    <h3 class="mil-mb-15">No Properties Available</h3>
-                                    <p class="mil-text-m mil-soft mil-mb-30">Check back soon for new properties to promote!</p>
-                                </div>
-                            </div>
-                        <% } %>
-                    </div>
-                </div>
-            </div>
-            <!-- All Properties End -->
-
-            <!-- Share Modal -->
-            <div id="shareModal" class="share-modal">
-                <div class="share-modal-content">
-                    <div class="share-modal-header">
-                        <h3><i class="fa fa-share-alt"></i> Share Property</h3>
-                        <button class="share-modal-close" onclick="closeShareModal()">&times;</button>
-                    </div>
-                    <div class="share-modal-body">
-                        <div id="sharePropertyTitle" style="font-weight: 600; margin-bottom: 15px; color: #03A6A6;"></div>
-                        <div class="share-link-box">
-                            <code id="sharePropertyLink">Loading...</code>
-                        </div>
-                        <div class="share-message-preview" id="shareMessagePreview"></div>
-                        <div class="share-options">
-                            <button class="share-option-btn share-wa" onclick="shareToWhatsApp()">
-                                <i class="fa fa-whatsapp"></i> Share on WhatsApp
-                            </button>
-                            <button class="share-option-btn share-fb" onclick="shareToFacebook()">
-                                <i class="fa fa-facebook"></i> Share on Facebook
-                            </button>
-                            <button class="share-option-btn share-twitter" onclick="shareToTwitter()">
-                                <i class="fa fa-twitter"></i> Share on Twitter
-                            </button>
-                            <button class="share-option-btn share-linkedin" onclick="shareToLinkedIn()">
-                                <i class="fa fa-linkedin"></i> Share on LinkedIn
-                            </button>
-                            <button class="share-option-btn share-copy" onclick="copyShareLink()">
-                                <i class="fa fa-copy"></i> Copy Link
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            </div>
 
             <!-- Stats Cards -->
             <div class="mil-blog-list mil-p-0-80">
@@ -751,6 +727,7 @@
         let currentSharePropertyId = null;
         let currentSharePropertyTitle = null;
         let currentSharePropertyLink = null;
+        let currentQRCode = null;
 
         // Tab switching
         function showTab(tabName) {
@@ -831,82 +808,158 @@
             await trackShare('twitter', 'referral');
         }
 
-        // Property Share Functions
-        // Property Share Functions
-async function openShareModal(propertyId, propertyTitle) {
-    currentSharePropertyId = propertyId;
-    currentSharePropertyTitle = propertyTitle;
-    
-    document.getElementById('sharePropertyTitle').innerHTML = `<i class="fa fa-home"></i> ${propertyTitle}`;
-    document.getElementById('shareModal').style.display = 'flex';
-    
-    // Show loading state
-    document.getElementById('sharePropertyLink').innerHTML = 'Generating link...';
-    document.getElementById('shareMessagePreview').innerHTML = 'Loading...';
-    
-    try {
-        const response = await fetch(`/promoter/api/promotion/${propertyId}`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' }
-        });
-        const data = await response.json();
-        
-        if (data.success) {
-            // Use the referralLink which should be the actual property URL with ref parameter
-            currentSharePropertyLink = data.promotion.referralLink;
-            document.getElementById('sharePropertyLink').innerHTML = currentSharePropertyLink;
+        // Show QR Code for Referral Link
+        function showQRCodeForReferral() {
+            if (!referralLink) {
+                alert('Please generate your referral link first.');
+                return;
+            }
+            const modal = document.getElementById('qrModal');
+            const container = document.getElementById('qrCodeContainer');
+            const description = document.getElementById('qrDescription');
             
-            // Create a share message preview
-            const shareMessage = `🏠 Check out this amazing property: ${propertyTitle}\n\n🔗 View details: ${currentSharePropertyLink}\n\nShare and earn commission!`;
-            document.getElementById('shareMessagePreview').innerHTML = shareMessage.substring(0, 150) + (shareMessage.length > 150 ? '...' : '');
-        } else {
-            document.getElementById('sharePropertyLink').innerHTML = 'Error generating link. Please try again.';
-            document.getElementById('shareMessagePreview').innerHTML = 'Error. Please refresh and try again.';
+            container.innerHTML = '';
+            description.innerHTML = 'Scan to join as a promoter and start earning!';
+            
+            new QRCode(container, {
+                text: referralLink,
+                width: 200,
+                height: 200,
+                colorDark: '#03A6A6',
+                colorLight: '#ffffff',
+                correctLevel: QRCode.CorrectLevel.H
+            });
+            
+            currentQRCode = referralLink;
+            modal.style.display = 'flex';
         }
-    } catch (error) {
-        console.error('Error generating property link:', error);
-        document.getElementById('sharePropertyLink').innerHTML = 'Error generating link. Please try again.';
-        document.getElementById('shareMessagePreview').innerHTML = 'Network error. Please check your connection.';
-    }
-}
 
-function shareToWhatsApp() {
-    if (!currentSharePropertyLink) return;
-    const message = `🏠 Check out this property: ${currentSharePropertyTitle}\n\n🔗 View details: ${currentSharePropertyLink}\n\nShare and earn commission!`;
-    window.open(`https://wa.me/?text=${encodeURIComponent(message)}`, '_blank');
-    trackPropertyShare('whatsapp');
-    closeShareModal();
-}
+        // Property Share Functions
+        async function openShareModal(propertyId, propertyTitle) {
+            currentSharePropertyId = propertyId;
+            currentSharePropertyTitle = propertyTitle;
+            
+            document.getElementById('sharePropertyTitle').innerHTML = `<i class="fa fa-home"></i> ${propertyTitle}`;
+            document.getElementById('shareModal').style.display = 'flex';
+            
+            document.getElementById('sharePropertyLink').innerHTML = 'Generating link...';
+            document.getElementById('shareMessagePreview').innerHTML = 'Loading...';
+            
+            try {
+                const response = await fetch(`/promoter/api/promotion/${propertyId}`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' }
+                });
+                const data = await response.json();
+                
+                if (data.success) {
+                    currentSharePropertyLink = data.promotion.referralLink;
+                    document.getElementById('sharePropertyLink').innerHTML = currentSharePropertyLink;
+                    
+                    const shareMessage = `🏠 Check out this amazing property: ${propertyTitle}\n\n🔗 View details: ${currentSharePropertyLink}\n\nShare and earn commission!`;
+                    document.getElementById('shareMessagePreview').innerHTML = shareMessage.substring(0, 150) + (shareMessage.length > 150 ? '...' : '');
+                } else {
+                    document.getElementById('sharePropertyLink').innerHTML = 'Error generating link. Please try again.';
+                }
+            } catch (error) {
+                console.error('Error generating property link:', error);
+                document.getElementById('sharePropertyLink').innerHTML = 'Error generating link.';
+            }
+        }
 
-function shareToFacebook() {
-    if (!currentSharePropertyLink) return;
-    window.open(`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(currentSharePropertyLink)}`, '_blank', 'width=600,height=400');
-    trackPropertyShare('facebook');
-    closeShareModal();
-}
+        function closeShareModal() {
+            document.getElementById('shareModal').style.display = 'none';
+            currentSharePropertyId = null;
+            currentSharePropertyTitle = null;
+            currentSharePropertyLink = null;
+        }
 
-function shareToTwitter() {
-    if (!currentSharePropertyLink) return;
-    const text = `Check out this property: ${currentSharePropertyTitle}`;
-    window.open(`https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}&url=${encodeURIComponent(currentSharePropertyLink)}`, '_blank', 'width=600,height=400');
-    trackPropertyShare('twitter');
-    closeShareModal();
-}
+        function shareToWhatsApp() {
+            if (!currentSharePropertyLink) return;
+            const message = `🏠 Check out this property: ${currentSharePropertyTitle}\n\n🔗 View details: ${currentSharePropertyLink}\n\nShare and earn commission!`;
+            window.open(`https://wa.me/?text=${encodeURIComponent(message)}`, '_blank');
+            trackPropertyShare('whatsapp');
+            closeShareModal();
+        }
 
-function shareToLinkedIn() {
-    if (!currentSharePropertyLink) return;
-    window.open(`https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(currentSharePropertyLink)}`, '_blank', 'width=600,height=400');
-    trackPropertyShare('linkedin');
-    closeShareModal();
-}
+        function shareToFacebook() {
+            if (!currentSharePropertyLink) return;
+            window.open(`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(currentSharePropertyLink)}`, '_blank', 'width=600,height=400');
+            trackPropertyShare('facebook');
+            closeShareModal();
+        }
 
-function copyShareLink() {
-    if (!currentSharePropertyLink) return;
-    navigator.clipboard.writeText(currentSharePropertyLink);
-    alert('Link copied to clipboard!');
-    trackPropertyShare('copy');
-    closeShareModal();
-}
+        function shareToTwitter() {
+            if (!currentSharePropertyLink) return;
+            const text = `Check out this property: ${currentSharePropertyTitle}`;
+            window.open(`https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}&url=${encodeURIComponent(currentSharePropertyLink)}`, '_blank', 'width=600,height=400');
+            trackPropertyShare('twitter');
+            closeShareModal();
+        }
+
+        function shareToLinkedIn() {
+            if (!currentSharePropertyLink) return;
+            window.open(`https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(currentSharePropertyLink)}`, '_blank', 'width=600,height=400');
+            trackPropertyShare('linkedin');
+            closeShareModal();
+        }
+
+        function copyShareLink() {
+            if (!currentSharePropertyLink) return;
+            navigator.clipboard.writeText(currentSharePropertyLink);
+            alert('Link copied to clipboard!');
+            trackPropertyShare('copy');
+            closeShareModal();
+        }
+
+        // Show QR Code for Property
+        function showQRCodeForProperty() {
+            if (!currentSharePropertyLink) {
+                alert('Please generate the property link first.');
+                return;
+            }
+            const modal = document.getElementById('qrModal');
+            const container = document.getElementById('qrCodeContainer');
+            const description = document.getElementById('qrDescription');
+            
+            container.innerHTML = '';
+            description.innerHTML = `Scan to view ${currentSharePropertyTitle}`;
+            
+            new QRCode(container, {
+                text: currentSharePropertyLink,
+                width: 200,
+                height: 200,
+                colorDark: '#03A6A6',
+                colorLight: '#ffffff',
+                correctLevel: QRCode.CorrectLevel.H
+            });
+            
+            currentQRCode = currentSharePropertyLink;
+            modal.style.display = 'flex';
+            closeShareModal();
+        }
+
+        function closeQRModal() {
+            document.getElementById('qrModal').style.display = 'none';
+            currentQRCode = null;
+        }
+
+        function downloadQRCode() {
+            if (!currentQRCode) return;
+            const canvas = document.querySelector('#qrCodeContainer canvas');
+            if (canvas) {
+                const link = document.createElement('a');
+                link.download = 'qrcode.png';
+                link.href = canvas.toDataURL();
+                link.click();
+            }
+        }
+
+        function shareQRCode() {
+            if (!currentQRCode) return;
+            const message = `Check this out on RevaampAP!\n\nScan the QR code or visit: ${currentQRCode}`;
+            window.open(`https://wa.me/?text=${encodeURIComponent(message)}`, '_blank');
+        }
 
         async function trackPropertyShare(platform) {
             try {
@@ -989,7 +1042,7 @@ function copyShareLink() {
                         <div class="mil-table-responsive">
                             <table class="mil-table">
                                 <thead>
-                                    <tr><th>Name</th><th>Email</th><th>Phone</th><th>Status</th><th>Registered</th><th>Earnings</th></tr>
+                                    <td><th>Name</th><th>Email</th><th>Phone</th><th>Status</th><th>Registered</th><th>Earnings</th></tr>
                                 </thead>
                                 <tbody>
                                     ${data.referrals.map(ref => `
@@ -1067,7 +1120,7 @@ function copyShareLink() {
                     container.innerHTML = `
                         <div class="mil-table-responsive">
                             <table class="mil-table">
-                                <thead><tr><th>Item</th><th>Buyer</th><th>Email</th><th>Amount</th><th>Commission</th><th>Date</th></tr></thead>
+                                <thead><td><th>Item</th><th>Buyer</th><th>Email</th><th>Amount</th><th>Commission</th><th>Date</th></tr></thead>
                                 <tbody>
                                     ${data.conversions.map(conv => `
                                         <tr>
@@ -1099,9 +1152,13 @@ function copyShareLink() {
 
         // Close modal when clicking outside
         window.onclick = function(event) {
-            const modal = document.getElementById('shareModal');
-            if (event.target === modal) {
+            const shareModal = document.getElementById('shareModal');
+            const qrModal = document.getElementById('qrModal');
+            if (event.target === shareModal) {
                 closeShareModal();
+            }
+            if (event.target === qrModal) {
+                closeQRModal();
             }
         }
 
@@ -1132,4 +1189,5 @@ function copyShareLink() {
         });
     </script>
 </body>
+
 </html>
