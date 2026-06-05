@@ -1,0 +1,746 @@
+<!DOCTYPE html>
+<html lang="en-US">
+
+<head>
+    <title>How Revaamp APA Works - RevaampAP</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="author" content="RevaampAP" />
+    <meta name="description" content="Learn how Revaamp APA works - Simple and transparent process for buyers, realtors, and agents. Start finding properties and earning commissions today!" />
+
+    <link rel="stylesheet" href="/fonts/css/switzer.css" type="text/css" media="all">
+    <link rel="stylesheet" href="/fonts/css/font-awesome.min.css" type="text/css" media="all">
+    <link rel="stylesheet" href="/css/plugins/bootstrap-grid.css" type="text/css" media="all">
+    <link rel="stylesheet" href="/css/plugins/swiper.min.css" type="text/css" media="all">
+    <link rel="stylesheet" href="/css/plugins/magnific-popup.css" type="text/css" media="all">
+    <link rel="stylesheet" href="/css/style.css" type="text/css" media="all">
+    <link rel="stylesheet" href="/css/custom.css" type="text/css" media="all">
+    <link rel="shortcut icon" href="/favicon.ico" type="image/x-icon">
+    <link rel="icon" href="/favicon.ico" type="image/x-icon">
+
+    <style>
+        .dropdown-menu { display: none; }
+        .dropdown:hover .dropdown-menu,
+        .dropdown .dropdown-menu.show { display: block; }
+
+        /* ── Role Tabs ── */
+        .role-tabs { margin-top: 30px; }
+        .role-tabs .nav-pills {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+        .role-tabs .nav-pills .nav-link {
+            padding: 15px 30px;
+            border-radius: 50px;
+            color: #333;
+            background: #f8f9fa;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+        .role-tabs .nav-pills .nav-link i { margin-right: 10px; }
+        .role-tabs .nav-pills .nav-link.active {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+        .role-tabs .nav-pills .nav-link:hover:not(.active) {
+            background: #e9ecef;
+            transform: translateY(-2px);
+        }
+
+        /* Tab panes */
+        .tab-pane { display: none; }
+        .tab-pane.active { display: block; }
+
+        /* ── How-work cards ── */
+        .how-work-box {
+            background: white;
+            border-radius: 20px;
+            padding: 40px 30px;
+            text-align: center;
+            transition: all 0.3s ease;
+            height: 100%;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.05);
+        }
+        .how-work-box:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 15px 30px rgba(0,0,0,0.1);
+        }
+        .how-work-box span {
+            width: 100px;
+            height: 100px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            margin-bottom: 25px;
+        }
+        .how-work-box span img {
+            width: 50px;
+            height: 50px;
+            filter: brightness(0) invert(1);
+        }
+        .how-work-inner h3 {
+            font-size: 22px;
+            font-weight: 700;
+            margin-bottom: 15px;
+            color: #333;
+        }
+        .how-work-inner p { color: #666; line-height: 1.6; }
+
+        /* ── Feature cards ── */
+        .feature-card {
+            background: white;
+            border-radius: 16px;
+            padding: 25px;
+            height: 100%;
+            transition: all 0.3s ease;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.05);
+        }
+        .feature-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        }
+        .feature-card i { font-size: 40px; margin-bottom: 15px; }
+
+        /* ── Benefits box ── */
+        .benefits-box {
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 5px 30px rgba(0,0,0,0.1);
+        }
+        .benefits-box ul li { margin-bottom: 12px; font-size: 16px; }
+        .benefits-box ul li i { margin-right: 10px; }
+
+        /* ── Commission card ── */
+        .commission-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 20px;
+            padding: 40px;
+        }
+        .commission-item h2 {
+            font-size: 48px;
+            font-weight: 700;
+            margin-bottom: 10px;
+        }
+        .commission-item p { font-size: 16px; opacity: 0.9; }
+
+        /* ── FAQ Accordion ── */
+        .faq-item {
+            background: white;
+            border-radius: 12px;
+            margin-bottom: 15px;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.05);
+            overflow: hidden;
+        }
+        .faq-question {
+            width: 100%;
+            text-align: left;
+            padding: 20px;
+            color: #333;
+            font-weight: 600;
+            font-size: 16px;
+            background: white;
+            border: none;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: background 0.2s ease;
+        }
+        .faq-question:hover { background: #f8f9fa; }
+        .faq-icon {
+            font-style: normal;
+            font-size: 18px;
+            color: #03A6A6;
+            font-weight: 700;
+            flex-shrink: 0;
+            margin-left: 12px;
+            transition: transform 0.3s ease;
+        }
+        .faq-answer {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.35s ease, padding 0.35s ease;
+            padding: 0 20px;
+            color: #666;
+            line-height: 1.6;
+        }
+        .faq-item.open .faq-answer {
+            max-height: 300px;
+            padding: 0 20px 20px;
+        }
+        .faq-item.open .faq-icon { transform: rotate(45deg); }
+
+        /* ── Buttons ── */
+        .thm-btn {
+            display: inline-block;
+            padding: 14px 35px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-radius: 50px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            border: none;
+        }
+        .thm-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102,126,234,0.4);
+            color: white;
+        }
+
+        /* ── CTA Section ── */
+        .cta-inner { text-align: center; }
+        .cta-buttons {
+            display: flex;
+            gap: 20px;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin-top: 40px;
+        }
+        .cta-btn {
+            display: inline-block;
+            padding: 14px 40px;
+            border-radius: 50px;
+            font-weight: 600;
+            font-size: 16px;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            border: 2px solid white;
+            color: white;
+            background: transparent;
+        }
+        .cta-btn:hover {
+            background: white;
+            color: #667eea;
+        }
+
+        /* ── Misc ── */
+        .gray-bg { background: #f8f9fa; }
+        .mil-banner-inner { padding: 100px 0; }
+        .mil-breadcrumbs {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+        }
+        .mil-breadcrumbs li:not(:last-child):after {
+            content: '/';
+            margin-left: 10px;
+            color: #999;
+        }
+        .mil-breadcrumbs a { color: #999; text-decoration: none; }
+        .mil-breadcrumbs a:hover { color: #03A6A6; }
+        .mil-p-80-80 { padding: 80px 0; }
+        .mil-mb-60 { margin-bottom: 60px; }
+        .mil-mb-30 { margin-bottom: 30px; }
+        .mil-up { transition: transform 0.3s ease, opacity 0.3s ease; }
+
+        @media (max-width: 768px) {
+            .role-tabs .nav-pills .nav-link {
+                display: block;
+                margin: 5px 0;
+                text-align: center;
+            }
+            .how-work-box { margin-bottom: 20px; }
+            .commission-item h2 { font-size: 36px; }
+            .benefits-box { padding: 25px; }
+            .cta-buttons { flex-direction: column; align-items: center; }
+        }
+    </style>
+</head>
+
+<body>
+
+    <div id="smooth-wrapper" class="mil-wrapper">
+
+        <div class="mil-preloader">
+            <div class="mil-load"></div>
+            <p class="h2 mil-mb-30"><span class="mil-light mil-counter" data-number="100">100</span><span class="mil-light">%</span></p>
+        </div>
+
+        <div class="mil-progress-track">
+            <div class="mil-progress"></div>
+        </div>
+
+        <div class="progress-wrap active-progress"></div>
+
+        <!-- top panel -->
+        <div class="mil-top-panel">
+            <div class="container">
+                <a href="/" class="mil-logo">
+                    <img src="/img/logo.png" alt="RevaampAP" width="83" height="32">
+                </a>
+                <nav class="mil-top-menu">
+                    <ul>
+                        <li><a href="/">Home</a></li>
+                        <li><a href="/properties">Properties</a></li>
+                        <li><a href="/how-it-works" class="mil-active">How It Works</a></li>
+                        <li><a href="/about">About</a></li>
+                        <li><a href="/contact">Contact</a></li>
+                    </ul>
+                </nav>
+                <div class="mil-menu-buttons">
+                    <% if (typeof user !== 'undefined' && user) { %>
+                        <div class="dropdown" style="position: relative;">
+                            <a href="#" class="mil-btn mil-sm dropdown-toggle" data-bs-toggle="dropdown" style="display: flex; align-items: center; gap: 8px;">
+                                <i class="fa fa-user-circle" style="font-size: 18px;"></i>
+                                <span><%= user.name %></span>
+                                <i class="fa fa-chevron-down" style="font-size: 12px;"></i>
+                            </a>
+                            <ul class="dropdown-menu" style="position: absolute; right: 0; top: 100%; min-width: 220px; background: white; border-radius: 12px; box-shadow: 0 10px 30px rgba(0,0,0,0.15); padding: 10px 0; margin-top: 10px; z-index: 1000;">
+                                <li><a href="/dashboard"><i class="fa fa-tachometer"></i> Dashboard</a></li>
+                                <li><a href="/logout"><i class="fa fa-sign-out-alt"></i> Logout</a></li>
+                            </ul>
+                        </div>
+                    <% } else { %>
+                        <a href="/login" class="mil-btn mil-sm">Log in</a>
+                        <a href="/register" class="mil-btn mil-sm mil-light">List Property</a>
+                    <% } %>
+                    <div class="mil-menu-btn">
+                        <span></span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- top panel end -->
+
+        <div id="smooth-content">
+
+            <!-- banner -->
+            <div class="mil-banner mil-banner-inner mil-dissolve">
+                <div class="container">
+                    <div class="row align-items-center justify-content-center">
+                        <div class="col-xl-8">
+                            <div class="mil-banner-text mil-text-center">
+                                <div class="mil-text-m mil-mb-20 mil-up">Simple & Transparent Process</div>
+                                <h1 class="mil-mb-60 mil-up">How Revaamp APA Works</h1>
+                                <ul class="mil-breadcrumbs mil-pub-info mil-center mil-up">
+                                    <li><a href="/">Home</a></li>
+                                    <li><a href="/how-it-works">How It Works</a></li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- banner end -->
+
+            <!-- Role Tabs -->
+            <div class="mil-blog-list mil-p-80-80">
+                <div class="container">
+                    <div class="sec-title text-center w-100 mil-mb-60">
+                        <span class="mil-text-m mil-accent mil-up">Three Ways to Use Revaamp APA</span>
+                        <h2 class="mil-mb-30 mil-up">Choose Your Role</h2>
+                        <p class="mil-text-m mil-soft mil-up">Whether you're looking to buy, sell, or earn commissions, we've got you covered</p>
+                    </div>
+
+                    <div class="role-tabs text-center">
+                        <ul class="nav nav-pills justify-content-center" id="roleTabs">
+                            <li class="nav-item">
+                                <a class="nav-link active" data-tab="buyer">
+                                    <i class="fa fa-home"></i> Buyers &amp; Tenants
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" data-tab="realtor">
+                                    <i class="fa fa-building"></i> Realtors
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" data-tab="agent">
+                                    <i class="fa fa-user-tie"></i> Agents
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
+
+                    <!-- Tab Content -->
+                    <div class="mt-5" id="roleTabContent">
+
+                        <!-- Buyers & Tenants -->
+                        <div class="tab-pane active" id="tab-buyer">
+                            <div class="row">
+                                <div class="col-md-4">
+                                    <div class="how-work-box mil-up">
+                                        <span><img class="img-fluid" src="/assets/images/icons/search-icon.png" alt="Search"></span>
+                                        <div class="how-work-inner">
+                                            <h3>1. Search Properties</h3>
+                                            <p>Browse thousands of verified properties across Nigeria. Filter by type, location, price, and more.</p>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="how-work-box mil-up">
+                                        <span><img class="img-fluid" src="/assets/images/icons/view-icon.png" alt="View"></span>
+                                        <div class="how-work-inner">
+                                            <h3>2. View &amp; Compare</h3>
+                                            <p>View detailed property information, high-quality images, and compare multiple options side by side.</p>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="how-work-box mil-up">
+                                        <span><img class="img-fluid" src="/assets/images/icons/contact-icon.png" alt="Contact"></span>
+                                        <div class="how-work-inner">
+                                            <h3>3. Connect &amp; Close</h3>
+                                            <p>Contact the realtor directly or work with an agent to schedule viewings and complete your transaction.</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row mt-5">
+                                <div class="col-md-6">
+                                    <div class="feature-card mil-up">
+                                        <i class="fa fa-check-circle" style="color: #28a745;"></i>
+                                        <h4>Verified Properties</h4>
+                                        <p>All properties on our platform are verified by our team to ensure authenticity and accuracy.</p>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="feature-card mil-up">
+                                        <i class="fa fa-shield-alt" style="color: #03A6A6;"></i>
+                                        <h4>Secure Transactions</h4>
+                                        <p>Your payments and personal information are protected with industry-standard security.</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Realtors -->
+                        <div class="tab-pane" id="tab-realtor">
+                            <div class="row">
+                                <div class="col-md-4">
+                                    <div class="how-work-box mil-up">
+                                        <span><img class="img-fluid" src="/assets/images/icons/register-icon.png" alt="Register"></span>
+                                        <div class="how-work-inner">
+                                            <h3>1. Create Account</h3>
+                                            <p>Register as a realtor for free. Provide your company details and get verified by our team.</p>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="how-work-box mil-up">
+                                        <span><img class="img-fluid" src="/assets/images/icons/list-icon.png" alt="List"></span>
+                                        <div class="how-work-inner">
+                                            <h3>2. List Properties</h3>
+                                            <p>Add unlimited properties with detailed information, high-quality images, and videos.</p>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="how-work-box mil-up">
+                                        <span><img class="img-fluid" src="/assets/images/icons/lead-icon.png" alt="Leads"></span>
+                                        <div class="how-work-inner">
+                                            <h3>3. Get Leads</h3>
+                                            <p>Receive inquiries from potential buyers and tenants. Track views and engagement.</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="benefits-box mt-5 mil-up">
+                                <h3 class="text-center mb-4">Why List with Revaamp APA?</h3>
+                                <div class="row">
+                                    <div class="col-md-4">
+                                        <ul class="list-unstyled">
+                                            <li><i class="fa fa-check-circle" style="color: #28a745;"></i> Free to list</li>
+                                            <li><i class="fa fa-check-circle" style="color: #28a745;"></i> Unlimited properties</li>
+                                            <li><i class="fa fa-check-circle" style="color: #28a745;"></i> Verified leads</li>
+                                        </ul>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <ul class="list-unstyled">
+                                            <li><i class="fa fa-check-circle" style="color: #28a745;"></i> Analytics dashboard</li>
+                                            <li><i class="fa fa-check-circle" style="color: #28a745;"></i> Agent network access</li>
+                                            <li><i class="fa fa-check-circle" style="color: #28a745;"></i> Featured opportunities</li>
+                                        </ul>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <ul class="list-unstyled">
+                                            <li><i class="fa fa-check-circle" style="color: #28a745;"></i> 24/7 support</li>
+                                            <li><i class="fa fa-check-circle" style="color: #28a745;"></i> Marketing tools</li>
+                                            <li><i class="fa fa-check-circle" style="color: #28a745;"></i> Performance insights</li>
+                                        </ul>
+                                    </div>
+                                </div>
+                                <div class="text-center mt-4">
+                                    <a href="/register" class="thm-btn">Start Listing Today</a>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Agents -->
+                        <div class="tab-pane" id="tab-agent">
+                            <div class="row">
+                                <div class="col-md-4">
+                                    <div class="how-work-box mil-up">
+                                        <span><img class="img-fluid" src="/assets/images/icons/agent-register-icon.png" alt="Register"></span>
+                                        <div class="how-work-inner">
+                                            <h3>1. Register &amp; Pay Fee</h3>
+                                            <p>Pay a one-time registration fee of ₦5,000 to become a verified agent.</p>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="how-work-box mil-up">
+                                        <span><img class="img-fluid" src="/assets/images/icons/referral-icon.png" alt="Referral"></span>
+                                        <div class="how-work-inner">
+                                            <h3>2. Get Unique Links</h3>
+                                            <p>Receive unique referral links for each property to share on social media.</p>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="how-work-box mil-up">
+                                        <span><img class="img-fluid" src="/assets/images/icons/earn-icon.png" alt="Earn"></span>
+                                        <div class="how-work-inner">
+                                            <h3>3. Earn 70% Commission</h3>
+                                            <p>Earn 70% of the agency fee on every successful transaction from your referrals.</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="commission-card mt-5 text-white text-center mil-up">
+                                <h3 class="mb-4">Commission Structure</h3>
+                                <div class="row">
+                                    <div class="col-md-4">
+                                        <div class="commission-item">
+                                            <h2 class="text-warning">70%</h2>
+                                            <p>Agent Commission</p>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <div class="commission-item">
+                                            <h2 class="text-info">10%</h2>
+                                            <p>Promoter (Realtor)</p>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <div class="commission-item">
+                                            <h2 class="text-light">20%</h2>
+                                            <p>Revaamp APA Platform</p>
+                                        </div>
+                                    </div>
+                                </div>
+                                <p class="mt-4 mb-0">Example: On a ₦100,000 agency fee, you earn ₦70,000!</p>
+                            </div>
+                            <div class="text-center mt-5">
+                                <a href="/agent/register" class="thm-btn">Become an Agent Today</a>
+                            </div>
+                        </div>
+
+                    </div><!-- /tab-content -->
+                </div>
+            </div>
+
+            <!-- FAQ Section -->
+            <div class="gray-bg mil-p-80-80">
+                <div class="container">
+                    <div class="sec-title text-center w-100 mil-mb-60">
+                        <span class="mil-text-m mil-accent mil-up">Got Questions?</span>
+                        <h2 class="mil-mb-30 mil-up">Frequently Asked Questions</h2>
+                    </div>
+                    <div class="row justify-content-center">
+                        <div class="col-lg-8">
+
+                            <div class="faq-item mil-up">
+                                <button class="faq-question" type="button">
+                                    Is it really free for realtors to list properties?
+                                    <span class="faq-icon">+</span>
+                                </button>
+                                <div class="faq-answer">
+                                    Yes! Realtors can create an account and list properties completely free. There are no listing fees or hidden charges.
+                                </div>
+                            </div>
+
+                            <div class="faq-item mil-up">
+                                <button class="faq-question" type="button">
+                                    How do agents earn commissions?
+                                    <span class="faq-icon">+</span>
+                                </button>
+                                <div class="faq-answer">
+                                    Agents get unique referral links for each property. When someone clicks your link and completes a transaction, you earn 70% of the agency fee. The payment is automatically processed and added to your wallet.
+                                </div>
+                            </div>
+
+                            <div class="faq-item mil-up">
+                                <button class="faq-question" type="button">
+                                    What is the agent registration fee?
+                                    <span class="faq-icon">+</span>
+                                </button>
+                                <div class="faq-answer">
+                                    The one-time registration fee is ₦5,000. This fee is fully refundable if your application is not approved. It covers account setup, verification, and access to our agent network.
+                                </div>
+                            </div>
+
+                            <div class="faq-item mil-up">
+                                <button class="faq-question" type="button">
+                                    How are properties verified?
+                                    <span class="faq-icon">+</span>
+                                </button>
+                                <div class="faq-answer">
+                                    Our team manually reviews each property listing to ensure accuracy and authenticity. We verify ownership documents, property details, and images before publishing.
+                                </div>
+                            </div>
+
+                            <div class="faq-item mil-up">
+                                <button class="faq-question" type="button">
+                                    Can I be both a realtor and an agent?
+                                    <span class="faq-icon">+</span>
+                                </button>
+                                <div class="faq-answer">
+                                    Yes! You can have both accounts, but they must be separate. You can list your own properties as a realtor and also promote other properties as an agent to earn additional commissions.
+                                </div>
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- CTA Section -->
+            <div class="mil-cta mil-up">
+                <div class="container">
+                    <div class="mil-out-frame mil-p-80-80" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+                        <div class="cta-inner">
+                            <h2 class="mil-up" style="color: white; margin-bottom: 20px;">Ready to Get Started?</h2>
+                            <p class="mil-text-m mil-up" style="color: rgba(255,255,255,0.85); margin-bottom: 0;">
+                                Join thousands of Nigerians finding their dream properties and earning commissions daily.
+                            </p>
+                            <div class="cta-buttons mil-up">
+                                <a href="/register" class="cta-btn">List a Property</a>
+                                <a href="/agent/register" class="cta-btn">Become an Agent</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- footer -->
+            <footer class="mil-p-80-0">
+                <div class="container">
+                    <div class="row">
+                        <div class="col-xl-3">
+                            <a href="/" class="mil-footer-logo mil-mb-60">
+                                <img src="/img/logo-2.png" alt="RevaampAP" width="28" height="32">
+                            </a>
+                        </div>
+                        <div class="col-xl-3 mil-mb-60">
+                            <h6 class="mil-mb-60">Quick Links</h6>
+                            <ul class="mil-footer-list">
+                                <li class="mil-text-m mil-soft mil-mb-15"><a href="/">Home</a></li>
+                                <li class="mil-text-m mil-soft mil-mb-15"><a href="/properties">Properties</a></li>
+                                <li class="mil-text-m mil-soft mil-mb-15"><a href="/how-it-works">How It Works</a></li>
+                            </ul>
+                        </div>
+                        <div class="col-xl-3 mil-mb-60">
+                            <h6 class="mil-mb-60">Support</h6>
+                            <ul class="mil-footer-list">
+                                <li class="mil-text-m mil-soft mil-mb-15"><a href="/contact">Contact Us</a></li>
+                                <li class="mil-text-m mil-soft mil-mb-15"><a href="/faq">FAQ</a></li>
+                            </ul>
+                        </div>
+                        <div class="col-xl-3 mil-mb-80">
+                            <h6 class="mil-mb-60">Newsletter</h6>
+                            <p class="mil-text-xs mil-soft mil-mb-15">Get tips and updates</p>
+                            <form class="mil-subscripe-form-footer" id="footerNewsletterForm">
+                                <input class="mil-input" type="email" placeholder="Email">
+                                <button type="submit"><i class="far fa-envelope-open mil-dark"></i></button>
+                            </form>
+                        </div>
+                    </div>
+                    <div class="mil-footer-bottom">
+                        <div class="row">
+                            <div class="col-xl-6">
+                                <p class="mil-text-s mil-soft">© 2024 RevaampAP. All rights reserved.</p>
+                            </div>
+                            <div class="col-xl-6">
+                                <p class="mil-text-s mil-text-right mil-sm-text-left mil-soft">Find your dream property today</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </footer>
+
+        </div>
+    </div>
+
+    <script src="/js/plugins/jquery.min.js"></script>
+    <script src="/js/plugins/swiper.min.js"></script>
+    <script src="/js/plugins/gsap.min.js"></script>
+    <script src="/js/plugins/ScrollSmoother.min.js"></script>
+    <script src="/js/plugins/ScrollTrigger.min.js"></script>
+    <script src="/js/plugins/ScrollTo.min.js"></script>
+    <script src="/js/plugins/magnific-popup.js"></script>
+    <script src="/js/main.js"></script>
+
+    <script>
+        // ── Role Tabs ──
+        document.querySelectorAll('#roleTabs .nav-link').forEach(function(link) {
+            link.addEventListener('click', function() {
+                document.querySelectorAll('#roleTabs .nav-link').forEach(function(l) {
+                    l.classList.remove('active');
+                });
+                document.querySelectorAll('.tab-pane').forEach(function(p) {
+                    p.classList.remove('active');
+                });
+                this.classList.add('active');
+                var target = document.getElementById('tab-' + this.getAttribute('data-tab'));
+                if (target) target.classList.add('active');
+            });
+        });
+
+        // ── FAQ Accordion ──
+        document.querySelectorAll('.faq-question').forEach(function(btn) {
+            btn.addEventListener('click', function() {
+                var item = this.closest('.faq-item');
+                var isOpen = item.classList.contains('open');
+
+                // close all
+                document.querySelectorAll('.faq-item').forEach(function(i) {
+                    i.classList.remove('open');
+                    i.querySelector('.faq-icon').textContent = '+';
+                });
+
+                // open clicked if it was closed
+                if (!isOpen) {
+                    item.classList.add('open');
+                    item.querySelector('.faq-icon').textContent = '×';
+                }
+            });
+        });
+
+        // ── Newsletter ──
+        document.addEventListener('DOMContentLoaded', function() {
+            var form = document.getElementById('footerNewsletterForm');
+            if (form) {
+                form.addEventListener('submit', async function(e) {
+                    e.preventDefault();
+                    var email = form.querySelector('input[type="email"]').value;
+                    try {
+                        var res = await fetch('/api/subscribe', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ email: email })
+                        });
+                        var data = await res.json();
+                        alert(data.success ? 'Successfully subscribed!' : 'Error subscribing.');
+                        if (data.success) form.reset();
+                    } catch (err) {
+                        console.error('Newsletter error:', err);
+                        alert('Error subscribing.');
+                    }
+                });
+            }
+        });
+    </script>
+
+</body>
+</html>

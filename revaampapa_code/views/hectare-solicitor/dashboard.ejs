@@ -1,0 +1,364 @@
+<!DOCTYPE html>
+<html lang="en-US">
+
+<head>
+    <title><%= title %></title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    
+    <link rel="stylesheet" href="/fonts/css/switzer.css" type="text/css" media="all">
+    <link rel="stylesheet" href="/fonts/css/font-awesome.min.css" type="text/css" media="all">
+    <link rel="stylesheet" href="/css/plugins/bootstrap-grid.css" type="text/css" media="all">
+    <link rel="stylesheet" href="/css/plugins/swiper.min.css" type="text/css" media="all">
+    <link rel="stylesheet" href="/css/plugins/magnific-popup.css" type="text/css" media="all">
+    <link rel="stylesheet" href="/css/style.css" type="text/css" media="all">
+    <link rel="stylesheet" href="/css/custom.css" type="text/css" media="all">
+    
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <link rel="shortcut icon" href="/favicon.ico" type="image/x-icon">
+    <link rel="icon" href="/favicon.ico" type="image/x-icon">
+</head>
+
+<body>
+    <div id="smooth-wrapper" class="mil-wrapper">
+        <div class="mil-preloader"><div class="mil-load"></div><p class="h2 mil-mb-30"><span class="mil-light mil-counter" data-number="100">100</span><span class="mil-light">%</span></p></div>
+        <div class="mil-progress-track"><div class="mil-progress"></div></div>
+        <div class="progress-wrap active-progress"></div>
+
+        <!-- Top Panel -->
+        <div class="mil-top-panel">
+            <div class="container">
+                <a href="/" class="mil-logo"><img src="/img/logo.png" alt="RevaampAPA" width="83" height="32"></a>
+                <nav class="mil-top-menu">
+                    <ul>
+                        <li><a href="/">Home</a></li>
+                        <li class="mil-active"><a href="/hectare-solicitor/dashboard">Dashboard</a></li>
+                        <li><a href="/hectare-solicitor/cooperatives">Cooperatives</a></li>
+                        <li><a href="/hectare-solicitor/transactions">Transactions</a></li>
+                        <li><a href="/hectare-solicitor/resources">Resources</a></li>
+                    </ul>
+                </nav>
+                <div class="mil-menu-buttons">
+                    <div class="dropdown" style="position: relative;">
+                        <a href="#" class="mil-btn mil-sm dropdown-toggle" data-bs-toggle="dropdown">
+                            <i class="fa fa-user-circle"></i> <%= user.name %> <i class="fa fa-chevron-down"></i>
+                        </a>
+                        <ul class="dropdown-menu">
+                            <li><a href="/hectare-solicitor/dashboard"><i class="fa fa-tachometer"></i> Dashboard</a></li>
+                            <li><a href="/hectare-solicitor/settings"><i class="fa fa-cog"></i> Settings</a></li>
+                            <li><hr></li>
+                            <li><a href="/logout"><i class="fa fa-sign-out-alt"></i> Logout</a></li>
+                        </ul>
+                    </div>
+                    <div class="mil-menu-btn"><span></span></div>
+                </div>
+            </div>
+        </div>
+
+        <div id="smooth-content">
+            <!-- Banner -->
+            <div class="mil-banner mil-banner-inner mil-dissolve">
+                <div class="container">
+                    <div class="row align-items-center justify-content-center">
+                        <div class="col-xl-8">
+                            <div class="mil-banner-text mil-text-center">
+                                <div class="mil-text-m mil-mb-20">Welcome back, <%= user.name %>!</div>
+                                <h1 class="mil-mb-60">Hectare by Hectare Solicitor Dashboard</h1>
+                                <ul class="mil-breadcrumbs mil-pub-info mil-center mil-up">
+                                    <li><a href="/">Home</a></li>
+                                    <li><a href="/hectare-solicitor/dashboard">Dashboard</a></li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Stats Cards -->
+            <div class="mil-blog-list mil-p-0-80">
+                <div class="container">
+                    <div class="row">
+                        <div class="col-xl-3 col-md-6">
+                            <div class="mil-price-card mil-up mil-mb-30">
+                                <i class="fa fa-users" style="font-size: 40px; color: #03A6A6; margin-bottom: 15px;"></i>
+                                <h4><%= stats.cooperativesManaged %></h4>
+                                <p class="mil-text-s mil-soft">Cooperatives Managed</p>
+                            </div>
+                        </div>
+                        <div class="col-xl-3 col-md-6">
+                            <div class="mil-price-card mil-up mil-mb-30">
+                                <i class="fa fa-graduation-cap" style="font-size: 40px; color: #28a745; margin-bottom: 15px;"></i>
+                                <h4><%= stats.skillsAcquired %></h4>
+                                <p class="mil-text-s mil-soft">Skills Acquired</p>
+                            </div>
+                        </div>
+                        <div class="col-xl-3 col-md-6">
+                            <div class="mil-price-card mil-up mil-mb-30">
+                                <i class="fa fa-briefcase" style="font-size: 40px; color: #ffc107; margin-bottom: 15px;"></i>
+                                <h4><%= stats.projectsSupported || 0 %></h4>
+                                <p class="mil-text-s mil-soft">Projects Supported</p>
+                            </div>
+                        </div>
+                        <div class="col-xl-3 col-md-6">
+                            <div class="mil-price-card mil-up mil-mb-30">
+                                <i class="fa fa-money" style="font-size: 40px; color: #03A6A6; margin-bottom: 15px;"></i>
+                                <h4>₦<%= stats.totalEarnings.toLocaleString() %></h4>
+                                <p class="mil-text-s mil-soft">Total Professional Fees</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Status Cards -->
+            <div class="mil-blog-list mil-p-0-80">
+                <div class="container">
+                    <div class="row">
+                        <div class="col-xl-6 col-md-6">
+                            <div class="mil-price-card mil-up mil-mb-30">
+                                <h4>Account Status</h4>
+                                <div class="mil-mt-15">
+                                    <% if (user.hectareProfile && user.hectareProfile.isActive) { %>
+                                        <span style="background: #28a745; color: white; padding: 5px 15px; border-radius: 20px;">✓ Active</span>
+                                        <p class="mil-text-s mil-soft mil-mt-15">Your account is active. You can now provide legal services to cooperative societies.</p>
+                                    <% } else { %>
+                                        <span style="background: #ffc107; color: #856404; padding: 5px 15px; border-radius: 20px;">⏳ Pending Approval</span>
+                                        <p class="mil-text-s mil-soft mil-mt-15">Your application is being reviewed. You'll be notified once approved.</p>
+                                    <% } %>
+                                </div>
+                                <div class="mil-mt-15">
+                                    <a href="/hectare-solicitor/apply" class="mil-link mil-accent">Complete Your Application →</a>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-xl-6 col-md-6">
+                            <div class="mil-price-card mil-up mil-mb-30">
+                                <h4>Assigned Cooperative Society</h4>
+                                <div class="mil-mt-15">
+                                    <% if (cooperatives && cooperatives.length > 0) { %>
+                                        <span style="background: #28a745; color: white; padding: 5px 15px; border-radius: 20px;">✓ Assigned</span>
+                                        <p class="mil-text-s mil-soft mil-mt-15">You have been assigned to <%= cooperatives.length %> cooperative society(ies).</p>
+                                    <% } else { %>
+                                        <span style="background: #ffc107; color: #856404; padding: 5px 15px; border-radius: 20px;">⏳ Pending Assignment</span>
+                                        <p class="mil-text-s mil-soft mil-mt-15">A cooperative society will be assigned to you upon approval.</p>
+                                    <% } %>
+                                </div>
+                                <div class="mil-mt-15">
+                                    <a href="/hectare-solicitor/cooperatives" class="mil-link mil-accent">View Cooperatives →</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Skills & Training Section -->
+            <div class="mil-blog-list mil-p-80-80">
+                <div class="container">
+                    <div class="row">
+                        <div class="col-xl-8">
+                            <div class="mil-price-card mil-up mil-mb-30">
+                                <h4 class="mil-mb-30">Skills You'll Acquire</h4>
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <ul class="mil-list-2">
+                                            <li><i class="fa fa-check-circle" style="color: #28a745;"></i> Creative legal mechanisms for Agriculture financing</li>
+                                            <li><i class="fa fa-check-circle" style="color: #28a745;"></i> Innovative solutions for Agribusiness</li>
+                                            <li><i class="fa fa-check-circle" style="color: #28a745;"></i> Real estate transaction structuring</li>
+                                            <li><i class="fa fa-check-circle" style="color: #28a745;"></i> Cooperative governance & compliance</li>
+                                        </ul>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <ul class="mil-list-2">
+                                            <li><i class="fa fa-check-circle" style="color: #28a745;"></i> Project-based legal service delivery</li>
+                                            <li><i class="fa fa-check-circle" style="color: #28a745;"></i> Cross-border real estate transactions</li>
+                                            <li><i class="fa fa-check-circle" style="color: #28a745;"></i> Dispute resolution in agriculture</li>
+                                            <li><i class="fa fa-check-circle" style="color: #28a745;"></i> Due diligence for agribusiness</li>
+                                        </ul>
+                                    </div>
+                                </div>
+                                <div class="mil-mt-30">
+                                    <a href="/hectare-solicitor/training" class="mil-btn mil-sm">Access Training Materials →</a>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-xl-4">
+                            <div class="mil-price-card mil-up mil-mb-30">
+                                <h4 class="mil-mb-30">Upcoming Training</h4>
+                                <div class="mil-mb-20">
+                                    <p class="mil-text-s mil-bold">Agricultural Financing Legal Frameworks</p>
+                                    <p class="mil-text-xs mil-soft">March 15, 2024 • 10:00 AM WAT</p>
+                                </div>
+                                <div class="mil-mb-20">
+                                    <p class="mil-text-s mil-bold">Cooperative Society Governance</p>
+                                    <p class="mil-text-xs mil-soft">March 22, 2024 • 2:00 PM WAT</p>
+                                </div>
+                                <div class="mil-mb-20">
+                                    <p class="mil-text-s mil-bold">Real Estate Transaction Structuring</p>
+                                    <p class="mil-text-xs mil-soft">March 29, 2024 • 11:00 AM WAT</p>
+                                </div>
+                                <a href="/hectare-solicitor/training" class="mil-link mil-accent">View All Trainings →</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Recent Cooperatives -->
+            <div class="mil-blog-list mil-p-0-80">
+                <div class="container">
+                    <div class="mil-text-center">
+                        <h2 class="mil-mb-30 mil-up">Your Cooperatives</h2>
+                        <p class="mil-text-m mil-soft mil-mb-60 mil-up">Cooperatives assigned to you for legal services</p>
+                    </div>
+                    <div class="row">
+                        <div class="col-xl-12">
+                            <div class="mil-price-card mil-up mil-mb-30">
+                                <% if (cooperatives && cooperatives.length > 0) { %>
+                                    <div class="mil-table-responsive">
+                                        <table class="mil-table" style="width: 100%; border-collapse: collapse;">
+                                            <thead>
+                                                <tr style="border-bottom: 1px solid #eee;">
+                                                    <th style="padding: 12px; text-align: left;">Cooperative Name</th>
+                                                    <th style="padding: 12px; text-align: left;">Location</th>
+                                                    <th style="padding: 12px; text-align: left;">Members</th>
+                                                    <th style="padding: 12px; text-align: left;">Status</th>
+                                                    <th style="padding: 12px; text-align: left;">Actions</th>
+                                                 </tr>
+                                            </thead>
+                                            <tbody>
+                                                <% cooperatives.forEach(function(coop) { %>
+                                                    <tr style="border-bottom: 1px solid #f0f0f0;">
+                                                        <td style="padding: 12px;"><%= coop.name %></td>
+                                                        <td style="padding: 12px;"><%= coop.city %>, <%= coop.state %></td>
+                                                        <td style="padding: 12px;"><%= coop.members?.length || 0 %></td>
+                                                        <td style="padding: 12px;">
+                                                            <% if (coop.status === 'active') { %>
+                                                                <span style="background: #28a745; color: white; padding: 4px 8px; border-radius: 4px; font-size: 12px;">Active</span>
+                                                            <% } else { %>
+                                                                <span style="background: #ffc107; color: #856404; padding: 4px 8px; border-radius: 4px; font-size: 12px;">Pending</span>
+                                                            <% } %>
+                                                          </td>
+                                                        <td style="padding: 12px;">
+                                                            <a href="/hectare-solicitor/cooperatives/<%= coop._id %>" class="mil-link mil-accent">View Details</a>
+                                                        </td>
+                                                      </tr>
+                                                <% }); %>
+                                            </tbody>
+                                          </table>
+                                    </div>
+                                    <div class="mil-mt-30 mil-text-center">
+                                        <a href="/hectare-solicitor/cooperatives" class="mil-link mil-accent">View All Cooperatives →</a>
+                                    </div>
+                                <% } else { %>
+                                    <div class="mil-text-center mil-p-40">
+                                        <i class="fa fa-leaf" style="font-size: 60px; opacity: 0.3; margin-bottom: 20px;"></i>
+                                        <h4 class="mil-mb-15">No Cooperatives Assigned Yet</h4>
+                                        <p class="mil-text-m mil-soft mil-mb-30">Once your application is approved, a cooperative society will be assigned to you.</p>
+                                        <a href="/hectare-solicitor/apply" class="mil-btn mil-md">Complete Application</a>
+                                    </div>
+                                <% } %>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- End-to-End Solutions -->
+            <div class="mil-cta mil-up">
+                <div class="container">
+                    <div class="mil-out-frame mil-p-80-80" style="background: linear-gradient(135deg, #27ae60 0%, #2ecc71 100%);">
+                        <div class="row justify-content-between align-items-center">
+                            <div class="col-xl-12 mil-text-center">
+                                <h2 class="mil-light mil-mb-30 mil-up">End-to-End Solutions for Agriculture & Real Estate</h2>
+                                <p class="mil-text-m mil-light mil-mb-30">Providing legal services for Agriculture, Agribusiness, and Real Estate transactions within Africa</p>
+                                <div class="mil-up">
+                                    <a href="https://juriscopelegaltips.com.ng/eoi-solicitor/" target="_blank" class="mil-btn mil-md mil-light">View Sample Enrolment Form</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Quick Actions -->
+            <div class="mil-blog-list mil-p-80-80">
+                <div class="container">
+                    <div class="row">
+                        <div class="col-xl-4 col-md-6 mil-mb-30">
+                            <div class="mil-price-card mil-up mil-text-center" style="height: 100%;">
+                                <i class="fa fa-file-text" style="font-size: 50px; color: #03A6A6; margin-bottom: 15px;"></i>
+                                <h4>Legal Documents</h4>
+                                <p class="mil-text-s mil-soft mil-mb-30">Access template legal documents for cooperative societies</p>
+                                <a href="/hectare-solicitor/documents" class="mil-link mil-accent">Download Templates →</a>
+                            </div>
+                        </div>
+                        <div class="col-xl-4 col-md-6 mil-mb-30">
+                            <div class="mil-price-card mil-up mil-text-center" style="height: 100%;">
+                                <i class="fa fa-calendar" style="font-size: 50px; color: #03A6A6; margin-bottom: 15px;"></i>
+                                <h4>Schedule Consultation</h4>
+                                <p class="mil-text-s mil-soft mil-mb-30">Book a consultation with cooperative members</p>
+                                <a href="/hectare-solicitor/schedule" class="mil-link mil-accent">Schedule Now →</a>
+                            </div>
+                        </div>
+                        <div class="col-xl-4 col-md-6 mil-mb-30">
+                            <div class="mil-price-card mil-up mil-text-center" style="height: 100%;">
+                                <i class="fa fa-question-circle" style="font-size: 50px; color: #03A6A6; margin-bottom: 15px;"></i>
+                                <h4>Need Help?</h4>
+                                <p class="mil-text-s mil-soft mil-mb-30">Contact the REVAAMP implementation team</p>
+                                <a href="/contact" class="mil-link mil-accent">Contact Support →</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Footer -->
+            <footer class="mil-p-80-0">
+                <div class="container">
+                    <div class="mil-footer-bottom">
+                        <div class="row">
+                            <div class="col-xl-6">
+                                <p class="mil-text-s mil-soft">© 2024 RevaampAPA. All rights reserved.</p>
+                            </div>
+                            <div class="col-xl-6">
+                                <p class="mil-text-s mil-text-right mil-sm-text-left mil-soft">Hectare by Hectare Solicitor Dashboard</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </footer>
+        </div>
+    </div>
+
+    <script src="/js/plugins/jquery.min.js"></script>
+    <script src="/js/plugins/swiper.min.js"></script>
+    <script src="/js/plugins/gsap.min.js"></script>
+    <script src="/js/plugins/ScrollSmoother.min.js"></script>
+    <script src="/js/plugins/ScrollTrigger.min.js"></script>
+    <script src="/js/plugins/ScrollTo.min.js"></script>
+    <script src="/js/plugins/magnific-popup.js"></script>
+    <script src="/js/main.js"></script>
+
+    <style>
+        .dropdown-menu { display: none; }
+        .dropdown:hover .dropdown-menu { display: block; }
+        .dropdown-menu li a:hover { background: #f8f9fa; padding-left: 25px; }
+        .mil-table-responsive { overflow-x: auto; }
+        .mil-table { width: 100%; }
+        .mil-p-40 { padding: 40px; }
+        .mil-mt-10 { margin-top: 10px; }
+        .mil-mt-15 { margin-top: 15px; }
+        .mil-mb-10 { margin-bottom: 10px; }
+        .mil-mb-20 { margin-bottom: 20px; }
+        .mil-list-2 { list-style: none; padding: 0; }
+        .mil-list-2 li { margin-bottom: 10px; }
+        .mil-list-2 i { margin-right: 10px; }
+        @media (max-width: 768px) {
+            .mil-table th, .mil-table td { padding: 8px; font-size: 12px; }
+        }
+    </style>
+</body>
+</html>

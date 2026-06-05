@@ -1,0 +1,847 @@
+<%- include('partials/header') %>
+
+<%
+// Ensure user object exists
+if (typeof user === 'undefined') {
+    var user = {
+        name: 'Realtor',
+        profileImage: null,
+        email: 'realtor@found.ng'
+    };
+}
+
+// Helper function to get category color
+function getCategoryColor(category) {
+    const colors = {
+        'shortlet': 'primary',
+        'land': 'success',
+        'building': 'info',
+        'shop': 'warning',
+        'business_complex': 'danger'
+    };
+    return colors[category] || 'secondary';
+}
+%>
+
+<!-- Add TinyMCE CSS -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+
+<!-- Page Top -->
+<section>
+    <div class="w-100 pt-180 pb-110 black-layer opc45 position-relative">
+        <div class="fixed-bg" style="background-image: url(/assets/images/pg-tp-bg.jpg);"></div>
+        <div class="container">
+            <div class="pg-tp-wrp text-center w-100">
+                <h1 class="mb-0"><%= property ? 'Edit' : 'Add New' %> Property</h1>
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item"><a href="/" title="Home">Home</a></li>
+                    <li class="breadcrumb-item"><a href="/dashboard" title="Dashboard">Dashboard</a></li>
+                    <li class="breadcrumb-item active"><%= property ? 'Edit' : 'Add' %> Property</li>
+                </ol>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Property Form Section -->
+<section>
+    <div class="w-100 pt-80 pb-80 gray-bg position-relative">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-12">
+                    <div class="property-form-wrap bg-white p-5 rounded shadow-sm">
+                        <form action="<%= property ? '/properties/' + property._id + '?_method=PUT' : '/properties/add' %>" 
+                              method="POST" 
+                              enctype="multipart/form-data"
+                              id="propertyForm">
+                            
+                            <!-- Basic Information -->
+                            <div class="card mb-4 border-0 shadow-sm">
+                                <div class="card-header bg-white border-bottom">
+                                    <h4 class="mb-0">Basic Information</h4>
+                                </div>
+                                <div class="card-body">
+                                    <div class="row">
+                                        <div class="col-md-12">
+                                            <div class="form-group">
+                                                <label>Property Title <span class="text-danger">*</span></label>
+                                                <input type="text" class="form-control" name="title" 
+                                                       value="<%= property ? property.title : '' %>" 
+                                                       placeholder="e.g., Luxury 4-Bedroom Duplex in Lekki" required>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-12">
+                                            <div class="form-group">
+                                                <label>Description <span class="text-danger">*</span></label>
+                                                <textarea class="form-control" name="description" id="description" rows="15" 
+                                                          placeholder="Write a detailed description of the property..."><%= property ? property.description : '' %></textarea>
+                                                <small class="text-muted">
+                                                    <i class="fas fa-info-circle"></i> 
+                                                    Use the toolbar above to format text with headings, lists, bold, italic, and more.
+                                                </small>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <div class="form-group">
+                                                <label>Property Type <span class="text-danger">*</span></label>
+                                                <select class="form-control" name="propertyType" required>
+                                                    <option value="">Select Property Type</option>
+                                                    <option value="shortlet" <%= property && property.propertyType === 'shortlet' ? 'selected' : '' %>>Shortlet</option>
+                                                    <option value="land" <%= property && property.propertyType === 'land' ? 'selected' : '' %>>Land</option>
+                                                    <option value="building" <%= property && property.propertyType === 'building' ? 'selected' : '' %>>Building</option>
+                                                    <option value="shop" <%= property && property.propertyType === 'shop' ? 'selected' : '' %>>Shop</option>
+                                                    <option value="business_complex" <%= property && property.propertyType === 'business_complex' ? 'selected' : '' %>>Business Complex</option>
+                                                </select>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <div class="form-group">
+                                                <label>Transaction Type <span class="text-danger">*</span></label>
+                                                <select class="form-control" name="transactionType" required>
+                                                    <option value="">Select Transaction Type</option>
+                                                    <option value="sale" <%= property && property.transactionType === 'sale' ? 'selected' : '' %>>For Sale</option>
+                                                    <option value="rent" <%= property && property.transactionType === 'rent' ? 'selected' : '' %>>For Rent</option>
+                                                    <option value="lease" <%= property && property.transactionType === 'lease' ? 'selected' : '' %>>For Lease</option>
+                                                </select>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Price Information -->
+                            <div class="card mb-4 border-0 shadow-sm">
+                                <div class="card-header bg-white border-bottom">
+                                    <h4 class="mb-0">Price Information</h4>
+                                </div>
+                                <div class="card-body">
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <div class="form-group">
+                                                <label>Price (₦) <span class="text-danger">*</span></label>
+                                                <input type="number" class="form-control" name="price" 
+                                                       value="<%= property ? property.price : '' %>" 
+                                                       placeholder="e.g., 50000000" required>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <div class="form-check mt-4">
+                                                <input type="checkbox" class="form-check-input" name="priceNegotiable" id="priceNegotiable" 
+                                                       <%= property && property.priceNegotiable ? 'checked' : '' %>>
+                                                <label class="form-check-label" for="priceNegotiable">Price is Negotiable</label>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Location Information -->
+                            <div class="card mb-4 border-0 shadow-sm">
+                                <div class="card-header bg-white border-bottom">
+                                    <h4 class="mb-0">Location</h4>
+                                </div>
+                                <div class="card-body">
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <div class="form-group">
+                                                <label>State <span class="text-danger">*</span></label>
+                                                <select class="form-control" name="state" id="stateSelect" required>
+                                                    <option value="">Select State</option>
+                                                    <option value="Lagos" <%= property && property.location && property.location.state === 'Lagos' ? 'selected' : '' %>>Lagos</option>
+                                                    <option value="Abuja" <%= property && property.location && property.location.state === 'Abuja' ? 'selected' : '' %>>Abuja (FCT)</option>
+                                                    <option value="Rivers" <%= property && property.location && property.location.state === 'Rivers' ? 'selected' : '' %>>Rivers</option>
+                                                    <option value="Oyo" <%= property && property.location && property.location.state === 'Oyo' ? 'selected' : '' %>>Oyo</option>
+                                                    <option value="Kano" <%= property && property.location && property.location.state === 'Kano' ? 'selected' : '' %>>Kano</option>
+                                                    <option value="Delta" <%= property && property.location && property.location.state === 'Delta' ? 'selected' : '' %>>Delta</option>
+                                                    <option value="Ogun" <%= property && property.location && property.location.state === 'Ogun' ? 'selected' : '' %>>Ogun</option>
+                                                    <option value="Kaduna" <%= property && property.location && property.location.state === 'Kaduna' ? 'selected' : '' %>>Kaduna</option>
+                                                    <option value="Edo" <%= property && property.location && property.location.state === 'Edo' ? 'selected' : '' %>>Edo</option>
+                                                    <option value="Enugu" <%= property && property.location && property.location.state === 'Enugu' ? 'selected' : '' %>>Enugu</option>
+                                                </select>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <div class="form-group">
+                                                <label>City/LGA <span class="text-danger">*</span></label>
+                                                <input type="text" class="form-control" name="city" 
+                                                       value="<%= property && property.location && property.location.city ? property.location.city : '' %>" 
+                                                       placeholder="e.g., Lekki Phase 1" required>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-12">
+                                            <div class="form-group">
+                                                <label>Full Address <span class="text-danger">*</span></label>
+                                                <input type="text" class="form-control" name="address" 
+                                                       value="<%= property && property.location && property.location.address ? property.location.address : '' %>" 
+                                                       placeholder="e.g., 23 Bishop Aboyade Cole Street" required>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <div class="form-group">
+                                                <label>Landmark (Optional)</label>
+                                                <input type="text" class="form-control" name="landmark" 
+                                                       value="<%= property && property.location && property.location.landmark ? property.location.landmark : '' %>" 
+                                                       placeholder="e.g., Near Mega Plaza">
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <div class="form-group">
+                                                <label>LGA (Optional)</label>
+                                                <input type="text" class="form-control" name="lga" 
+                                                       value="<%= property && property.location && property.location.lga ? property.location.lga : '' %>" 
+                                                       placeholder="e.g., Eti-Osa">
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Property Features -->
+                            <div class="card mb-4 border-0 shadow-sm">
+                                <div class="card-header bg-white border-bottom">
+                                    <h4 class="mb-0">Property Features</h4>
+                                </div>
+                                <div class="card-body">
+                                    <div class="row">
+                                        <div class="col-md-4">
+                                            <div class="form-group">
+                                                <label>Bedrooms</label>
+                                                <input type="number" class="form-control" name="bedrooms" 
+                                                       value="<%= property && property.features && property.features.bedrooms ? property.features.bedrooms : '' %>">
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <div class="form-group">
+                                                <label>Bathrooms</label>
+                                                <input type="number" class="form-control" name="bathrooms" 
+                                                       value="<%= property && property.features && property.features.bathrooms ? property.features.bathrooms : '' %>">
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <div class="form-group">
+                                                <label>Toilets</label>
+                                                <input type="number" class="form-control" name="toilets" 
+                                                       value="<%= property && property.features && property.features.toilets ? property.features.toilets : '' %>">
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <div class="form-group">
+                                                <label>Parking Spaces</label>
+                                                <input type="number" class="form-control" name="parkingSpaces" 
+                                                       value="<%= property && property.features && property.features.parkingSpaces ? property.features.parkingSpaces : '' %>">
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <div class="form-group">
+                                                <label>Floor Area (sqm)</label>
+                                                <input type="number" step="0.01" class="form-control" name="floorArea" 
+                                                       value="<%= property && property.features && property.features.floorArea ? property.features.floorArea : '' %>">
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <div class="form-group">
+                                                <label>Land Area (sqm)</label>
+                                                <input type="number" step="0.01" class="form-control" name="landArea" 
+                                                       value="<%= property && property.features && property.features.landArea ? property.features.landArea : '' %>">
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <!-- Amenities Checkboxes -->
+                                    <div class="row mt-4">
+                                        <div class="col-md-12">
+                                            <label class="font-weight-bold">Amenities:</label>
+                                        </div>
+                                        <div class="col-md-3">
+                                            <div class="form-check">
+                                                <input class="form-check-input" type="checkbox" name="furnished" id="furnished" 
+                                                       <%= property && property.features && property.features.furnished ? 'checked' : '' %>>
+                                                <label class="form-check-label" for="furnished">Furnished</label>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-3">
+                                            <div class="form-check">
+                                                <input class="form-check-input" type="checkbox" name="serviced" id="serviced" 
+                                                       <%= property && property.features && property.features.serviced ? 'checked' : '' %>>
+                                                <label class="form-check-label" for="serviced">Serviced</label>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-3">
+                                            <div class="form-check">
+                                                <input class="form-check-input" type="checkbox" name="security" id="security" 
+                                                       <%= property && property.features && property.features.security ? 'checked' : '' %>>
+                                                <label class="form-check-label" for="security">24/7 Security</label>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-3">
+                                            <div class="form-check">
+                                                <input class="form-check-input" type="checkbox" name="powerSupply" id="powerSupply" 
+                                                       <%= property && property.features && property.features.powerSupply ? 'checked' : '' %>>
+                                                <label class="form-check-label" for="powerSupply">Power Supply</label>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-3">
+                                            <div class="form-check">
+                                                <input class="form-check-input" type="checkbox" name="borehole" id="borehole" 
+                                                       <%= property && property.features && property.features.borehole ? 'checked' : '' %>>
+                                                <label class="form-check-label" for="borehole">Borehole</label>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Property Images -->
+                            <div class="card mb-4 border-0 shadow-sm">
+                                <div class="card-header bg-white border-bottom">
+                                    <h4 class="mb-0">Property Images</h4>
+                                </div>
+                                <div class="card-body">
+                                    <div class="form-group">
+                                        <label>Upload Images (Max 10 images, 5MB each)</label>
+                                        <input type="file" class="form-control-file" name="images" id="propertyImages" accept="image/*" multiple>
+                                        <small class="text-muted">First image will be used as cover photo. Supported formats: JPG, PNG, GIF</small>
+                                    </div>
+                                    
+                                    <!-- Current Images Preview -->
+                                    <div id="currentImages" class="mt-3">
+                                        <% if (property && property.images && property.images.length > 0) { %>
+                                            <label>Current Images:</label>
+                                            <div class="row">
+                                                <% property.images.forEach((image, index) => { %>
+                                                    <div class="col-md-3 mb-3 current-image" data-url="<%= image.url %>">
+                                                        <div class="position-relative">
+                                                            <img src="<%= image.url %>" alt="Property Image" class="img-fluid rounded" style="height: 120px; width: 100%; object-fit: cover;">
+                                                            <button type="button" class="btn btn-danger btn-sm position-absolute top-0 end-0 m-1" onclick="removeImage('<%= image.url %>')">
+                                                                <i class="fas fa-times"></i>
+                                                            </button>
+                                                            <% if (index === 0) { %>
+                                                                <span class="badge badge-primary position-absolute bottom-0 start-0 m-1">Primary</span>
+                                                            <% } %>
+                                                        </div>
+                                                    </div>
+                                                <% }); %>
+                                            </div>
+                                        <% } %>
+                                    </div>
+                                    
+                                    <!-- New Images Preview -->
+                                    <div id="imagePreview" class="row mt-3"></div>
+                                    <div id="removedImages"></div>
+                                </div>
+                            </div>
+                            
+                            <!-- Video Tour (Optional) -->
+                            <div class="card mb-4 border-0 shadow-sm">
+                                <div class="card-header bg-white border-bottom">
+                                    <h4 class="mb-0">Video Tour (Optional)</h4>
+                                </div>
+                                <div class="card-body">
+                                    <div class="form-group">
+                                        <label>YouTube/Video URL</label>
+                                        <input type="url" class="form-control" name="videoUrl" 
+                                               value="<%= property ? property.videoUrl : '' %>" 
+                                               placeholder="https://youtube.com/watch?v=...">
+                                        <small class="text-muted">Add a YouTube or Vimeo link for a video tour of the property</small>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Listing Tier Selection -->
+                            <div class="card mb-4 border-0 shadow-sm">
+                                <div class="card-header bg-white border-bottom">
+                                    <h4 class="mb-0">Listing Tier</h4>
+                                </div>
+                                <div class="card-body">
+                                    <div class="row">
+                                        <div class="col-md-4">
+                                            <div class="tier-card <%= !property || property.listingTier === 'free' ? 'selected' : '' %>">
+                                                <div class="tier-header">
+                                                    <h4>Free</h4>
+                                                    <h3>₦0</h3>
+                                                </div>
+                                                <div class="tier-body">
+                                                    <ul>
+                                                        <li><i class="fas fa-check text-success"></i> Basic listing</li>
+                                                        <li><i class="fas fa-check text-success"></i> 5 images</li>
+                                                        <li><i class="fas fa-check text-success"></i> Standard visibility</li>
+                                                        <li><i class="fas fa-check text-success"></i> Agent promotion (70% agent / 10% you)</li>
+                                                    </ul>
+                                                    <div class="commission-badge">
+                                                        <small>You earn: <strong>10%</strong> of agency fee</small>
+                                                    </div>
+                                                </div>
+                                                <div class="tier-footer">
+                                                    <input type="radio" name="listingTier" value="free" <%= !property || property.listingTier === 'free' ? 'checked' : '' %>>
+                                                    <label>Select Free</label>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        
+                                        <div class="col-md-4">
+                                            <div class="tier-card featured <%= property && property.listingTier === 'standard' ? 'selected' : '' %>">
+                                                <div class="tier-header">
+                                                    <span class="popular-badge">Most Popular</span>
+                                                    <h4>Featured</h4>
+                                                    <h3>₦<%= property ? (property.price * 0.02).toLocaleString() : '0' %></h3>
+                                                    <small>One-time fee</small>
+                                                </div>
+                                                <div class="tier-body">
+                                                    <ul>
+                                                        <li><i class="fas fa-check text-success"></i> Featured placement</li>
+                                                        <li><i class="fas fa-check text-success"></i> 15 images</li>
+                                                        <li><i class="fas fa-check text-success"></i> Video tour</li>
+                                                        <li><i class="fas fa-check text-success"></i> Priority agent promotion</li>
+                                                        <li><i class="fas fa-check text-success"></i> Social media spotlight</li>
+                                                        <li><i class="fas fa-check text-success"></i> "Featured" badge</li>
+                                                    </ul>
+                                                    <div class="commission-badge">
+                                                        <small>You earn: <strong>12.5%</strong> of agency fee</small>
+                                                    </div>
+                                                </div>
+                                                <div class="tier-footer">
+                                                    <input type="radio" name="listingTier" value="standard" <%= property && property.listingTier === 'standard' ? 'checked' : '' %>>
+                                                    <label>Select Featured</label>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        
+                                        <div class="col-md-4">
+                                            <div class="tier-card premium <%= property && property.listingTier === 'premium' ? 'selected' : '' %>">
+                                                <div class="tier-header">
+                                                    <h4>Premium</h4>
+                                                    <h3>₦<%= property ? (property.price * 0.04).toLocaleString() : '0' %></h3>
+                                                    <small>One-time fee</small>
+                                                </div>
+                                                <div class="tier-body">
+                                                    <ul>
+                                                        <li><i class="fas fa-check text-success"></i> Top featured placement</li>
+                                                        <li><i class="fas fa-check text-success"></i> Unlimited images</li>
+                                                        <li><i class="fas fa-check text-success"></i> Video + 360° virtual tour</li>
+                                                        <li><i class="fas fa-check text-success"></i> SMS/WhatsApp to 200+ agents</li>
+                                                        <li><i class="fas fa-check text-success"></i> 48hr exclusive agent preview</li>
+                                                        <li><i class="fas fa-check text-success"></i> Dedicated account manager</li>
+                                                        <li><i class="fas fa-check text-success"></i> Email newsletter feature</li>
+                                                    </ul>
+                                                    <div class="commission-badge">
+                                                        <small>You earn: <strong>15%</strong> of agency fee</small>
+                                                    </div>
+                                                </div>
+                                                <div class="tier-footer">
+                                                    <input type="radio" name="listingTier" value="premium" <%= property && property.listingTier === 'premium' ? 'checked' : '' %>>
+                                                    <label>Select Premium</label>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="alert alert-info mt-4">
+                                        <i class="fas fa-info-circle"></i>
+                                        <strong>Note:</strong> The listing fee is a one-time payment. Premium listings get priority visibility and higher promoter commissions.
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Submit Button -->
+                            <div class="text-center">
+                                <button type="submit" class="thm-btn px-5 py-3">
+                                    <i class="fas fa-cloud-upload-alt"></i> <%= property ? 'Update Property' : 'Publish Property' %>
+                                </button>
+                                <a href="/dashboard" class="btn btn-secondary ml-3 px-5 py-3">
+                                    <i class="fas fa-times"></i> Cancel
+                                </a>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<style>
+.property-form-wrap {
+    border-radius: 15px;
+}
+
+.card {
+    border-radius: 12px;
+    overflow: hidden;
+}
+
+.card-header {
+    background: #f8f9fa;
+    border-bottom: 1px solid #e9ecef;
+}
+
+.tier-card {
+    border: 2px solid #e0e0e0;
+    border-radius: 10px;
+    padding: 20px;
+    text-align: center;
+    transition: all 0.3s ease;
+    position: relative;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    cursor: pointer;
+}
+
+.tier-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+}
+
+.tier-card.selected {
+    border-color: #ff6b6b;
+    box-shadow: 0 0 0 2px rgba(255,107,107,0.2);
+}
+
+.tier-card.featured {
+    border-color: #ffc107;
+}
+
+.tier-card.premium {
+    border-color: #28a745;
+}
+
+.popular-badge {
+    position: absolute;
+    top: -10px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: #ffc107;
+    color: #333;
+    padding: 5px 15px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: bold;
+}
+
+.tier-header {
+    margin-bottom: 20px;
+    padding-bottom: 15px;
+    border-bottom: 1px solid #f0f0f0;
+}
+
+.tier-header h4 {
+    font-size: 18px;
+    font-weight: 600;
+    margin-bottom: 10px;
+}
+
+.tier-header h3 {
+    font-size: 24px;
+    font-weight: 700;
+    color: #ff6b6b;
+    margin-bottom: 5px;
+}
+
+.tier-header small {
+    color: #666;
+}
+
+.tier-body {
+    flex-grow: 1;
+    margin-bottom: 20px;
+}
+
+.tier-body ul {
+    list-style: none;
+    padding: 0;
+    text-align: left;
+}
+
+.tier-body ul li {
+    margin-bottom: 8px;
+    font-size: 13px;
+}
+
+.tier-body ul li i {
+    margin-right: 8px;
+    width: 16px;
+}
+
+.commission-badge {
+    background: #f8f9fa;
+    padding: 8px;
+    border-radius: 5px;
+    margin-top: 10px;
+}
+
+.tier-footer {
+    border-top: 1px solid #f0f0f0;
+    padding-top: 15px;
+}
+
+.tier-footer input[type="radio"] {
+    margin-right: 5px;
+    cursor: pointer;
+}
+
+.tier-footer label {
+    cursor: pointer;
+    margin-bottom: 0;
+}
+
+.current-image {
+    position: relative;
+}
+
+.current-image .btn-danger {
+    position: absolute;
+    top: 5px;
+    right: 5px;
+    width: 25px;
+    height: 25px;
+    padding: 0;
+    border-radius: 50%;
+    font-size: 12px;
+}
+
+#imagePreview .col-md-3 {
+    position: relative;
+}
+
+#imagePreview img {
+    height: 120px;
+    width: 100%;
+    object-fit: cover;
+}
+
+/* TinyMCE Custom Styles */
+.tox-tinymce {
+    border-radius: 8px !important;
+    border: 1px solid #e0e0e0 !important;
+}
+
+.tox .tox-toolbar__primary {
+    background: #f8f9fa !important;
+}
+
+@media (max-width: 768px) {
+    .property-form-wrap {
+        padding: 20px;
+    }
+    
+    .tier-card {
+        margin-bottom: 20px;
+    }
+}
+</style>
+
+<!-- TinyMCE Script -->
+<script src="https://cdn.tiny.cloud/1/ol1n69jx2n02ml9t329v60ngyfhvuzc05utzy95pwmkd6kdu/tinymce/6/tinymce.min.js" referrerpolicy="origin"></script>
+
+<script>
+// Image preview functionality
+document.getElementById('propertyImages').addEventListener('change', function(e) {
+    const preview = document.getElementById('imagePreview');
+    const files = Array.from(e.target.files);
+    
+    files.forEach((file) => {
+        if (file.size > 5 * 1024 * 1024) {
+            alert(`File ${file.name} is too large. Maximum size is 5MB.`);
+            return;
+        }
+        
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            const col = document.createElement('div');
+            col.className = 'col-md-3 mb-3';
+            col.innerHTML = `
+                <div class="position-relative">
+                    <img src="${e.target.result}" alt="Preview" class="img-fluid rounded" style="height: 120px; width: 100%; object-fit: cover;">
+                    <button type="button" class="btn btn-danger btn-sm position-absolute top-0 end-0 m-1" onclick="this.parentElement.parentElement.remove()">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+            `;
+            preview.appendChild(col);
+        };
+        reader.readAsDataURL(file);
+    });
+});
+
+// Remove existing image
+function removeImage(imageUrl) {
+    if (confirm('Remove this image?')) {
+        const container = document.querySelector(`.current-image[data-url="${imageUrl}"]`);
+        if (container) {
+            container.remove();
+            
+            // Add to removed images list
+            const removed = document.getElementById('removedImages');
+            const input = document.createElement('input');
+            input.type = 'hidden';
+            input.name = 'removeImages';
+            input.value = imageUrl;
+            removed.appendChild(input);
+        }
+    }
+}
+
+// Tier selection styling
+document.querySelectorAll('.tier-card').forEach(card => {
+    card.addEventListener('click', function() {
+        const radio = this.querySelector('input[type="radio"]');
+        if (radio) {
+            radio.checked = true;
+            
+            // Remove selected class from all cards
+            document.querySelectorAll('.tier-card').forEach(c => {
+                c.classList.remove('selected');
+            });
+            
+            // Add selected class to clicked card
+            this.classList.add('selected');
+        }
+    });
+});
+
+// Initialize TinyMCE
+tinymce.init({
+    selector: '#description',
+    height: 400,
+    menubar: true,
+    plugins: [
+        'advlist', 'autolink', 'lists', 'link', 'image', 'charmap', 'preview',
+        'anchor', 'searchreplace', 'visualblocks', 'code', 'fullscreen',
+        'insertdatetime', 'media', 'table', 'help', 'wordcount', 'emoticons'
+    ],
+    toolbar: 'undo redo | blocks | ' +
+        'bold italic backcolor | alignleft aligncenter ' +
+        'alignright alignjustify | bullist numlist outdent indent | ' +
+        'removeformat | help | fullscreen',
+    content_style: 'body { font-family:Helvetica,Arial,sans-serif; font-size:16px; line-height: 1.6; }',
+    block_formats: 'Paragraph=p; Heading 1=h2; Heading 2=h3; Heading 3=h4; Preformatted=pre',
+    branding: false,
+    promotion: false,
+    setup: function(editor) {
+        editor.on('change', function() {
+            editor.save();
+            formChanged = true;
+        });
+    }
+});
+
+// Form validation
+const form = document.getElementById('propertyForm');
+let formChanged = false;
+
+form.addEventListener('input', function() {
+    formChanged = true;
+});
+
+window.addEventListener('beforeunload', function(e) {
+    if (formChanged) {
+        e.preventDefault();
+        e.returnValue = 'You have unsaved changes. Are you sure you want to leave?';
+    }
+});
+
+form.addEventListener('submit', function() {
+    tinymce.triggerSave();
+    formChanged = false;
+    
+    const title = document.querySelector('input[name="title"]').value;
+    const price = document.querySelector('input[name="price"]').value;
+    const state = document.querySelector('select[name="state"]').value;
+    const description = tinymce.get('description').getContent();
+    
+    if (!title || title.length < 10) {
+        e.preventDefault();
+        alert('Please enter a descriptive title (minimum 10 characters)');
+        return false;
+    }
+    
+    if (!price || price <= 0) {
+        e.preventDefault();
+        alert('Please enter a valid price');
+        return false;
+    }
+    
+    if (!state) {
+        e.preventDefault();
+        alert('Please select a state');
+        return false;
+    }
+    
+    if (!description || description.length < 50) {
+        e.preventDefault();
+        alert('Please provide a detailed description (minimum 50 characters)');
+        return false;
+    }
+    
+    const images = document.getElementById('propertyImages');
+    const currentImages = document.querySelectorAll('.current-image').length;
+    
+    if ((images && images.files.length === 0) && currentImages === 0) {
+        e.preventDefault();
+        alert('Please upload at least one image of the property');
+        return false;
+    }
+    
+    return true;
+});
+
+// Auto-calculate tier prices based on property price
+document.querySelector('input[name="price"]').addEventListener('input', function() {
+    const price = parseFloat(this.value) || 0;
+    const featuredPrice = price * 0.02;
+    const premiumPrice = price * 0.04;
+    
+    const featuredCard = document.querySelector('.tier-card.featured h3');
+    const premiumCard = document.querySelector('.tier-card.premium h3');
+    
+    if (featuredCard) featuredCard.innerHTML = `₦${featuredPrice.toLocaleString()}`;
+    if (premiumCard) premiumCard.innerHTML = `₦${premiumPrice.toLocaleString()}`;
+});
+
+// Add preview button
+const submitBtn = document.querySelector('.thm-btn[type="submit"]');
+const previewBtn = document.createElement('button');
+previewBtn.type = 'button';
+previewBtn.className = 'thm-btn brd-btn ml-2';
+previewBtn.innerHTML = '<i class="fas fa-eye"></i> Preview';
+previewBtn.onclick = function() {
+    const content = tinymce.get('description').getContent();
+    const title = document.querySelector('input[name="title"]').value;
+    const price = document.querySelector('input[name="price"]').value;
+    const location = document.querySelector('input[name="city"]').value + ', ' + document.querySelector('select[name="state"]').value;
+    
+    const previewWindow = window.open('', 'Preview', 'width=900,height=700');
+    previewWindow.document.write(`
+        <html>
+            <head>
+                <title>Property Preview</title>
+                <link rel="stylesheet" href="/assets/css/bootstrap.min.css">
+                <link rel="stylesheet" href="/assets/css/style.css">
+                <style>
+                    body { padding: 30px; background: #f8f9fa; }
+                    .preview-container { max-width: 800px; margin: 0 auto; background: white; border-radius: 10px; padding: 30px; box-shadow: 0 0 20px rgba(0,0,0,0.1); }
+                    .preview-price { font-size: 28px; color: #28a745; font-weight: bold; }
+                    .preview-location { color: #666; margin-bottom: 20px; }
+                </style>
+            </head>
+            <body>
+                <div class="preview-container">
+                    <h1>${title}</h1>
+                    <p class="preview-location"><i class="fas fa-map-marker-alt"></i> ${location}</p>
+                    <p class="preview-price">₦${parseInt(price).toLocaleString()}</p>
+                    <hr>
+                    ${content}
+                </div>
+            </body>
+        </html>
+    `);
+    previewWindow.document.close();
+};
+
+// Add preview button after submit button
+if (submitBtn && submitBtn.parentNode) {
+    submitBtn.parentNode.insertBefore(previewBtn, submitBtn.nextSibling);
+}
+</script>
+
+<%- include('partials/footer') %>

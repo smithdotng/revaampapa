@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en-US">
+
+<head>
+    <title><%= title %></title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    
+    <!-- CSS files -->
+    <link rel="stylesheet" href="/fonts/css/switzer.css" type="text/css" media="all">
+    <link rel="stylesheet" href="/fonts/css/font-awesome.min.css" type="text/css" media="all">
+    <link rel="stylesheet" href="/css/plugins/bootstrap-grid.css" type="text/css" media="all">
+    <link rel="stylesheet" href="/css/style.css" type="text/css" media="all">
+    <link rel="stylesheet" href="/css/custom.css" type="text/css" media="all">
+</head>
+
+<body>
+    <div id="smooth-wrapper" class="mil-wrapper">
+        
+        <!-- top panel -->
+        <div class="mil-top-panel">
+            <div class="container">
+                <a href="/" class="mil-logo">
+                    <img src="/img/logo.png" alt="RevaampAP" width="83" height="32">
+                </a>
+                <nav class="mil-top-menu">
+                    <ul>
+                        <li><a href="/">Home</a></li>
+                        <li><a href="/properties">Properties</a></li>
+                        <li><a href="/dashboard">Dashboard</a></li>
+                        <li class="mil-active"><a href="/dashboard/settings">Settings</a></li>
+                    </ul>
+                </nav>
+                <div class="mil-menu-buttons">
+                    <a href="/logout" class="mil-btn mil-sm">Logout</a>
+                    <div class="mil-menu-btn">
+                        <span></span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="smooth-content">
+            <div class="mil-banner mil-banner-inner mil-dissolve">
+                <div class="container">
+                    <div class="row align-items-center justify-content-center">
+                        <div class="col-xl-8">
+                            <div class="mil-banner-text mil-text-center">
+                                <div class="mil-text-m mil-mb-20 mil-up">Account Settings</div>
+                                <h1 class="mil-mb-60 mil-up">Manage Your Profile</h1>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="mil-blog-list mil-p-0-80">
+                <div class="container">
+                    <div class="row justify-content-center">
+                        <div class="col-xl-6">
+                            <!-- Profile Settings -->
+                            <div class="mil-price-card mil-up mil-mb-30">
+                                <h4 class="mil-mb-30">Profile Information</h4>
+                                <form action="/dashboard/update-profile" method="POST">
+                                    <input class="mil-input mil-up mil-mb-15" type="text" name="name" value="<%= user.name %>" placeholder="Full Name" required>
+                                    <input class="mil-input mil-up mil-mb-15" type="email" value="<%= user.email %>" disabled placeholder="Email">
+                                    <input class="mil-input mil-up mil-mb-15" type="tel" name="phone" value="<%= user.phone %>" placeholder="Phone Number">
+                                    <input class="mil-input mil-up mil-mb-15" type="text" name="company" value="<%= user.propertyOwnerProfile?.company || '' %>" placeholder="Company Name">
+                                    <textarea class="mil-input mil-up mil-mb-30" name="address" rows="3" placeholder="Address"><%= user.propertyOwnerProfile?.address || '' %></textarea>
+                                    <button type="submit" class="mil-btn mil-md">Update Profile</button>
+                                </form>
+                            </div>
+
+                            <!-- Change Password -->
+                            <div class="mil-price-card mil-up mil-mb-30">
+                                <h4 class="mil-mb-30">Change Password</h4>
+                                <form action="/dashboard/change-password" method="POST">
+                                    <input class="mil-input mil-up mil-mb-15" type="password" name="currentPassword" placeholder="Current Password" required>
+                                    <input class="mil-input mil-up mil-mb-15" type="password" name="newPassword" placeholder="New Password" required>
+                                    <input class="mil-input mil-up mil-mb-30" type="password" name="confirmPassword" placeholder="Confirm New Password" required>
+                                    <button type="submit" class="mil-btn mil-md">Change Password</button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- footer -->
+        <footer class="mil-p-80-0">
+            <div class="container">
+                <div class="mil-footer-bottom">
+                    <p class="mil-text-s mil-soft">© 2024 RevaampAP. All rights reserved.</p>
+                </div>
+            </div>
+        </footer>
+    </div>
+
+    <script src="/js/plugins/jquery.min.js"></script>
+    <script src="/js/main.js"></script>
+</body>
+</html>

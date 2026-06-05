@@ -1,0 +1,481 @@
+<!DOCTYPE html>
+<html lang="en-US">
+
+<head>
+    <title><%= title %></title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    
+    <!-- switzer font css -->
+    <link rel="stylesheet" href="/fonts/css/switzer.css" type="text/css" media="all">
+    <!-- font awesome css -->
+    <link rel="stylesheet" href="/fonts/css/font-awesome.min.css" type="text/css" media="all">
+    <!-- bootstrap grid css -->
+    <link rel="stylesheet" href="/css/plugins/bootstrap-grid.css" type="text/css" media="all">
+    <!-- swiper css -->
+    <link rel="stylesheet" href="/css/plugins/swiper.min.css" type="text/css" media="all">
+    <!-- magnific popup -->
+    <link rel="stylesheet" href="/css/plugins/magnific-popup.css" type="text/css" media="all">
+    <!-- plax css -->
+    <link rel="stylesheet" href="/css/style.css" type="text/css" media="all">
+    <!-- custom css -->
+    <link rel="stylesheet" href="/css/custom.css" type="text/css" media="all">
+
+    <!-- Favicon -->
+    <link rel="shortcut icon" href="/favicon.ico" type="image/x-icon">
+    <link rel="icon" href="/favicon.ico" type="image/x-icon">
+    
+    <style>
+        .dropdown-menu {
+            display: none;
+        }
+        .dropdown:hover .dropdown-menu,
+        .dropdown .dropdown-menu.show {
+            display: block;
+        }
+        .mil-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        .mil-table th,
+        .mil-table td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #eee;
+        }
+        .mil-table th {
+            font-weight: 600;
+            color: #333;
+        }
+        .mil-table-responsive {
+            overflow-x: auto;
+        }
+        .mil-mt-30 {
+            margin-top: 30px;
+        }
+        .text-right {
+            text-align: right;
+        }
+        .badge {
+            display: inline-block;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 11px;
+            font-weight: 600;
+        }
+        .badge-new { background: #ffc107; color: #000; }
+        .badge-read { background: #17a2b8; color: #fff; }
+        .badge-replied { background: #28a745; color: #fff; }
+        .badge-pending { background: #dc3545; color: #fff; }
+        .badge-verified { background: #28a745; color: #fff; }
+        .stat-card {
+            transition: transform 0.3s;
+        }
+        .stat-card:hover {
+            transform: translateY(-5px);
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- wrapper -->
+    <div id="smooth-wrapper" class="mil-wrapper">
+
+        <!-- preloader -->
+        <div class="mil-preloader">
+            <div class="mil-load"></div>
+            <p class="h2 mil-mb-30"><span class="mil-light mil-counter" data-number="100">100</span><span class="mil-light">%</span></p>
+        </div>
+        <!-- preloader end -->
+
+        <!-- scroll progress -->
+        <div class="mil-progress-track">
+            <div class="mil-progress"></div>
+        </div>
+        <!-- scroll progress end -->
+
+        <!-- back to top -->
+        <div class="progress-wrap active-progress"></div>
+
+        <!-- top panel -->
+        <div class="mil-top-panel">
+            <div class="container">
+                <a href="/" class="mil-logo">
+                    <img src="/img/logo.png" alt="RevaampAP" width="83" height="32">
+                </a>
+                <nav class="mil-top-menu">
+    <ul>
+        <li><a href="/">Home</a></li>
+        <li><a href="/superadmin/dashboard" class="mil-active">Dashboard</a></li>
+        <li><a href="/superadmin/properties">Properties</a></li>
+        <li><a href="/superadmin/hotels">Hotels</a></li>  <!-- Add this line -->
+        <li><a href="/superadmin/promoters">Promoters</a></li>
+        <li><a href="/superadmin/property-owners">Owners</a></li>
+        <li><a href="/superadmin/transactions">Transactions</a></li>
+        <li><a href="/superadmin/inquiries">Inquiries</a></li>
+        <li><a href="/superadmin/analytics">Analytics</a></li>
+    </ul>
+</nav>
+                <div class="mil-menu-buttons">
+                    <div class="dropdown" style="position: relative;">
+                        <a href="#" class="mil-btn mil-sm dropdown-toggle" data-bs-toggle="dropdown" style="display: flex; align-items: center; gap: 8px;">
+                            <i class="fa fa-user-circle" style="font-size: 18px;"></i> 
+                            <span><%= user.name %></span>
+                            <i class="fa fa-chevron-down" style="font-size: 12px;"></i>
+                        </a>
+                        <ul class="dropdown-menu" style="position: absolute; right: 0; top: 100%; min-width: 220px; background: white; border-radius: 12px; box-shadow: 0 10px 30px rgba(0,0,0,0.15); padding: 10px 0; margin-top: 10px; z-index: 1000;">
+                            <li><a href="/superadmin/profile" style="display: flex; align-items: center; gap: 10px; padding: 12px 20px; color: #333; text-decoration: none;"><i class="fa fa-user" style="width: 20px; color: #03A6A6;"></i> Profile</a></li>
+                            <li><a href="/superadmin/settings" style="display: flex; align-items: center; gap: 10px; padding: 12px 20px; color: #333; text-decoration: none;"><i class="fa fa-cog" style="width: 20px; color: #03A6A6;"></i> Settings</a></li>
+                            <li><hr style="margin: 8px 0; border-color: #eee;"></li>
+                            <li><a href="/logout" style="display: flex; align-items: center; gap: 10px; padding: 12px 20px; color: #dc3545; text-decoration: none;"><i class="fa fa-sign-out-alt" style="width: 20px;"></i> Logout</a></li>
+                        </ul>
+                    </div>
+                    <div class="mil-menu-btn">
+                        <span></span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- top panel end -->
+
+        <!-- content -->
+        <div id="smooth-content">
+
+            <!-- banner -->
+            <div class="mil-banner mil-banner-inner mil-dissolve">
+                <div class="container">
+                    <div class="row align-items-center justify-content-center">
+                        <div class="col-xl-8">
+                            <div class="mil-banner-text mil-text-center">
+                                <div class="mil-text-m mil-mb-20 mil-up">Welcome, Superadmin</div>
+                                <h1 class="mil-mb-60 mil-up">Platform Dashboard</h1>
+                                <ul class="mil-breadcrumbs mil-pub-info mil-center mil-up">
+                                    <li><a href="/">Home</a></li>
+                                    <li><a href="/superadmin/dashboard">Dashboard</a></li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- banner end -->
+
+            <!-- stats cards - Row 1 -->
+            <div class="mil-blog-list mil-p-0-80">
+                <div class="container">
+                    <div class="row">
+                        <div class="col-xl-3 col-md-6">
+                            <div class="mil-price-card stat-card mil-up mil-mb-30">
+                                <h4 class="mil-mb-15"><span class="mil-pricing-table-price"><%= stats.totalProperties || 0 %></span></h4>
+                                <p class="mil-text-s mil-soft">Total Properties</p>
+                                <i class="fa fa-building" style="font-size: 40px; opacity: 0.3; margin-top: 20px;"></i>
+                            </div>
+                        </div>
+                        <div class="col-xl-3 col-md-6">
+                            <div class="mil-price-card stat-card mil-up mil-mb-30">
+                                <h4 class="mil-mb-15"><span class="mil-pricing-table-price"><%= stats.pendingProperties || 0 %></span></h4>
+                                <p class="mil-text-s mil-soft">Pending Verification</p>
+                                <i class="fa fa-clock-o" style="font-size: 40px; opacity: 0.3; margin-top: 20px;"></i>
+                            </div>
+                        </div>
+                        <div class="col-xl-3 col-md-6">
+                            <div class="mil-price-card stat-card mil-up mil-mb-30">
+                                <h4 class="mil-mb-15"><span class="mil-pricing-table-price"><%= stats.verifiedProperties || 0 %></span></h4>
+                                <p class="mil-text-s mil-soft">Verified Properties</p>
+                                <i class="fa fa-check-circle" style="font-size: 40px; opacity: 0.3; margin-top: 20px;"></i>
+                            </div>
+                        </div>
+                        <div class="col-xl-3 col-md-6">
+                            <div class="mil-price-card stat-card mil-up mil-mb-30">
+                                <h4 class="mil-mb-15">₦<span class="mil-pricing-table-price"><%= (stats.totalRevenue || 0).toLocaleString() %></span></h4>
+                                <p class="mil-text-s mil-soft">Total Revenue</p>
+                                <i class="fa fa-money" style="font-size: 40px; opacity: 0.3; margin-top: 20px;"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- stats cards end -->
+
+            <!-- stats cards - Row 2 -->
+            <div class="mil-blog-list mil-p-0-80">
+                <div class="container">
+                    <div class="row">
+                        <div class="col-xl-3 col-md-6">
+                            <div class="mil-price-card stat-card mil-up mil-mb-30">
+                                <h4 class="mil-mb-15"><span class="mil-pricing-table-price"><%= stats.totalPromoters || 0 %></span></h4>
+                                <p class="mil-text-s mil-soft">Total Promoters</p>
+                                <i class="fa fa-users" style="font-size: 40px; opacity: 0.3; margin-top: 20px;"></i>
+                            </div>
+                        </div>
+                        <div class="col-xl-3 col-md-6">
+                            <div class="mil-price-card stat-card mil-up mil-mb-30">
+                                <h4 class="mil-mb-15"><span class="mil-pricing-table-price"><%= stats.pendingPromoters || 0 %></span></h4>
+                                <p class="mil-text-s mil-soft">Pending Promoters</p>
+                                <i class="fa fa-user-plus" style="font-size: 40px; opacity: 0.3; margin-top: 20px;"></i>
+                            </div>
+                        </div>
+                        <div class="col-xl-3 col-md-6">
+                            <div class="mil-price-card stat-card mil-up mil-mb-30">
+                                <h4 class="mil-mb-15"><span class="mil-pricing-table-price"><%= stats.totalTransactions || 0 %></span></h4>
+                                <p class="mil-text-s mil-soft">Transactions</p>
+                                <i class="fa fa-exchange" style="font-size: 40px; opacity: 0.3; margin-top: 20px;"></i>
+                            </div>
+                        </div>
+                        <div class="col-xl-3 col-md-6">
+                            <div class="mil-price-card stat-card mil-up mil-mb-30">
+                                <h4 class="mil-mb-15"><span class="mil-pricing-table-price"><%= stats.completedTransactions || 0 %></span></h4>
+                                <p class="mil-text-s mil-soft">Completed</p>
+                                <i class="fa fa-check-circle-o" style="font-size: 40px; opacity: 0.3; margin-top: 20px;"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- stats cards end -->
+
+            <!-- Pending Payments Card -->
+            <div class="mil-blog-list mil-p-0-80">
+                <div class="container">
+                    <div class="row">
+                        <div class="col-xl-12">
+                            <div class="mil-price-card mil-up mil-mb-30" style="background: linear-gradient(135deg, #ff6b6b 0%, #ff8e53 100%);">
+                                <div class="row align-items-center">
+                                    <div class="col-md-8">
+                                        <h3 class="mil-light mil-mb-15">Pending Payment Verifications</h3>
+                                        <p class="mil-text-m mil-light mil-mb-0">Verify property owner payments to activate their listings</p>
+                                    </div>
+                                    <div class="col-md-4 text-right">
+                                        <h2 class="mil-light" style="font-size: 48px;"><%= stats.pendingPayments || 0 %></h2>
+                                        <a href="/superadmin/payments/pending" class="mil-btn mil-md mil-light mt-2">Review Payments →</a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- Pending Payments Card End -->
+
+            <!-- New Inquiries Card -->
+            <div class="mil-blog-list mil-p-0-80">
+                <div class="container">
+                    <div class="row">
+                        <div class="col-xl-12">
+                            <div class="mil-price-card mil-up mil-mb-30" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+                                <div class="row align-items-center">
+                                    <div class="col-md-8">
+                                        <h3 class="mil-light mil-mb-15">New Inquiries</h3>
+                                        <p class="mil-text-m mil-light mil-mb-0">New inquiries from potential buyers and renters</p>
+                                    </div>
+                                    <div class="col-md-4 text-right">
+                                        <h2 class="mil-light" style="font-size: 48px;"><%= stats.newInquiries || 0 %></h2>
+                                        <a href="/superadmin/inquiries?status=new" class="mil-btn mil-md mil-light mt-2">View New Inquiries →</a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- New Inquiries Card End -->
+
+            <!-- Recent Activity - Properties and Transactions -->
+            <div class="mil-blog-list mil-p-80-80">
+                <div class="container">
+                    <div class="row">
+                        <div class="col-xl-6">
+                            <div class="mil-price-card mil-up mil-mb-30">
+                                <h4 class="mil-mb-30">Recent Properties</h4>
+                                <% if (recentProperties && recentProperties.length > 0) { %>
+                                    <div class="mil-table-responsive">
+                                        <table class="mil-table">
+                                            <thead>
+                                                <tr><th>Title</th><th>Owner</th><th>Status</th><th>Date</th> </tr>
+                                            </thead>
+                                            <tbody>
+                                                <% recentProperties.forEach(function(property) { %>
+                                                    <% if (property) { %>
+                                                    <tr>
+                                                        <td><%= property.title ? property.title.substring(0, 30) : 'N/A' %></td>
+                                                        <td><%= property.owner ? property.owner.name : 'N/A' %></td>
+                                                        <td>
+                                                            <% if (property.verificationStatus === 'verified') { %>
+                                                                <span class="badge badge-verified">Verified</span>
+                                                            <% } else if (property.verificationStatus === 'payment_confirmed') { %>
+                                                                <span class="badge badge-pending">Payment Received</span>
+                                                            <% } else if (property.verificationStatus === 'pending_payment') { %>
+                                                                <span class="badge badge-pending">Pending Payment</span>
+                                                            <% } else { %>
+                                                                <span class="badge"><%= property.verificationStatus %></span>
+                                                            <% } %>
+                                                          </td>
+                                                          <td><%= property.createdAt ? new Date(property.createdAt).toLocaleDateString() : 'N/A' %></td>
+                                                    </tr>
+                                                    <% } %>
+                                                <% }); %>
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                <% } else { %>
+                                    <p class="mil-text-m mil-soft">No recent properties</p>
+                                <% } %>
+                                <div class="mil-mt-30">
+                                    <a href="/superadmin/properties" class="mil-link mil-accent">View All Properties →</a>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-xl-6">
+                            <div class="mil-price-card mil-up mil-mb-30">
+                                <h4 class="mil-mb-30">Recent Transactions</h4>
+                                <% if (recentTransactions && recentTransactions.length > 0) { %>
+                                    <div class="mil-table-responsive">
+                                        <table class="mil-table">
+                                            <thead>
+                                                <tr><th>Property</th><th>Promoter</th><th>Amount</th><th>Date</th> </tr>
+                                            </thead>
+                                            <tbody>
+                                                <% recentTransactions.forEach(function(transaction) { %>
+                                                    <% if (transaction) { %>
+                                                    <tr>
+                                                        <td><%= transaction.property ? transaction.property.title.substring(0, 20) : 'N/A' %></td>
+                                                        <td><%= transaction.promoter ? transaction.promoter.name : 'N/A' %></td>
+                                                        <td>₦<%= (transaction.commissionSplit && transaction.commissionSplit.platform && transaction.commissionSplit.platform.amount) ? transaction.commissionSplit.platform.amount.toLocaleString() : '0' %></td>
+                                                        <td><%= transaction.transactionDate ? new Date(transaction.transactionDate).toLocaleDateString() : 'N/A' %></td>
+                                                    </tr>
+                                                    <% } %>
+                                                <% }); %>
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                <% } else { %>
+                                    <p class="mil-text-m mil-soft">No recent transactions</p>
+                                <% } %>
+                                <div class="mil-mt-30">
+                                    <a href="/superadmin/transactions" class="mil-link mil-accent">View All Transactions →</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- Recent Activity end -->
+
+            <!-- Recent Inquiries Section -->
+            <div class="mil-blog-list mil-p-80-80">
+                <div class="container">
+                    <div class="row">
+                        <div class="col-xl-12">
+                            <div class="mil-price-card mil-up mil-mb-30">
+                                <h4 class="mil-mb-30">Recent Inquiries</h4>
+                                <% if (recentInquiries && recentInquiries.length > 0) { %>
+                                    <div class="mil-table-responsive">
+                                        <table class="mil-table">
+                                            <thead>
+                                                <tr><th>Property</th><th>From</th><th>Message</th><th>Status</th><th>Date</th><th>Action</th> </tr>
+                                            </thead>
+                                            <tbody>
+                                                <% recentInquiries.forEach(function(inquiry) { %>
+                                                    <% if (inquiry && inquiry.property) { %>
+                                                    <tr>
+                                                        <td>
+                                                            <a href="/superadmin/properties/<%= inquiry.property._id %>" class="mil-link mil-accent">
+                                                                <%= inquiry.property.title ? inquiry.property.title.substring(0, 30) : 'N/A' %>
+                                                            </a>
+                                                        </td>
+                                                        <td>
+                                                            <strong><%= inquiry.name || 'N/A' %></strong><br>
+                                                            <small class="mil-soft"><%= inquiry.email || 'N/A' %></small>
+                                                        </td>
+                                                        <td><%= inquiry.message ? inquiry.message.substring(0, 50) : 'N/A' %>...</td>
+                                                        <td>
+                                                            <% if (inquiry.status === 'new') { %>
+                                                                <span class="badge badge-new">New</span>
+                                                            <% } else if (inquiry.status === 'read') { %>
+                                                                <span class="badge badge-read">Read</span>
+                                                            <% } else if (inquiry.status === 'replied') { %>
+                                                                <span class="badge badge-replied">Replied</span>
+                                                            <% } %>
+                                                        </td>
+                                                        <td><%= inquiry.createdAt ? new Date(inquiry.createdAt).toLocaleDateString() : 'N/A' %></td>
+                                                        <td>
+                                                            <a href="/superadmin/inquiries/<%= inquiry._id %>" class="mil-link mil-accent">View →</a>
+                                                        </td>
+                                                    </tr>
+                                                    <% } %>
+                                                <% }); %>
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                    <div class="mil-mt-30">
+                                        <a href="/superadmin/inquiries" class="mil-link mil-accent">View All Inquiries →</a>
+                                    </div>
+                                <% } else { %>
+                                    <p class="mil-text-m mil-soft">No recent inquiries</p>
+                                <% } %>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- Recent Inquiries Section end -->
+
+            <!-- Quick Actions -->
+            <div class="mil-cta mil-up">
+                <div class="container">
+                    <div class="mil-out-frame mil-p-80-80" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+                        <div class="row justify-content-between align-items-center">
+                            <div class="col-xl-8 mil-sm-text-center">
+                                <h2 class="mil-light mil-mb-30 mil-up">Quick Actions</h2>
+                                <p class="mil-text-m mil-mb-30 mil-dark-soft mil-up">Manage properties, approve promoters, verify payments, review inquiries, and monitor platform activity</p>
+                            </div>
+                            <div class="col-xl-4 mil-sm-text-center">
+                                <div class="mil-buttons-frame mil-up">
+                                    <a href="/superadmin/properties/pending" class="mil-btn mil-md mil-light">Pending Properties</a>
+                                    <a href="/superadmin/promoters/pending" class="mil-btn mil-md mil-light" style="margin-left: 10px;">Pending Promoters</a>
+                                    <a href="/superadmin/payments/pending" class="mil-btn mil-md mil-light" style="margin-left: 10px;">Verify Payments</a>
+                                    <a href="/superadmin/inquiries?status=new" class="mil-btn mil-md mil-light" style="margin-left: 10px; margin-top: 10px;">New Inquiries</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- Quick Actions end -->
+
+            <!-- footer -->
+            <footer class="mil-p-80-0">
+                <div class="container">
+                    <div class="mil-footer-bottom">
+                        <div class="row">
+                            <div class="col-xl-6">
+                                <p class="mil-text-s mil-soft">© 2024 RevaampAP. All rights reserved.</p>
+                            </div>
+                            <div class="col-xl-6">
+                                <p class="mil-text-s mil-text-right mil-sm-text-left mil-soft">Superadmin Dashboard</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </footer>
+            <!-- footer end -->
+
+        </div>
+        <!-- content end -->
+    </div>
+    <!-- wrapper end -->
+
+    <!-- jquery js -->
+    <script src="/js/plugins/jquery.min.js"></script>
+    <script src="/js/plugins/swiper.min.js"></script>
+    <script src="/js/plugins/gsap.min.js"></script>
+    <script src="/js/plugins/ScrollSmoother.min.js"></script>
+    <script src="/js/plugins/ScrollTrigger.min.js"></script>
+    <script src="/js/plugins/ScrollTo.min.js"></script>
+    <script src="/js/plugins/magnific-popup.js"></script>
+    <script src="/js/main.js"></script>
+
+</body>
+
+</html>

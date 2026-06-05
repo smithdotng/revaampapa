@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<html lang="en-US">
+
+<head>
+    <title><%= title %></title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    
+    <!-- switzer font css -->
+    <link rel="stylesheet" href="/fonts/css/switzer.css" type="text/css" media="all">
+    <!-- font awesome css -->
+    <link rel="stylesheet" href="/fonts/css/font-awesome.min.css" type="text/css" media="all">
+    <!-- bootstrap grid css -->
+    <link rel="stylesheet" href="/css/plugins/bootstrap-grid.css" type="text/css" media="all">
+    <!-- swiper css -->
+    <link rel="stylesheet" href="/css/plugins/swiper.min.css" type="text/css" media="all">
+    <!-- magnific popup -->
+    <link rel="stylesheet" href="/css/plugins/magnific-popup.css" type="text/css" media="all">
+    <!-- plax css -->
+    <link rel="stylesheet" href="/css/style.css" type="text/css" media="all">
+    <!-- custom css -->
+    <link rel="stylesheet" href="/css/custom.css" type="text/css" media="all">
+
+    <!-- Favicon -->
+    <link rel="shortcut icon" href="/favicon.ico" type="image/x-icon">
+    <link rel="icon" href="/favicon.ico" type="image/x-icon">
+    
+    <style>
+        .property-card {
+            transition: transform 0.3s;
+            cursor: pointer;
+        }
+        .property-card:hover {
+            transform: translateY(-5px);
+        }
+        .property-image {
+            width: 100%;
+            height: 250px;
+            object-fit: cover;
+            border-radius: 12px 12px 0 0;
+        }
+        .filter-sidebar {
+            background: #f8f9fa;
+            padding: 25px;
+            border-radius: 12px;
+            margin-bottom: 30px;
+        }
+        .filter-sidebar select,
+        .filter-sidebar input {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            margin-bottom: 15px;
+        }
+        .filter-sidebar button {
+            width: 100%;
+            padding: 12px;
+            background: #03A6A6;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+        }
+        .property-price {
+            font-size: 20px;
+            color: #03A6A6;
+            font-weight: 700;
+        }
+        .property-location {
+            font-size: 14px;
+            color: #6c757d;
+        }
+        .pagination {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-top: 40px;
+        }
+        .pagination a {
+            padding: 8px 15px;
+            background: #f8f9fa;
+            color: #333;
+            text-decoration: none;
+            border-radius: 8px;
+        }
+        .pagination a.active {
+            background: #03A6A6;
+            color: white;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div id="smooth-wrapper" class="mil-wrapper">
+
+        <div class="mil-preloader">
+            <div class="mil-load"></div>
+            <p class="h2 mil-mb-30"><span class="mil-light mil-counter" data-number="100">100</span><span class="mil-light">%</span></p>
+        </div>
+
+        <div class="mil-progress-track">
+            <div class="mil-progress"></div>
+        </div>
+
+        <div class="progress-wrap active-progress"></div>
+
+        <!-- top panel -->
+        <div class="mil-top-panel">
+            <div class="container">
+                <a href="/" class="mil-logo">
+                    <img src="/img/logo.png" alt="RevaampAP" width="83" height="32">
+                </a>
+                <nav class="mil-top-menu">
+                    <ul>
+                        <li><a href="/">Home</a></li>
+                        <li><a href="/properties" class="mil-active">Properties</a></li>
+                        <li><a href="/how-it-works">How It Works</a></li>
+                        <li><a href="/about">About</a></li>
+                        <li><a href="/contact">Contact</a></li>
+                        <% if (user) { %>
+                            <li><a href="/dashboard">Dashboard</a></li>
+                            <li><a href="/logout">Logout</a></li>
+                        <% } else { %>
+                            <li><a href="/login">Login</a></li>
+                            <li><a href="/register">Register</a></li>
+                        <% } %>
+                    </ul>
+                </nav>
+                <div class="mil-menu-buttons">
+                    <div class="mil-menu-btn">
+                        <span></span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="smooth-content">
+
+            <div class="mil-banner mil-banner-inner mil-dissolve">
+                <div class="container">
+                    <div class="row align-items-center justify-content-center">
+                        <div class="col-xl-8">
+                            <div class="mil-banner-text mil-text-center">
+                                <div class="mil-text-m mil-mb-20 mil-up">Find Your Perfect Property</div>
+                                <h1 class="mil-mb-60 mil-up">Properties for Sale & Rent</h1>
+                                <ul class="mil-breadcrumbs mil-pub-info mil-center mil-up">
+                                    <li><a href="/">Home</a></li>
+                                    <li>Properties</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="mil-blog-list mil-p-80-80">
+                <div class="container">
+                    <div class="row">
+                        <!-- Filter Sidebar -->
+                        <div class="col-xl-3">
+                            <div class="filter-sidebar">
+                                <h4 class="mil-mb-20">Filter Properties</h4>
+                                <form method="GET" action="/properties">
+                                    <select name="propertyType">
+                                        <option value="">All Types</option>
+                                        <option value="shortlet" <%= filters.propertyType === 'shortlet' ? 'selected' : '' %>>Shortlet</option>
+                                        <option value="land" <%= filters.propertyType === 'land' ? 'selected' : '' %>>Land</option>
+                                        <option value="building" <%= filters.propertyType === 'building' ? 'selected' : '' %>>Building</option>
+                                        <option value="shop" <%= filters.propertyType === 'shop' ? 'selected' : '' %>>Shop</option>
+                                        <option value="business_complex" <%= filters.propertyType === 'business_complex' ? 'selected' : '' %>>Business Complex</option>
+                                    </select>
+                                    
+                                    <select name="transactionType">
+                                        <option value="">All Transactions</option>
+                                        <option value="rent" <%= filters.transactionType === 'rent' ? 'selected' : '' %>>For Rent</option>
+                                        <option value="sale" <%= filters.transactionType === 'sale' ? 'selected' : '' %>>For Sale</option>
+                                        <option value="lease" <%= filters.transactionType === 'lease' ? 'selected' : '' %>>For Lease</option>
+                                    </select>
+                                    
+                                    <select name="state">
+                                        <option value="">All States</option>
+                                        <option value="Abuja" <%= filters.state === 'Abuja' ? 'selected' : '' %>>Abuja</option>
+                                        <option value="Lagos" <%= filters.state === 'Lagos' ? 'selected' : '' %>>Lagos</option>
+                                        <option value="Kano" <%= filters.state === 'Kano' ? 'selected' : '' %>>Kano</option>
+                                        <option value="Rivers" <%= filters.state === 'Rivers' ? 'selected' : '' %>>Rivers</option>
+                                    </select>
+                                    
+                                    <input type="text" name="search" placeholder="Search by title or location" value="<%= filters.search || '' %>">
+                                    
+                                    <button type="submit">Apply Filters</button>
+                                </form>
+                            </div>
+                        </div>
+
+                        <!-- Property Listings -->
+                        <div class="col-xl-9">
+                            <div class="mil-mb-30">
+                                <p class="mil-text-m mil-soft"><%= total %> properties found</p>
+                            </div>
+                            
+                            <div class="row">
+                                <% if (properties && properties.length > 0) { %>
+                                    <% properties.forEach(function(property) { %>
+                                        <div class="col-xl-6 col-lg-6 mil-mb-30">
+                                            <div class="mil-price-card property-card mil-up" onclick="window.location.href='/properties/<%= property.slug %>'">
+                                                <% if (property.images && property.images.length > 0) { %>
+                                                    <img src="<%= property.images[0].url %>" alt="<%= property.title %>" class="property-image">
+                                                <% } else { %>
+                                                    <div class="property-image" style="background: #f0f0f0; display: flex; align-items: center; justify-content: center;">
+                                                        <i class="fa fa-building" style="font-size: 48px; color: #ccc;"></i>
+                                                    </div>
+                                                <% } %>
+                                                <div style="padding: 20px;">
+                                                    <div class="mil-mb-15">
+                                                        <span class="property-price">₦<%= property.price.toLocaleString() %></span>
+                                                        <% if (property.priceNegotiable) { %>
+                                                            <span class="mil-text-s mil-soft"> (Negotiable)</span>
+                                                        <% } %>
+                                                    </div>
+                                                    <h5 class="mil-mb-10"><%= property.title.substring(0, 40) %></h5>
+                                                    <p class="property-location mil-mb-15">
+                                                        <i class="fa fa-map-marker"></i> <%= property.location.city ? property.location.city + ', ' : '' %><%= property.location.state || 'Nigeria' %>
+                                                    </p>
+                                                    <div class="mil-mb-15">
+                                                        <span class="mil-badge" style="background: #03A6A6; color: white; padding: 3px 8px; border-radius: 4px; font-size: 11px;">
+                                                            <%= property.propertyType.replace('_', ' ') %>
+                                                        </span>
+                                                        <span class="mil-badge" style="background: #6c757d; color: white; padding: 3px 8px; border-radius: 4px; font-size: 11px; margin-left: 5px;">
+                                                            <%= property.transactionType %>
+                                                        </span>
+                                                    </div>
+                                                    <div class="mil-text-s mil-soft">
+                                                        <% if (property.features.bedrooms) { %>
+                                                            <span><i class="fa fa-bed"></i> <%= property.features.bedrooms %> beds</span>
+                                                        <% } %>
+                                                        <% if (property.features.bathrooms) { %>
+                                                            <span class="mil-ml-15"><i class="fa fa-bath"></i> <%= property.features.bathrooms %> baths</span>
+                                                        <% } %>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    <% }); %>
+                                <% } else { %>
+                                    <div class="col-xl-12">
+                                        <div class="mil-text-center mil-p-60">
+                                            <i class="fa fa-home" style="font-size: 64px; color: #ccc;"></i>
+                                            <h4 class="mil-mt-30">No Properties Found</h4>
+                                            <p class="mil-text-m mil-soft">Try adjusting your filters or check back later.</p>
+                                        </div>
+                                    </div>
+                                <% } %>
+                            </div>
+
+                            <!-- Pagination -->
+                            <% if (totalPages > 1) { %>
+                                <div class="pagination">
+                                    <% for (var i = 1; i <= totalPages; i++) { %>
+                                        <a href="?page=<%= i %><%= filters.propertyType ? '&propertyType=' + filters.propertyType : '' %><%= filters.transactionType ? '&transactionType=' + filters.transactionType : '' %><%= filters.state ? '&state=' + filters.state : '' %><%= filters.search ? '&search=' + filters.search : '' %>" 
+                                           class="<%= currentPage === i ? 'active' : '' %>"><%= i %></a>
+                                    <% } %>
+                                </div>
+                            <% } %>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <footer class="mil-p-80-0">
+                <div class="container">
+                    <div class="mil-footer-bottom">
+                        <div class="row">
+                            <div class="col-xl-6">
+                                <p class="mil-text-s mil-soft">© 2024 RevaampAP. All rights reserved.</p>
+                            </div>
+                            <div class="col-xl-6">
+                                <p class="mil-text-s mil-text-right mil-sm-text-left mil-soft">Find your dream property today</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </footer>
+
+        </div>
+    </div>
+
+    <script src="/js/plugins/jquery.min.js"></script>
+    <script src="/js/plugins/swiper.min.js"></script>
+    <script src="/js/plugins/gsap.min.js"></script>
+    <script src="/js/plugins/ScrollSmoother.min.js"></script>
+    <script src="/js/plugins/ScrollTrigger.min.js"></script>
+    <script src="/js/plugins/ScrollTo.min.js"></script>
+    <script src="/js/plugins/magnific-popup.js"></script>
+    <script src="/js/main.js"></script>
+
+</body>
+
+</html>

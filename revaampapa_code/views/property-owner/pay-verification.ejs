@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="en-US">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pay Verification Fee - RevaampAPA</title>
+    
+    <!-- CSS Files -->
+    <link rel="stylesheet" href="/fonts/css/switzer.css" type="text/css" media="all">
+    <link rel="stylesheet" href="/fonts/css/font-awesome.min.css" type="text/css" media="all">
+    <link rel="stylesheet" href="/css/plugins/bootstrap-grid.css" type="text/css" media="all">
+    <link rel="stylesheet" href="/css/plugins/swiper.min.css" type="text/css" media="all">
+    <link rel="stylesheet" href="/css/plugins/magnific-popup.css" type="text/css" media="all">
+    <link rel="stylesheet" href="/css/style.css" type="text/css" media="all">
+    <link rel="stylesheet" href="/css/custom.css" type="text/css" media="all">
+
+    <link rel="shortcut icon" href="/favicon.ico" type="image/x-icon">
+    <link rel="icon" href="/favicon.ico" type="image/x-icon">
+</head>
+<body>
+
+    <div id="smooth-wrapper" class="mil-wrapper">
+        <div class="mil-preloader"><div class="mil-load"></div><p class="h2 mil-mb-30"><span class="mil-light mil-counter" data-number="100">100</span><span class="mil-light">%</span></p></div>
+        <div class="mil-progress-track"><div class="mil-progress"></div></div>
+        <div class="progress-wrap active-progress"></div>
+
+        <div class="mil-top-panel">
+            <div class="container">
+                <a href="/" class="mil-logo"><img src="/img/logo.png" alt="RevaampAPA" width="83" height="32"></a>
+                <nav class="mil-top-menu">
+                    <ul>
+                        <li><a href="/">Home</a></li>
+                        <li><a href="/properties">Properties</a></li>
+                        <li><a href="/about">About</a></li>
+                        <li><a href="/contact">Contact</a></li>
+                    </ul>
+                </nav>
+                <div class="mil-menu-buttons">
+                    <div class="dropdown" style="position: relative;">
+                        <a href="#" class="mil-btn mil-sm dropdown-toggle" data-bs-toggle="dropdown">
+                            <i class="fa fa-user-circle"></i> <%= user.name %> <i class="fa fa-chevron-down"></i>
+                        </a>
+                        <ul class="dropdown-menu">
+                            <li><a href="/property-owner/dashboard"><i class="fa fa-tachometer"></i> Dashboard</a></li>
+                            <li><a href="/property-owner/settings"><i class="fa fa-cog"></i> Settings</a></li>
+                            <li><hr></li>
+                            <li><a href="/logout"><i class="fa fa-sign-out-alt"></i> Logout</a></li>
+                        </ul>
+                    </div>
+                    <div class="mil-menu-btn"><span></span></div>
+                </div>
+            </div>
+        </div>
+
+        <div id="smooth-content">
+            <div class="mil-banner mil-banner-inner mil-dissolve">
+                <div class="container">
+                    <div class="row align-items-center justify-content-center">
+                        <div class="col-xl-8">
+                            <div class="mil-banner-text mil-text-center">
+                                <div class="mil-text-m mil-mb-20 mil-up">Complete Your Listing</div>
+                                <h1 class="mil-mb-60 mil-up">Pay Verification Fee</h1>
+                                <ul class="mil-breadcrumbs mil-center mil-up">
+                                    <li><a href="/">Home</a></li>
+                                    <li><a href="/property-owner/dashboard">Dashboard</a></li>
+                                    <li><a href="#">Pay Verification Fee</a></li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="mil-blog-list mil-p-80-80">
+                <div class="container">
+                    <div class="row justify-content-center">
+                        <div class="col-xl-8">
+                            <!-- Property Summary -->
+                            <div class="mil-price-card mil-up mil-mb-30">
+                                <h3 class="mil-mb-30">Property Summary</h3>
+                                <div class="row">
+                                    <div class="col-md-8">
+                                        <p><strong>Title:</strong> <%= property.title %></p>
+                                        <p><strong>Type:</strong> <%= property.propertyType.replace('_', ' ') %></p>
+                                        <p><strong>Price:</strong> ₦<%= property.price.toLocaleString() %></p>
+                                        <p><strong>Location:</strong> <%= property.location.city %>, <%= property.location.state %></p>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <% if(property.images && property.images.length > 0) { %>
+                                            <img src="<%= property.images[0].url %>" alt="<%= property.title %>" style="width: 100%; border-radius: 10px;">
+                                        <% } else { %>
+                                            <div style="width: 100%; height: 120px; background: #f0f0f0; border-radius: 10px; display: flex; align-items: center; justify-content: center;">
+                                                <i class="fa fa-building" style="font-size: 40px; color: #ccc;"></i>
+                                            </div>
+                                        <% } %>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Payment Instructions -->
+                            <div class="mil-price-card mil-up mil-mb-30" style="background: #f0f9ff; border-left: 4px solid #03A6A6;">
+                                <div class="mil-text-center">
+                                    <i class="fa fa-bank" style="font-size: 50px; color: #03A6A6; margin-bottom: 15px;"></i>
+                                    <h3 class="mil-mb-15">Payment Instructions</h3>
+                                    <p class="mil-text-m mil-soft">Pay the verification fee of <strong class="mil-accent">₦20,000</strong> to the account below:</p>
+                                    <div style="background: white; padding: 20px; border-radius: 10px; margin: 20px 0; display: inline-block; text-align: left;">
+                                        <p class="mil-mb-10"><strong>Bank Name:</strong> Fidelity Bank</p>
+                                        <p class="mil-mb-10"><strong>Account Name:</strong> Revacom Ltd</p>
+                                        <p class="mil-mb-10"><strong>Account Number:</strong> 5601419395</p>
+                                    </div>
+                                    <p class="mil-text-s mil-soft">After payment, enter your transaction details below and upload proof of payment.</p>
+                                    <p class="mil-text-xs mil-soft mil-mt-15">Your property will be listed after payment confirmation (24-48 hours).</p>
+                                </div>
+                            </div>
+
+                            <!-- Payment Form -->
+                            <div class="mil-price-card mil-up">
+                                <h3 class="mil-mb-30">Payment Details</h3>
+                                <form action="/property-owner/properties/pay-verification/<%= property._id %>" method="POST" enctype="multipart/form-data">
+                                    <div class="row">
+                                        <div class="col-md-12">
+                                            <label class="mil-text-s mil-soft mil-mb-10">Transaction Reference / Receipt Number *</label>
+                                            <input class="mil-input mil-mb-15" type="text" name="paymentReference" placeholder="e.g., PAYMENT-12345" required>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <label class="mil-text-s mil-soft mil-mb-10">Amount Paid (₦) *</label>
+                                            <input class="mil-input mil-mb-15" type="number" name="paymentAmount" placeholder="20000" value="20000" readonly style="background: #f5f5f5;">
+                                        </div>
+                                        <div class="col-md-6">
+                                            <label class="mil-text-s mil-soft mil-mb-10">Payment Date *</label>
+                                            <input class="mil-input mil-mb-15" type="date" name="paymentDate" required>
+                                        </div>
+                                        <div class="col-md-12">
+                                            <label class="mil-text-s mil-soft mil-mb-10">Upload Payment Proof (Screenshot/Receipt) *</label>
+                                            <input class="mil-input mil-mb-15" type="file" name="paymentProof" accept="image/*,.pdf" required>
+                                            <p class="mil-text-xs mil-soft">Upload clear screenshot or PDF of your payment confirmation (max 5MB)</p>
+                                        </div>
+                                    </div>
+
+                                    <div class="mil-checkbox-frame mil-up mil-mb-30 mil-mt-30">
+                                        <div class="mil-checkbox">
+                                            <input type="checkbox" id="confirmPayment" name="confirmPayment" required>
+                                            <label for="confirmPayment"></label>
+                                        </div>
+                                        <p class="mil-text-xs mil-soft">I confirm that I have made the payment of ₦20,000 to Revacom Ltd (Fidelity Bank - 5601419395) and the information provided is correct.</p>
+                                    </div>
+
+                                    <div class="mil-mt-30">
+                                        <button type="submit" class="mil-btn mil-md">Submit Payment Proof</button>
+                                        <a href="/property-owner/dashboard" class="mil-btn mil-md mil-light">Cancel</a>
+                                    </div>
+                                </form>
+                            </div>
+
+                            <!-- Important Notes -->
+                            <div class="mil-price-card mil-up mil-mt-30" style="background: #fff3cd; border-left: 4px solid #ffc107;">
+                                <div class="mil-text-center">
+                                    <i class="fa fa-info-circle" style="font-size: 30px; color: #856404; margin-bottom: 10px;"></i>
+                                    <h4 class="mil-mb-15">Important Notes</h4>
+                                    <ul class="mil-text-left" style="display: inline-block; text-align: left;">
+                                        <li>✓ Payment verification takes 24-48 hours</li>
+                                        <li>✓ Your property will be listed only after payment confirmation</li>
+                                        <li>✓ You will receive an email notification once verified</li>
+                                        <li>✓ Contact support if you don't receive confirmation within 48 hours</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <footer class="mil-p-80-0">
+            <div class="container">
+                <div class="mil-footer-bottom">
+                    <p class="mil-text-s mil-soft">© 2024 RevaampAPA. All rights reserved.</p>
+                </div>
+            </div>
+        </footer>
+    </div>
+
+    <script src="/js/plugins/jquery.min.js"></script>
+    <script src="/js/plugins/swiper.min.js"></script>
+    <script src="/js/plugins/gsap.min.js"></script>
+    <script src="/js/plugins/ScrollSmoother.min.js"></script>
+    <script src="/js/plugins/ScrollTrigger.min.js"></script>
+    <script src="/js/plugins/ScrollTo.min.js"></script>
+    <script src="/js/plugins/magnific-popup.js"></script>
+    <script src="/js/main.js"></script>
+
+    <style>
+        .dropdown-menu { display: none; }
+        .dropdown:hover .dropdown-menu { display: block; }
+        .mil-input { width: 100%; padding: 12px 15px; border: 1px solid #e0e0e0; border-radius: 8px; }
+        .mil-mt-30 { margin-top: 30px; }
+        .mil-mb-10 { margin-bottom: 10px; }
+        .mil-mb-15 { margin-bottom: 15px; }
+        .mil-mb-30 { margin-bottom: 30px; }
+        label { display: block; margin-bottom: 5px; font-weight: 500; }
+        .mil-text-left { text-align: left; }
+        .mil-text-left li { margin-bottom: 8px; }
+    </style>
+</body>
+</html>
