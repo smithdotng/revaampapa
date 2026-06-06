@@ -82,4 +82,12 @@ router.delete('/hotels/:id', superadminController.deleteHotel);
 router.post('/hotels/:id/toggle-status', superadminController.toggleHotelStatus);
 router.post('/hotels/:id/toggle-featured', superadminController.toggleHotelFeatured);
 
+// ============= BID NOTICE MANAGEMENT =============
+router.get('/bid-notices', superadminController.getBidNotices);
+router.get('/bid-notices/create', superadminController.getCreateBidNotice);
+router.post('/bid-notices/create', superadminController.createBidNotice);
+router.get('/bid-notices/:id', superadminController.getBidNoticeDetails);
+router.post('/bid-notices/:id/close', superadminController.closeBidNotice);
+router.delete('/bid-notices/:id', superadminController.deleteBidNotice);
+
 module.exports = router;

@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="en-US">
+<head>
+    <title><%= title %></title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="/fonts/css/switzer.css" type="text/css" media="all">
+    <link rel="stylesheet" href="/fonts/css/font-awesome.min.css" type="text/css" media="all">
+    <link rel="stylesheet" href="/css/plugins/bootstrap-grid.css" type="text/css" media="all">
+    <link rel="stylesheet" href="/css/style.css" type="text/css" media="all">
+    <link rel="stylesheet" href="/css/custom.css" type="text/css" media="all">
+    <link rel="shortcut icon" href="/favicon.ico" type="image/x-icon">
+    <style>
+        .dropdown-menu { display: none; }
+        .dropdown:hover .dropdown-menu, .dropdown .dropdown-menu.show { display: block; }
+        .form-section { background:#f8f9fa; padding:20px; border-radius:12px; margin-bottom:20px; }
+        .form-section h5 { margin-bottom:15px; color:#03A6A6; border-bottom:2px solid #03A6A6; padding-bottom:8px; }
+        .dynamic-list-item { display:flex; gap:10px; align-items:center; margin-bottom:8px; }
+        .dynamic-list-item input { flex:1; }
+        .remove-item { background:#dc3545; color:white; border:none; padding:8px 12px; border-radius:6px; cursor:pointer; }
+        .add-item-btn { background:none; border:1px dashed #03A6A6; color:#03A6A6; padding:8px 16px; border-radius:6px; cursor:pointer; margin-top:5px; }
+    </style>
+</head>
+<body>
+<div id="smooth-wrapper" class="mil-wrapper">
+    <div class="mil-preloader"><div class="mil-load"></div><p class="h2 mil-mb-30"><span class="mil-light mil-counter" data-number="100">100</span><span class="mil-light">%</span></p></div>
+    <div class="mil-progress-track"><div class="mil-progress"></div></div>
+    <div class="progress-wrap active-progress"></div>
+
+    <div class="mil-top-panel">
+        <div class="container">
+            <a href="/" class="mil-logo"><img src="/img/logo.png" alt="RevaampAP" width="83" height="32"></a>
+            <nav class="mil-top-menu">
+                <ul>
+                    <li><a href="/superadmin/dashboard">Dashboard</a></li>
+                    <li class="mil-active"><a href="/superadmin/bid-notices">Bid Notices</a></li>
+                </ul>
+            </nav>
+            <div class="mil-menu-buttons">
+                <div class="dropdown" style="position: relative;">
+                    <a href="#" class="mil-btn mil-sm dropdown-toggle"><i class="fa fa-user-circle"></i> <%= user.name %></a>
+                    <ul class="dropdown-menu" style="position:absolute;right:0;top:100%;min-width:180px;background:white;border-radius:12px;box-shadow:0 10px 30px rgba(0,0,0,0.15);padding:10px 0;margin-top:10px;z-index:1000;">
+                        <li><a href="/superadmin/dashboard"><i class="fa fa-tachometer"></i> Dashboard</a></li>
+                        <li><hr></li>
+                        <li><a href="/logout"><i class="fa fa-sign-out-alt"></i> Logout</a></li>
+                    </ul>
+                </div>
+                <div class="mil-menu-btn"><span></span></div>
+            </div>
+        </div>
+    </div>
+
+    <div id="smooth-content">
+        <div class="mil-banner mil-banner-inner mil-dissolve">
+            <div class="container">
+                <div class="row align-items-center justify-content-center">
+                    <div class="col-xl-8">
+                        <div class="mil-banner-text mil-text-center">
+                            <h1 class="mil-mb-60 mil-up">Create Bid Notice</h1>
+                            <ul class="mil-breadcrumbs mil-center mil-up">
+                                <li><a href="/superadmin/dashboard">Dashboard</a></li>
+                                <li><a href="/superadmin/bid-notices">Bid Notices</a></li>
+                                <li>Create</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="mil-blog-list mil-p-80-80">
+            <div class="container">
+                <% if (locals.error && error.length) { %>
+                    <div style="background:#f8d7da;color:#721c24;padding:15px;border-radius:8px;margin-bottom:20px;"><%= error[0] %></div>
+                <% } %>
+
+                <div class="row justify-content-center">
+                    <div class="col-xl-10">
+                        <form action="/superadmin/bid-notices/create" method="POST">
+
+                            <!-- Core Details -->
+                            <div class="form-section">
+                                <h5><i class="fa fa-file-text-o"></i> Notice Details</h5>
+                                <div class="row">
+                                    <div class="col-md-12 mil-mb-20">
+                                        <label class="mil-text-sm mil-soft mil-mb-10">Title</label>
+                                        <input type="text" name="title" class="mil-input" value="BID NOTICE TO REVAAMP VALUE PARTNERS">
+                                    </div>
+                                    <div class="col-md-12 mil-mb-20">
+                                        <label class="mil-text-sm mil-soft mil-mb-10">Opening Description *</label>
+                                        <textarea name="description" class="mil-input" rows="4" required placeholder="e.g. This is to notify all Revaamp Business Partners that Revacom has on their behalf secured an off-take of rooms from ..."></textarea>
+                                    </div>
+                                    <div class="col-md-6 mil-mb-20">
+                                        <label class="mil-text-sm mil-soft mil-mb-10">Transaction Number *</label>
+                                        <input type="text" name="transactionNumber" class="mil-input" placeholder="e.g. LQF/REVAAMP/124" required>
+                                    </div>
+                                    <div class="col-md-6 mil-mb-20">
+                                        <label class="mil-text-sm mil-soft mil-mb-10">Client *</label>
+                                        <input type="text" name="client" class="mil-input" placeholder="e.g. Bel Classcia Suites, Wuse II, Abuja" required>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Transaction Figures -->
+                            <div class="form-section">
+                                <h5><i class="fa fa-money"></i> Transaction Figures</h5>
+                                <div class="row">
+                                    <div class="col-md-4 mil-mb-20">
+                                        <label class="mil-text-sm mil-soft mil-mb-10">Total Lots Available *</label>
+                                        <input type="number" name="totalLots" class="mil-input" min="1" required placeholder="e.g. 50">
+                                    </div>
+                                    <div class="col-md-4 mil-mb-20">
+                                        <label class="mil-text-sm mil-soft mil-mb-10">Transaction Price per Lot (₦) *</label>
+                                        <input type="number" name="transactionPricePerLot" class="mil-input" min="0" step="0.01" required placeholder="e.g. 1625">
+                                    </div>
+                                    <div class="col-md-4 mil-mb-20">
+                                        <label class="mil-text-sm mil-soft mil-mb-10">Transaction Cost per Lot (₦) *</label>
+                                        <input type="number" name="transactionCostPerLot" class="mil-input" min="0" step="0.01" required placeholder="e.g. 1250" id="costInput">
+                                    </div>
+                                    <div class="col-md-4 mil-mb-20">
+                                        <label class="mil-text-sm mil-soft mil-mb-10">Profit per Lot (₦) *</label>
+                                        <input type="number" name="profitPerLot" class="mil-input" min="0" step="0.01" required placeholder="e.g. 275" id="profitInput">
+                                    </div>
+                                    <div class="col-md-4 mil-mb-20">
+                                        <label class="mil-text-sm mil-soft mil-mb-10">Payment Period (days) *</label>
+                                        <input type="number" name="paymentDays" class="mil-input" value="2" min="1">
+                                    </div>
+                                    <div class="col-md-4 mil-mb-20">
+                                        <label class="mil-text-sm mil-soft mil-mb-10">Days to Pay Successful Bidders *</label>
+                                        <input type="number" name="paymentToPartnerDays" class="mil-input" value="9" min="1">
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Deadline -->
+                            <div class="form-section">
+                                <h5><i class="fa fa-clock-o"></i> Deadline</h5>
+                                <div class="row">
+                                    <div class="col-md-6 mil-mb-20">
+                                        <label class="mil-text-sm mil-soft mil-mb-10">Deadline Date & Time *</label>
+                                        <input type="datetime-local" name="deadline" class="mil-input" required>
+                                    </div>
+                                    <div class="col-md-6 mil-mb-20">
+                                        <label class="mil-text-sm mil-soft mil-mb-10">Deadline Display Text (optional)</label>
+                                        <input type="text" name="deadlineText" class="mil-input" placeholder="e.g. before 4pm Wednesday 31st March, 2021">
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Conditions -->
+                            <div class="form-section">
+                                <h5><i class="fa fa-check-circle"></i> Conditions for Participation</h5>
+                                <div id="conditionsList">
+                                    <div class="dynamic-list-item">
+                                        <input type="text" name="conditions" class="mil-input" placeholder="e.g. Must be up-to-date with registration">
+                                        <button type="button" class="remove-item" onclick="removeItem(this)">×</button>
+                                    </div>
+                                </div>
+                                <button type="button" class="add-item-btn" onclick="addItem('conditionsList', 'conditions', 'Add a condition...')">+ Add Condition</button>
+                            </div>
+
+                            <!-- Allocation Criteria -->
+                            <div class="form-section">
+                                <h5><i class="fa fa-list-ol"></i> Criteria for Allocation of Lots</h5>
+                                <div id="criteriaList">
+                                    <div class="dynamic-list-item">
+                                        <input type="text" name="allocationCriteria" class="mil-input" placeholder="e.g. Number of Business Partners introduced">
+                                        <button type="button" class="remove-item" onclick="removeItem(this)">×</button>
+                                    </div>
+                                    <div class="dynamic-list-item">
+                                        <input type="text" name="allocationCriteria" class="mil-input" placeholder="e.g. Number of new Promoters introduced">
+                                        <button type="button" class="remove-item" onclick="removeItem(this)">×</button>
+                                    </div>
+                                </div>
+                                <button type="button" class="add-item-btn" onclick="addItem('criteriaList', 'allocationCriteria', 'Add a criterion...')">+ Add Criterion</button>
+                            </div>
+
+                            <!-- Important Notes -->
+                            <div class="form-section">
+                                <h5><i class="fa fa-exclamation-triangle"></i> Important Notes</h5>
+                                <div id="notesList">
+                                    <div class="dynamic-list-item">
+                                        <input type="text" name="importantNotes" class="mil-input" placeholder="e.g. Where a successful bidder fails to pay within the given period, he/she shall lose the lot(s) given.">
+                                        <button type="button" class="remove-item" onclick="removeItem(this)">×</button>
+                                    </div>
+                                    <div class="dynamic-list-item">
+                                        <input type="text" name="importantNotes" class="mil-input" placeholder="e.g. A participant is allowed to bid as many times as he/she wishes but the number of lots approved shall be determined by the bid management team.">
+                                        <button type="button" class="remove-item" onclick="removeItem(this)">×</button>
+                                    </div>
+                                </div>
+                                <button type="button" class="add-item-btn" onclick="addItem('notesList', 'importantNotes', 'Add a note...')">+ Add Note</button>
+                            </div>
+
+                            <div style="display:flex;gap:15px;margin-top:30px;">
+                                <button type="submit" class="mil-btn mil-accent" style="flex:1;">Post Bid Notice</button>
+                                <a href="/superadmin/bid-notices" class="mil-btn mil-light" style="flex:0;">Cancel</a>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <footer class="mil-p-80-0">
+            <div class="container"><div class="mil-footer-bottom"><p class="mil-text-s mil-soft">© 2026 RevaampAPA All rights reserved.</p></div></div>
+        </footer>
+    </div>
+</div>
+<script src="/js/plugins/jquery.min.js"></script>
+<script src="/js/plugins/swiper.min.js"></script>
+<script src="/js/plugins/gsap.min.js"></script>
+<script src="/js/plugins/ScrollSmoother.min.js"></script>
+<script src="/js/plugins/ScrollTrigger.min.js"></script>
+<script src="/js/plugins/ScrollTo.min.js"></script>
+<script src="/js/plugins/magnific-popup.js"></script>
+<script src="/js/main.js"></script>
+<script>
+    function addItem(listId, fieldName, placeholder) {
+        const list = document.getElementById(listId);
+        const div = document.createElement('div');
+        div.className = 'dynamic-list-item';
+        div.innerHTML = `<input type="text" name="${fieldName}" class="mil-input" placeholder="${placeholder}">
+                         <button type="button" class="remove-item" onclick="removeItem(this)">×</button>`;
+        list.appendChild(div);
+    }
+    function removeItem(btn) {
+        const parent = btn.closest('.dynamic-list-item');
+        const list = parent.parentElement;
+        if (list.querySelectorAll('.dynamic-list-item').length > 1) {
+            parent.remove();
+        }
+    }
+</script>
+</body>
+</html>

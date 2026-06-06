@@ -114,6 +114,7 @@
         <li><a href="/superadmin/property-owners">Owners</a></li>
         <li><a href="/superadmin/transactions">Transactions</a></li>
         <li><a href="/superadmin/inquiries">Inquiries</a></li>
+        <li><a href="/superadmin/bid-notices">Bid Notices</a></li>
         <li><a href="/superadmin/analytics">Analytics</a></li>
     </ul>
 </nav>
@@ -234,6 +235,37 @@
                 </div>
             </div>
             <!-- stats cards end -->
+
+            <!-- Bid Notices Card -->
+            <div class="mil-blog-list mil-p-0-80">
+                <div class="container">
+                    <div class="row">
+                        <div class="col-xl-12">
+                            <div class="mil-price-card mil-up mil-mb-30" style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);">
+                                <div class="row align-items-center">
+                                    <div class="col-md-7">
+                                        <h3 class="mil-light mil-mb-15"><i class="fa fa-gavel"></i> Bid Notices (Business Partner Exclusive)</h3>
+                                        <p class="mil-text-m mil-light mil-mb-0">Post bid notices for Business Partners to participate in discount forward contract transactions. <strong><%= stats.pendingBids || 0 %> bids</strong> pending review across <strong><%= stats.totalBidNotices || 0 %></strong> notices.</p>
+                                    </div>
+                                    <div class="col-md-5 text-right">
+                                        <div style="display:flex;gap:10px;justify-content:flex-end;flex-wrap:wrap;align-items:center;">
+                                            <div style="text-align:center;color:white;">
+                                                <div style="font-size:42px;font-weight:700;line-height:1;"><%= stats.totalBids || 0 %></div>
+                                                <div style="font-size:13px;opacity:0.85;">Total Bids</div>
+                                            </div>
+                                            <div style="display:flex;flex-direction:column;gap:8px;">
+                                                <a href="/superadmin/bid-notices/create" class="mil-btn mil-md mil-light">+ Post Bid Notice</a>
+                                                <a href="/superadmin/bid-notices" class="mil-btn mil-md mil-light">Manage Notices →</a>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- Bid Notices Card End -->
 
             <!-- Pending Payments Card -->
             <div class="mil-blog-list mil-p-0-80">
@@ -421,6 +453,65 @@
             </div>
             <!-- Recent Inquiries Section end -->
 
+            <!-- Active Bid Notices -->
+            <div class="mil-blog-list mil-p-80-80">
+                <div class="container">
+                    <div class="row">
+                        <div class="col-xl-12">
+                            <div class="mil-price-card mil-up mil-mb-30">
+                                <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:25px;">
+                                    <h4>Active Bid Notices</h4>
+                                    <div style="display:flex;gap:10px;">
+                                        <a href="/superadmin/bid-notices/create" class="mil-btn mil-sm" style="background:linear-gradient(135deg,#f093fb 0%,#f5576c 100%);color:white;">+ Post New Notice</a>
+                                        <a href="/superadmin/bid-notices" class="mil-link mil-accent" style="line-height:36px;">View All →</a>
+                                    </div>
+                                </div>
+                                <% if (typeof activeBidNotices !== 'undefined' && activeBidNotices && activeBidNotices.length > 0) { %>
+                                    <div class="mil-table-responsive">
+                                        <table class="mil-table">
+                                            <thead>
+                                                <tr>
+                                                    <th>Transaction No.</th>
+                                                    <th>Client</th>
+                                                    <th>Lots</th>
+                                                    <th>Cost/Lot</th>
+                                                    <th>Profit/Lot</th>
+                                                    <th>Deadline</th>
+                                                    <th>Status</th>
+                                                    <th>Action</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                <% activeBidNotices.forEach(function(notice) { %>
+                                                    <tr>
+                                                        <td><strong><%= notice.transactionNumber %></strong></td>
+                                                        <td><%= notice.client.length > 35 ? notice.client.substring(0, 35) + '…' : notice.client %></td>
+                                                        <td><%= notice.totalLots %></td>
+                                                        <td>₦<%= notice.transactionCostPerLot.toLocaleString() %></td>
+                                                        <td style="color:#28a745;font-weight:600;">₦<%= notice.profitPerLot.toLocaleString() %></td>
+                                                        <td style="color:#dc3545;font-size:12px;">
+                                                            <%= notice.deadlineText || new Date(notice.deadline).toLocaleDateString('en-NG', { day:'numeric', month:'short', year:'numeric' }) %>
+                                                        </td>
+                                                        <td><span class="badge badge-verified">ACTIVE</span></td>
+                                                        <td><a href="/superadmin/bid-notices/<%= notice._id %>" class="mil-link mil-accent">View →</a></td>
+                                                    </tr>
+                                                <% }); %>
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                <% } else { %>
+                                    <div style="text-align:center;padding:40px 20px;color:#999;">
+                                        <i class="fa fa-gavel" style="font-size:48px;margin-bottom:15px;display:block;opacity:0.3;color:#f5576c;"></i>
+                                        <p>No active bid notices. <a href="/superadmin/bid-notices/create" style="color:#f5576c;font-weight:600;">Post the first one →</a></p>
+                                    </div>
+                                <% } %>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- Active Bid Notices End -->
+
             <!-- Quick Actions -->
             <div class="mil-cta mil-up">
                 <div class="container">
@@ -436,6 +527,7 @@
                                     <a href="/superadmin/promoters/pending" class="mil-btn mil-md mil-light" style="margin-left: 10px;">Pending Promoters</a>
                                     <a href="/superadmin/payments/pending" class="mil-btn mil-md mil-light" style="margin-left: 10px;">Verify Payments</a>
                                     <a href="/superadmin/inquiries?status=new" class="mil-btn mil-md mil-light" style="margin-left: 10px; margin-top: 10px;">New Inquiries</a>
+                                    <a href="/superadmin/bid-notices/create" class="mil-btn mil-md mil-light" style="margin-left: 10px; margin-top: 10px;">+ Post Bid Notice</a>
                                 </div>
                             </div>
                         </div>
@@ -450,7 +542,7 @@
                     <div class="mil-footer-bottom">
                         <div class="row">
                             <div class="col-xl-6">
-                                <p class="mil-text-s mil-soft">© 2024 RevaampAP. All rights reserved.</p>
+                                <p class="mil-text-s mil-soft">© 2026 RevaampAPA All rights reserved.</p>
                             </div>
                             <div class="col-xl-6">
                                 <p class="mil-text-s mil-text-right mil-sm-text-left mil-soft">Superadmin Dashboard</p>

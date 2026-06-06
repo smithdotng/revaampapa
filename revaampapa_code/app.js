@@ -378,7 +378,7 @@ app.get('/dashboard', async (req, res) => {
 // Get featured properties
 app.get('/api/properties/featured', async (req, res) => {
     try {
-        const properties = await Property.find({ 
+        let properties = await Property.find({
             verificationStatus: 'verified',
             status: 'available',
             featured: true
@@ -386,7 +386,18 @@ app.get('/api/properties/featured', async (req, res) => {
         .select('title slug price location images propertyType transactionType featured')
         .limit(6)
         .sort('-createdAt');
-        
+
+        // Fall back to recent verified properties if none are marked featured
+        if (!properties.length) {
+            properties = await Property.find({
+                verificationStatus: 'verified',
+                status: 'available'
+            })
+            .select('title slug price location images propertyType transactionType featured')
+            .limit(6)
+            .sort('-createdAt');
+        }
+
         res.json({ success: true, properties });
     } catch (error) {
         console.error('API error:', error);
