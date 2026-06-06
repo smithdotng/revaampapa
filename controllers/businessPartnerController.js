@@ -5,6 +5,8 @@ const Transaction = require('../models/Transaction');
 const Promotion = require('../models/Promotion');
 const ClickTracking = require('../models/ClickTracking');
 const ShareTracking = require('../models/ShareTracking');
+const BidNotice = require('../models/BidNotice');
+const Bid = require('../models/Bid');
 const crypto = require('crypto');
 
 // Helper function to get base URL
@@ -31,10 +33,31 @@ exports.getDashboard = async (req, res) => {
         const totalPropertiesShared = await Promotion.countDocuments({ promoter: user._id }) || 0;
         const totalEarnings = user.businessPartnerProfile?.totalEarnings || 0;
         const pendingWithdrawal = user.businessPartnerProfile?.pendingWithdrawal || 0;
-        
+
+        // Available properties for sharing (same as promoter)
+        const availableProperties = await Property.find({
+            verificationStatus: 'verified',
+            status: 'available'
+        })
+        .select('title price location images propertyType transactionType slug description features _id')
+        .sort('-createdAt')
+        .limit(50);
+
+        // Active bid notices posted by superadmin
+        const bidNotices = await BidNotice.find({ status: 'active' })
+            .sort('-createdAt');
+
+        // This partner's submitted bids (to show status)
+        const myBids = await Bid.find({ bidder: user._id })
+            .populate('bidNotice', 'transactionNumber client deadline')
+            .sort('-createdAt');
+
         res.render('business-partner/dashboard', {
             title: 'Business Partner Dashboard - RevaampAP',
             user: user,
+            properties: availableProperties,
+            bidNotices: bidNotices,
+            myBids: myBids,
             stats: {
                 totalClicks,
                 totalReferrals,
@@ -102,6 +125,87 @@ exports.generateReferralLink = async (req, res) => {
         res.json({ success: true, link: referralLink, code: referralCode });
     } catch (error) {
         console.error('Generate referral link error:', error);
+        res.json({ success: false, error: error.message });
+    }
+};
+
+// ============= BID (Business Partner exclusive) =============
+
+exports.getBidPage = async (req, res) => {
+    try {
+        const user = await User.findById(req.session.userId);
+        const { noticeId } = req.query;
+
+        const bidNotices = await BidNotice.find({ status: 'active' }).sort('-createdAt');
+        const myBids = await Bid.find({ bidder: user._id })
+            .populate('bidNotice', 'transactionNumber client')
+            .sort('-createdAt');
+
+        const selectedNotice = noticeId
+            ? bidNotices.find(n => n._id.toString() === noticeId) || null
+            : null;
+
+        res.render('business-partner/bid', {
+            title: 'Place a Bid - RevaampAP',
+            user,
+            bidNotices,
+            myBids,
+            selectedNotice,
+            currentPath: '/business-partner/bid'
+        });
+    } catch (error) {
+        console.error('Get bid page error:', error);
+        req.flash('error', 'Error loading bid page');
+        res.redirect('/business-partner/dashboard');
+    }
+};
+
+exports.submitBid = async (req, res) => {
+    try {
+        const { bidNoticeId, numberOfLots, message } = req.body;
+
+        if (!bidNoticeId || !numberOfLots || numberOfLots < 1) {
+            req.flash('error', 'Bid notice and number of lots are required');
+            return res.redirect('/business-partner/bid');
+        }
+
+        const notice = await BidNotice.findById(bidNoticeId);
+        if (!notice || notice.status !== 'active') {
+            req.flash('error', 'This bid notice is no longer active');
+            return res.redirect('/business-partner/bid');
+        }
+
+        if (new Date() > notice.deadline) {
+            req.flash('error', 'The deadline for this bid has passed');
+            return res.redirect('/business-partner/bid');
+        }
+
+        const bid = new Bid({
+            bidNotice: bidNoticeId,
+            bidder: req.session.userId,
+            numberOfLots: Number(numberOfLots),
+            message: message || ''
+        });
+
+        await bid.save();
+
+        req.flash('success', `Bid placed successfully for ${numberOfLots} lot(s) on transaction ${notice.transactionNumber}`);
+        res.redirect('/business-partner/bid');
+    } catch (error) {
+        console.error('Submit bid error:', error);
+        req.flash('error', 'Error placing bid');
+        res.redirect('/business-partner/bid');
+    }
+};
+
+exports.getBids = async (req, res) => {
+    try {
+        const bids = await Bid.find({ bidder: req.session.userId })
+            .populate('bidNotice', 'transactionNumber client transactionCostPerLot profitPerLot deadline')
+            .sort('-createdAt');
+        res.json({ success: true, bids });
+    } catch (error) {
+        console.error('Get bids error:', error);
         res.json({ success: false, error: error.message });
     }
 };

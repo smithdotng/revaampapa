@@ -6,6 +6,8 @@ const Withdrawal = require('../models/Withdrawal');
 const Promotion = require('../models/Promotion');
 const Inquiry = require('../models/Inquiry');
 const Hotel = require('../models/Hotel');
+const BidNotice = require('../models/BidNotice');
+const Bid = require('../models/Bid');
 
 // In superadminController.js, update the getDashboard method
 // ============= DASHBOARD =============
@@ -124,6 +126,12 @@ exports.getDashboard = async (req, res) => {
             recentInquiries = [];
         }
         
+        // Bid notice stats
+        const activeBidNotices = await BidNotice.find({ status: 'active' }).sort('-createdAt').limit(5);
+        const totalBidNotices = await BidNotice.countDocuments();
+        const totalBids = await Bid.countDocuments();
+        const pendingBids = await Bid.countDocuments({ status: 'pending' });
+
         // Compile statistics object with null checks
         const stats = {
             totalProperties: totalProperties || 0,
@@ -142,9 +150,12 @@ exports.getDashboard = async (req, res) => {
             totalInquiries: totalInquiries || 0,
             newInquiries: newInquiries || 0,
             readInquiries: readInquiries || 0,
-            repliedInquiries: repliedInquiries || 0
+            repliedInquiries: repliedInquiries || 0,
+            totalBidNotices: totalBidNotices || 0,
+            totalBids: totalBids || 0,
+            pendingBids: pendingBids || 0
         };
-        
+
         // Render dashboard with all data
         res.render('superadmin/dashboard', {
             title: 'Superadmin Dashboard - RevaampAP',
@@ -155,6 +166,7 @@ exports.getDashboard = async (req, res) => {
             recentTransactions: recentTransactions || [],
             recentPromoters: recentPromoters || [],
             recentInquiries: recentInquiries || [],
+            activeBidNotices: activeBidNotices || [],
             currentPath: '/superadmin/dashboard'
         });
         
@@ -192,6 +204,7 @@ exports.getDashboard = async (req, res) => {
                 recentTransactions: [],
                 recentPromoters: [],
                 recentInquiries: [],
+                activeBidNotices: [],
                 currentPath: '/superadmin/dashboard'
             });
         } catch (renderError) {
@@ -1677,10 +1690,141 @@ exports.updateProperty = async (req, res) => {
         console.log('✅ Property updated successfully');
         req.flash('success', 'Property updated successfully!');
         res.redirect('/superadmin/properties');
-        
+
     } catch (error) {
         console.error('Update property error:', error);
         req.flash('error', 'Error updating property: ' + error.message);
         res.redirect(`/superadmin/properties/${req.params.id}/edit`);
+    }
+};
+
+// ============= BID NOTICE MANAGEMENT =============
+
+exports.getBidNotices = async (req, res) => {
+    try {
+        const user = await User.findById(req.session.userId);
+        const bidNotices = await BidNotice.find().sort('-createdAt');
+        const bidCounts = await Bid.aggregate([
+            { $group: { _id: '$bidNotice', count: { $sum: 1 } } }
+        ]);
+        const countMap = {};
+        bidCounts.forEach(b => { countMap[b._id.toString()] = b.count; });
+
+        res.render('superadmin/bid-notices', {
+            title: 'Bid Notices - RevaampAP',
+            user,
+            bidNotices,
+            countMap,
+            currentPath: '/superadmin/bid-notices'
+        });
+    } catch (error) {
+        console.error('Get bid notices error:', error);
+        req.flash('error', 'Error loading bid notices');
+        res.redirect('/superadmin/dashboard');
+    }
+};
+
+exports.getCreateBidNotice = async (req, res) => {
+    try {
+        const user = await User.findById(req.session.userId);
+        res.render('superadmin/bid-notice-create', {
+            title: 'Create Bid Notice - RevaampAP',
+            user,
+            currentPath: '/superadmin/bid-notices'
+        });
+    } catch (error) {
+        console.error('Get create bid notice error:', error);
+        req.flash('error', 'Error loading form');
+        res.redirect('/superadmin/bid-notices');
+    }
+};
+
+exports.createBidNotice = async (req, res) => {
+    try {
+        const {
+            title, description, transactionNumber, client,
+            totalLots, transactionPricePerLot, transactionCostPerLot,
+            profitPerLot, deadline, deadlineText,
+            paymentDays, paymentToPartnerDays,
+            conditions, allocationCriteria, importantNotes
+        } = req.body;
+
+        const notice = new BidNotice({
+            title: title || 'BID NOTICE TO REVAAMP VALUE PARTNERS',
+            description,
+            transactionNumber,
+            client,
+            totalLots: Number(totalLots),
+            transactionPricePerLot: Number(transactionPricePerLot),
+            transactionCostPerLot: Number(transactionCostPerLot),
+            profitPerLot: Number(profitPerLot),
+            deadline: new Date(deadline),
+            deadlineText: deadlineText || '',
+            paymentDays: Number(paymentDays) || 2,
+            paymentToPartnerDays: Number(paymentToPartnerDays) || 9,
+            conditions: Array.isArray(conditions) ? conditions.filter(Boolean) : (conditions ? [conditions] : []),
+            allocationCriteria: Array.isArray(allocationCriteria) ? allocationCriteria.filter(Boolean) : (allocationCriteria ? [allocationCriteria] : []),
+            importantNotes: Array.isArray(importantNotes) ? importantNotes.filter(Boolean) : (importantNotes ? [importantNotes] : []),
+            createdBy: req.session.userId
+        });
+
+        await notice.save();
+        req.flash('success', `Bid notice ${transactionNumber} created successfully`);
+        res.redirect('/superadmin/bid-notices');
+    } catch (error) {
+        console.error('Create bid notice error:', error);
+        req.flash('error', 'Error creating bid notice: ' + error.message);
+        res.redirect('/superadmin/bid-notices/create');
+    }
+};
+
+exports.getBidNoticeDetails = async (req, res) => {
+    try {
+        const user = await User.findById(req.session.userId);
+        const notice = await BidNotice.findById(req.params.id);
+        if (!notice) {
+            req.flash('error', 'Bid notice not found');
+            return res.redirect('/superadmin/bid-notices');
+        }
+        const bids = await Bid.find({ bidNotice: notice._id })
+            .populate('bidder', 'name email phone')
+            .sort('-createdAt');
+
+        res.render('superadmin/bid-notice-detail', {
+            title: `Bid Notice ${notice.transactionNumber} - RevaampAP`,
+            user,
+            notice,
+            bids,
+            currentPath: '/superadmin/bid-notices'
+        });
+    } catch (error) {
+        console.error('Get bid notice detail error:', error);
+        req.flash('error', 'Error loading bid notice');
+        res.redirect('/superadmin/bid-notices');
+    }
+};
+
+exports.closeBidNotice = async (req, res) => {
+    try {
+        await BidNotice.findByIdAndUpdate(req.params.id, { status: 'closed' });
+        req.flash('success', 'Bid notice closed');
+        res.redirect(`/superadmin/bid-notices/${req.params.id}`);
+    } catch (error) {
+        console.error('Close bid notice error:', error);
+        req.flash('error', 'Error closing bid notice');
+        res.redirect('/superadmin/bid-notices');
+    }
+};
+
+exports.deleteBidNotice = async (req, res) => {
+    try {
+        await BidNotice.findByIdAndDelete(req.params.id);
+        await Bid.deleteMany({ bidNotice: req.params.id });
+        req.flash('success', 'Bid notice deleted');
+        res.redirect('/superadmin/bid-notices');
+    } catch (error) {
+        console.error('Delete bid notice error:', error);
+        req.flash('error', 'Error deleting bid notice');
+        res.redirect('/superadmin/bid-notices');
     }
 };
