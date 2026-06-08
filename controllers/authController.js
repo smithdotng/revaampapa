@@ -110,7 +110,7 @@ exports.postLogin = async (req, res) => {
             }
         } else if (user.userType === 'hectare_solicitor') {
             if (!user.hectareProfile?.isActive) {
-                req.flash('error', 'Your Hectare by Hectare solicitor account is pending approval.');
+                req.flash('error', 'Your Revaamp HbH Solicitor account is pending approval.');
                 res.redirect('/login');
             } else {
                 res.redirect('/hectare-solicitor/dashboard');
@@ -656,18 +656,18 @@ exports.postSolicitorRegister = async (req, res) => {
 
 // ============= HECTARE BY HECTARE SOLICITOR REGISTRATION =============
 
-// Hectare by Hectare Solicitor registration page
+// Revaamp HbH Solicitor registration page
 exports.getHectareSolicitorRegister = (req, res) => {
     if (req.session.userId) {
         return res.redirect('/dashboard');
     }
     res.render('hectare-solicitor-register', {
-        title: 'Become a Hectare by Hectare Solicitor',
+        title: 'Become a Revaamp HbH Solicitor',
         currentPath: '/hectare-solicitor/register'
     });
 };
 
-// Hectare by Hectare Solicitor registration handler
+// Revaamp HbH Solicitor registration handler
 exports.postHectareSolicitorRegister = async (req, res) => {
     try {
         const {
@@ -749,7 +749,7 @@ exports.postHectareSolicitorRegister = async (req, res) => {
 
         await hectareSolicitor.save();
 
-        console.log(`✅ Hectare by Hectare Solicitor registered: ${hectareSolicitor.email}`);
+        console.log(`✅ Revaamp HbH Solicitor registered: ${hectareSolicitor.email}`);
 
         req.flash('success', 'Registration successful! Your application is pending review. You will be notified once approved.');
         res.redirect('/login');

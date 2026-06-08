@@ -165,12 +165,12 @@ const authMiddleware = {
         return res.redirect('/');
     },
 
-    // Check if user is a Hectare by Hectare Solicitor
+    // Check if user is a Revaamp HbH Solicitor
     isHectareSolicitor: (req, res, next) => {
         if (req.session.userType === 'hectare_solicitor') {
             return next();
         }
-        req.flash('error', 'Access denied. Hectare by Hectare Solicitor only area.');
+        req.flash('error', 'Access denied. Revaamp HbH Solicitor only area.');
         if (req.path !== '/dashboard') {
             return res.redirect('/dashboard');
         }
@@ -200,7 +200,7 @@ const authMiddleware = {
             if (user && user.userType === 'hectare_solicitor' && user.hectareProfile && user.hectareProfile.isActive) {
                 return next();
             }
-            req.flash('error', 'Your Hectare by Hectare solicitor account is pending approval.');
+            req.flash('error', 'Your Revaamp HbH Solicitor account is pending approval.');
             res.redirect('/hectare-solicitor/pending');
         } catch (error) {
             next(error);

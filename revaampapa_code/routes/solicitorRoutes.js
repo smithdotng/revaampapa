@@ -11,7 +11,7 @@ const upload = require('../middleware/upload');
 router.get('/register', solicitorController.getSolicitorRegister);
 router.post('/register', upload.uploadSolicitorDocs, solicitorController.postSolicitorRegister);
 
-// Hectare by Hectare Solicitor Registration
+// Revaamp HbH Solicitor Registration
 router.get('/hectare/register', solicitorController.getHectareSolicitorRegister);
 router.post('/hectare/register', upload.uploadHectareSolicitorDocs, solicitorController.postHectareSolicitorRegister);
 
@@ -24,7 +24,7 @@ router.get('/dashboard',
     solicitorController.getDashboard
 );
 
-// Hectare by Hectare Solicitor Dashboard
+// Revaamp HbH Solicitor Dashboard
 router.get('/hectare/dashboard', 
     authMiddleware.isAuthenticated, 
     authMiddleware.isHectareSolicitor,

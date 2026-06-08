@@ -159,7 +159,7 @@ exports.adminGetAllBlogs = async (req, res) => {
         
         const total = await Blog.countDocuments(query);
         
-        res.render('admin/blogs', {
+        res.render('superadmin/blogs', {
             title: 'Blog Management - Found Properties',
             user: user,
             blogs,
@@ -167,12 +167,12 @@ exports.adminGetAllBlogs = async (req, res) => {
             totalPages: Math.ceil(total / limit),
             total,
             filters: req.query,
-            path: '/admin/blogs'
+            currentPath: '/superadmin/blogs'
         });
     } catch (error) {
         console.error('Admin get all blogs error:', error);
         req.flash('error', 'Error loading blogs');
-        res.redirect('/admin/dashboard');
+        res.redirect('/superadmin/dashboard');
     }
 };
 
@@ -187,16 +187,16 @@ exports.getCreateBlog = async (req, res) => {
             return res.redirect('/login');
         }
         
-        res.render('admin/blog-form', {
+        res.render('superadmin/blog-form', {
             title: 'Create New Blog Post - Found Properties',
             user: user,
             blog: null,
-            path: '/admin/blogs'
+            currentPath: '/superadmin/blogs'
         });
     } catch (error) {
         console.error('Get create blog error:', error);
         req.flash('error', 'Error loading form');
-        res.redirect('/admin/blogs');
+        res.redirect('/superadmin/blogs');
     }
 };
 
@@ -227,7 +227,7 @@ exports.createBlog = async (req, res) => {
         // Handle featured image upload
         if (!req.file) {
             req.flash('error', 'Featured image is required');
-            return res.redirect('/admin/blogs/create');
+            return res.redirect('/superadmin/blogs/create');
         }
         
         const featuredImage = '/uploads/blogs/' + req.file.filename;
@@ -260,11 +260,11 @@ exports.createBlog = async (req, res) => {
         await blog.save();
         
         req.flash('success', 'Blog post created successfully');
-        res.redirect('/admin/blogs');
+        res.redirect('/superadmin/blogs');
     } catch (error) {
         console.error('Create blog error:', error);
         req.flash('error', 'Error creating blog post: ' + error.message);
-        res.redirect('/admin/blogs/create');
+        res.redirect('/superadmin/blogs/create');
     }
 };
 
@@ -283,19 +283,19 @@ exports.getEditBlog = async (req, res) => {
         
         if (!blog) {
             req.flash('error', 'Blog post not found');
-            return res.redirect('/admin/blogs');
+            return res.redirect('/superadmin/blogs');
         }
         
-        res.render('admin/blog-form', {
+        res.render('superadmin/blog-form', {
             title: 'Edit Blog Post - Found Properties',
             user: user,
             blog,
-            path: '/admin/blogs'
+            currentPath: '/superadmin/blogs'
         });
     } catch (error) {
         console.error('Get edit blog error:', error);
         req.flash('error', 'Error loading blog post');
-        res.redirect('/admin/blogs');
+        res.redirect('/superadmin/blogs');
     }
 };
 
@@ -314,7 +314,7 @@ exports.updateBlog = async (req, res) => {
         
         if (!blog) {
             req.flash('error', 'Blog post not found');
-            return res.redirect('/admin/blogs');
+            return res.redirect('/superadmin/blogs');
         }
         
         const {
@@ -358,11 +358,11 @@ exports.updateBlog = async (req, res) => {
         await blog.save();
         
         req.flash('success', 'Blog post updated successfully');
-        res.redirect('/admin/blogs');
+        res.redirect('/superadmin/blogs');
     } catch (error) {
         console.error('Update blog error:', error);
         req.flash('error', 'Error updating blog post: ' + error.message);
-        res.redirect(`/admin/blogs/${req.params.id}/edit`);
+        res.redirect(`/superadmin/blogs/${req.params.id}/edit`);
     }
 };
 
@@ -376,7 +376,7 @@ exports.deleteBlog = async (req, res) => {
                 return res.status(404).json({ error: 'Blog post not found' });
             }
             req.flash('error', 'Blog post not found');
-            return res.redirect('/admin/blogs');
+            return res.redirect('/superadmin/blogs');
         }
         
         await Blog.findByIdAndDelete(req.params.id);
@@ -386,13 +386,13 @@ exports.deleteBlog = async (req, res) => {
         }
         
         req.flash('success', 'Blog post deleted successfully');
-        res.redirect('/admin/blogs');
+        res.redirect('/superadmin/blogs');
     } catch (error) {
         console.error('Delete blog error:', error);
         if (req.xhr || req.headers.accept?.indexOf('json') > -1) {
             return res.status(500).json({ error: 'Error deleting blog post' });
         }
         req.flash('error', 'Error deleting blog post');
-        res.redirect('/admin/blogs');
+        res.redirect('/superadmin/blogs');
     }
 };

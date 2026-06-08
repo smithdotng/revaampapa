@@ -3,7 +3,7 @@ const express = require('express');
 const router = express.Router();
 const superadminController = require('../controllers/superadminController');
 const authMiddleware = require('../middleware/auth');
-const upload = require('../middleware/upload');
+const { upload, uploadBlog, uploadMultiple } = require('../middleware/upload');
 
 // All routes require superadmin authentication
 router.use(authMiddleware.isAuthenticated);
@@ -20,7 +20,7 @@ router.get('/properties/pending', superadminController.getPendingProperties);
 
 // Edit routes (specific paths with /edit)
 router.get('/properties/:id/edit', superadminController.getEditProperty);
-router.post('/properties/:id/edit', upload.uploadMultiple, superadminController.updateProperty);
+router.post('/properties/:id/edit', uploadMultiple, superadminController.updateProperty);
 
 // Action routes (specific actions)
 router.post('/properties/:id/confirm-payment', superadminController.confirmPayment);
@@ -75,12 +75,33 @@ router.post('/payments/reject/:id', superadminController.rejectPayment);
 // ============= HOTEL MANAGEMENT =============
 router.get('/hotels', superadminController.getAllHotels);
 router.get('/hotels/add', superadminController.getAddHotel);
-router.post('/hotels/add', upload.uploadMultiple, superadminController.postAddHotel);
+router.post('/hotels/add', uploadMultiple, superadminController.postAddHotel);
 router.get('/hotels/:id/edit', superadminController.getEditHotel);
-router.post('/hotels/:id/edit', upload.uploadMultiple, superadminController.updateHotel);
+router.post('/hotels/:id/edit', uploadMultiple, superadminController.updateHotel);
 router.delete('/hotels/:id', superadminController.deleteHotel);
 router.post('/hotels/:id/toggle-status', superadminController.toggleHotelStatus);
 router.post('/hotels/:id/toggle-featured', superadminController.toggleHotelFeatured);
+
+// ============= BLOG MANAGEMENT =============
+const blogController = require('../controllers/blogController');
+
+router.get('/blogs', blogController.adminGetAllBlogs);
+router.get('/blogs/create', blogController.getCreateBlog);
+router.post('/blogs/create', uploadBlog.single('featuredImage'), blogController.createBlog);
+router.get('/blogs/:id/edit', blogController.getEditBlog);
+router.post('/blogs/:id/edit', uploadBlog.single('featuredImage'), blogController.updateBlog);
+router.delete('/blogs/:id', blogController.deleteBlog);
+router.post('/blogs/:id/toggle-featured', async (req, res) => {
+    try {
+        const Blog = require('../models/Blog');
+        const blog = await Blog.findById(req.params.id);
+        if (!blog) { req.flash('error', 'Blog not found'); return res.redirect('/superadmin/blogs'); }
+        blog.featured = !blog.featured;
+        await blog.save();
+        req.flash('success', `Blog ${blog.featured ? 'featured' : 'unfeatured'} successfully`);
+        res.redirect('/superadmin/blogs');
+    } catch (e) { req.flash('error', 'Error'); res.redirect('/superadmin/blogs'); }
+});
 
 // ============= BID NOTICE MANAGEMENT =============
 router.get('/bid-notices', superadminController.getBidNotices);

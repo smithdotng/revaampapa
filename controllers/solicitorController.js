@@ -187,7 +187,7 @@ exports.getHectareSolicitorRegister = async (req, res) => {
     try {
         // Check if user is ALREADY a hectare solicitor
         if (req.session.userType === 'hectare_solicitor') {
-            req.flash('info', 'You are already registered as a Hectare by Hectare Solicitor');
+            req.flash('info', 'You are already registered as a Revaamp HbH Solicitor');
             return res.redirect('/hectare-solicitor/dashboard');
         }
         
@@ -205,7 +205,7 @@ exports.getHectareSolicitorRegister = async (req, res) => {
         }
         
         res.render('hectare-solicitor-register', {
-            title: 'Become a Hectare by Hectare Solicitor - RevaampAP',
+            title: 'Become a Revaamp HbH Solicitor - RevaampAP',
             currentPath: '/solicitor/hectare/register',
             user: req.session.userId ? { name: req.session.userName, type: req.session.userType } : null,
             userData: userData,
@@ -219,7 +219,7 @@ exports.getHectareSolicitorRegister = async (req, res) => {
     }
 };
 
-// Post registration for Hectare by Hectare Solicitor (No experience, no documents required)
+// Post registration for Revaamp HbH Solicitor (No experience, no documents required)
 exports.postHectareSolicitorRegister = async (req, res) => {
     try {
         const {
@@ -330,7 +330,7 @@ exports.postHectareSolicitorRegister = async (req, res) => {
 
         await hectareSolicitor.save();
 
-        console.log(`✅ Hectare by Hectare Solicitor registered: ${hectareSolicitor.email}`);
+        console.log(`✅ Revaamp HbH Solicitor registered: ${hectareSolicitor.email}`);
 
         req.flash('success', 'Registration successful! Your application is pending review. You will be notified once approved.');
         
@@ -410,7 +410,7 @@ exports.getHectareDashboard = async (req, res) => {
         }).sort('-createdAt');
 
         res.render('hectare-solicitor/dashboard', {
-            title: 'Hectare by Hectare Solicitor Dashboard - RevaampAPA',
+            title: 'Revaamp HbH Solicitor Dashboard - RevaampAPA',
             user: solicitor,
             cooperatives: cooperatives,
             stats: {

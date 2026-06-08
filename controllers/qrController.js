@@ -411,7 +411,7 @@ exports.getAllQRCodes = async (req, res) => {
         const hectareQR = await QRCode.toDataURL(hectareUrl, { width: 200 });
         
         qrCodes.push({
-            role: 'Hectare by Hectare Solicitor',
+            role: 'Revaamp HbH Solicitor',
             roleKey: 'hectare_solicitor',
             qrCode: hectareQR,
             url: hectareUrl,

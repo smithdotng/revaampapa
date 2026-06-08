@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="en-US">
+<head>
+    <title><%= title %></title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="/fonts/css/switzer.css" type="text/css" media="all">
+    <link rel="stylesheet" href="/fonts/css/font-awesome.min.css" type="text/css" media="all">
+    <link rel="stylesheet" href="/css/plugins/bootstrap-grid.css" type="text/css" media="all">
+    <link rel="stylesheet" href="/css/plugins/swiper.min.css" type="text/css" media="all">
+    <link rel="stylesheet" href="/css/plugins/magnific-popup.css" type="text/css" media="all">
+    <link rel="stylesheet" href="/css/style.css" type="text/css" media="all">
+    <link rel="stylesheet" href="/css/custom.css" type="text/css" media="all">
+    <link rel="shortcut icon" href="/favicon.ico" type="image/x-icon">
+    <style>
+        .dropdown-menu { display: none; }
+        .dropdown:hover .dropdown-menu, .dropdown .dropdown-menu.show { display: block; }
+        .mil-table { width: 100%; border-collapse: collapse; }
+        .mil-table th, .mil-table td { padding: 12px; text-align: left; border-bottom: 1px solid #eee; vertical-align: middle; }
+        .mil-table th { font-weight: 600; color: #333; background: #f8f9fa; }
+        .mil-table-responsive { overflow-x: auto; }
+        .badge { display: inline-block; padding: 4px 10px; border-radius: 20px; font-size: 11px; font-weight: 600; }
+        .badge-published { background: #d4edda; color: #155724; }
+        .badge-draft { background: #fff3cd; color: #856404; }
+        .badge-archived { background: #f8d7da; color: #721c24; }
+        .badge-featured { background: #cce5ff; color: #004085; }
+        .filter-bar { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; margin-bottom: 20px; }
+        .thumb { width: 60px; height: 45px; object-fit: cover; border-radius: 6px; }
+        .action-btns { display: flex; gap: 6px; flex-wrap: wrap; }
+    </style>
+</head>
+<body>
+<div id="smooth-wrapper" class="mil-wrapper">
+    <div class="mil-preloader"><div class="mil-load"></div><p class="h2 mil-mb-30"><span class="mil-light mil-counter" data-number="100">100</span><span class="mil-light">%</span></p></div>
+    <div class="mil-progress-track"><div class="mil-progress"></div></div>
+    <div class="progress-wrap active-progress"></div>
+
+    <div class="mil-top-panel">
+        <div class="container">
+            <a href="/" class="mil-logo"><img src="/img/logo.png" alt="RevaampAPA" width="83" height="32"></a>
+            <nav class="mil-top-menu">
+                <ul>
+                    <li><a href="/superadmin/dashboard">Dashboard</a></li>
+                    <li><a href="/superadmin/properties">Properties</a></li>
+                    <li class="mil-active"><a href="/superadmin/blogs">Blog</a></li>
+                    <li><a href="/superadmin/bid-notices">Bid Notices</a></li>
+                </ul>
+            </nav>
+            <div class="mil-menu-buttons">
+                <div class="dropdown" style="position:relative;">
+                    <a href="#" class="mil-btn mil-sm dropdown-toggle"><i class="fa fa-user-circle"></i> <%= user.name %></a>
+                    <ul class="dropdown-menu" style="position:absolute;right:0;top:100%;min-width:200px;background:white;border-radius:12px;box-shadow:0 10px 30px rgba(0,0,0,0.15);padding:10px 0;margin-top:10px;z-index:1000;">
+                        <li><a href="/superadmin/dashboard" style="padding:10px 20px;display:block;color:#333;text-decoration:none;">Dashboard</a></li>
+                        <li><hr></li>
+                        <li><a href="/logout" style="padding:10px 20px;display:block;color:#dc3545;text-decoration:none;">Logout</a></li>
+                    </ul>
+                </div>
+                <div class="mil-menu-btn"><span></span></div>
+            </div>
+        </div>
+    </div>
+
+    <div id="smooth-content">
+        <div class="mil-banner mil-banner-inner mil-dissolve">
+            <div class="container">
+                <div class="row align-items-center justify-content-center">
+                    <div class="col-xl-8">
+                        <div class="mil-banner-text mil-text-center">
+                            <h1 class="mil-mb-60 mil-up">Blog Management</h1>
+                            <ul class="mil-breadcrumbs mil-center mil-up">
+                                <li><a href="/superadmin/dashboard">Dashboard</a></li>
+                                <li>Blog</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="mil-blog-list mil-p-80-80">
+            <div class="container">
+                <% if (locals.success && success.length) { %>
+                    <div style="background:#d4edda;color:#155724;padding:15px;border-radius:8px;margin-bottom:20px;"><%= success[0] %></div>
+                <% } %>
+                <% if (locals.error && error.length) { %>
+                    <div style="background:#f8d7da;color:#721c24;padding:15px;border-radius:8px;margin-bottom:20px;"><%= error[0] %></div>
+                <% } %>
+
+                <!-- Filter bar -->
+                <div class="filter-bar">
+                    <a href="/superadmin/blogs" class="mil-btn mil-sm <%= !filters.status || filters.status === 'all' ? 'mil-accent' : 'mil-light' %>">All (<%= total %>)</a>
+                    <a href="/superadmin/blogs?status=published" class="mil-btn mil-sm <%= filters.status === 'published' ? 'mil-accent' : 'mil-light' %>">Published</a>
+                    <a href="/superadmin/blogs?status=draft" class="mil-btn mil-sm <%= filters.status === 'draft' ? 'mil-accent' : 'mil-light' %>">Drafts</a>
+                    <a href="/superadmin/blogs?status=archived" class="mil-btn mil-sm <%= filters.status === 'archived' ? 'mil-accent' : 'mil-light' %>">Archived</a>
+                    <div style="margin-left:auto;">
+                        <a href="/superadmin/blogs/create" class="mil-btn mil-sm" style="background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);color:white;">+ New Post</a>
+                    </div>
+                </div>
+
+                <div class="mil-price-card mil-up">
+                    <div class="mil-table-responsive">
+                        <table class="mil-table">
+                            <thead>
+                                <tr>
+                                    <th>Image</th>
+                                    <th>Title</th>
+                                    <th>Author</th>
+                                    <th>Categories</th>
+                                    <th>Status</th>
+                                    <th>Views</th>
+                                    <th>Date</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <% if (!blogs || blogs.length === 0) { %>
+                                    <tr><td colspan="8" style="text-align:center;padding:40px;color:#999;">No blog posts yet. <a href="/superadmin/blogs/create">Create the first one</a>.</td></tr>
+                                <% } %>
+                                <% blogs.forEach(blog => { %>
+                                    <tr>
+                                        <td>
+                                            <img src="<%= blog.featuredImage %>" alt="<%= blog.title %>" class="thumb" onerror="this.src='/img/property-placeholder.jpg'">
+                                        </td>
+                                        <td>
+                                            <strong><%= blog.title.length > 50 ? blog.title.substring(0,50)+'…' : blog.title %></strong>
+                                            <% if (blog.featured) { %><br><span class="badge badge-featured">⭐ Featured</span><% } %>
+                                        </td>
+                                        <td><%= blog.author ? blog.author.name : blog.authorName %></td>
+                                        <td>
+                                            <% blog.categories.slice(0,2).forEach(c => { %>
+                                                <span style="display:inline-block;background:#f0f0f0;padding:2px 8px;border-radius:10px;font-size:11px;margin:1px;"><%= c %></span>
+                                            <% }) %>
+                                        </td>
+                                        <td><span class="badge badge-<%= blog.status %>"><%= blog.status.toUpperCase() %></span></td>
+                                        <td><%= blog.views || 0 %></td>
+                                        <td style="font-size:12px;white-space:nowrap;">
+                                            <%= blog.publishedAt ? new Date(blog.publishedAt).toLocaleDateString('en-NG', {day:'numeric',month:'short',year:'numeric'}) : new Date(blog.createdAt).toLocaleDateString('en-NG', {day:'numeric',month:'short',year:'numeric'}) %>
+                                        </td>
+                                        <td>
+                                            <div class="action-btns">
+                                                <a href="/blog/<%= blog.slug %>" target="_blank" class="mil-btn mil-xs mil-light" title="View"><i class="fa fa-eye"></i></a>
+                                                <a href="/superadmin/blogs/<%= blog._id %>/edit" class="mil-btn mil-xs" title="Edit"><i class="fa fa-edit"></i></a>
+                                                <form action="/superadmin/blogs/<%= blog._id %>/toggle-featured" method="POST" style="display:inline;">
+                                                    <button type="submit" class="mil-btn mil-xs mil-light" title="<%= blog.featured ? 'Unfeature' : 'Feature' %>">
+                                                        <i class="fa fa-star<%= blog.featured ? '' : '-o' %>"></i>
+                                                    </button>
+                                                </form>
+                                                <form action="/superadmin/blogs/<%= blog._id %>?_method=DELETE" method="POST" style="display:inline;" onsubmit="return confirm('Delete this post permanently?')">
+                                                    <button type="submit" class="mil-btn mil-xs" style="background:#dc3545;color:white;" title="Delete"><i class="fa fa-trash"></i></button>
+                                                </form>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                <% }) %>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <!-- Pagination -->
+                    <% if (totalPages > 1) { %>
+                        <div style="display:flex;justify-content:center;gap:8px;margin-top:25px;flex-wrap:wrap;">
+                            <% if (currentPage > 1) { %>
+                                <a href="?page=<%= currentPage-1 %><%= filters.status ? '&status='+filters.status : '' %>" class="mil-btn mil-sm mil-light">← Prev</a>
+                            <% } %>
+                            <% for(let i=1; i<=totalPages; i++) { %>
+                                <a href="?page=<%= i %><%= filters.status ? '&status='+filters.status : '' %>" class="mil-btn mil-sm <%= currentPage===i ? 'mil-accent' : 'mil-light' %>"><%= i %></a>
+                            <% } %>
+                            <% if (currentPage < totalPages) { %>
+                                <a href="?page=<%= currentPage+1 %><%= filters.status ? '&status='+filters.status : '' %>" class="mil-btn mil-sm mil-light">Next →</a>
+                            <% } %>
+                        </div>
+                    <% } %>
+                </div>
+            </div>
+        </div>
+
+        <footer class="mil-p-80-0">
+            <div class="container"><div class="mil-footer-bottom"><p class="mil-text-s mil-soft">© 2026 RevaampAPA All rights reserved.</p></div></div>
+        </footer>
+    </div>
+</div>
+<script src="/js/plugins/jquery.min.js"></script>
+<script src="/js/plugins/swiper.min.js"></script>
+<script src="/js/plugins/gsap.min.js"></script>
+<script src="/js/plugins/ScrollSmoother.min.js"></script>
+<script src="/js/plugins/ScrollTrigger.min.js"></script>
+<script src="/js/plugins/ScrollTo.min.js"></script>
+<script src="/js/plugins/magnific-popup.js"></script>
+<script src="/js/main.js"></script>
+</body>
+</html>

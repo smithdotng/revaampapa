@@ -487,6 +487,134 @@ const sendWelcomeEmailToBusinessPartner = async (user) => {
     return await sendEmail(user.email, subject, html);
 };
 
+// Send bid notice email — all users get this; business partners get a bid CTA
+const sendBidNoticeEmail = async (user, notice) => {
+    const baseUrl = process.env.BASE_URL || 'http://localhost:3000';
+    const isBusinessPartner = user.userType === 'business_partner';
+
+    const deadlineDisplay = notice.deadlineText ||
+        new Date(notice.deadline).toLocaleString('en-NG', {
+            weekday: 'long', day: 'numeric', month: 'long', year: 'numeric',
+            hour: '2-digit', minute: '2-digit'
+        });
+
+    const bidCTA = isBusinessPartner
+        ? `<a href="${baseUrl}/business-partner/bid?noticeId=${notice._id}" class="btn">🔨 Place My Bid Now</a>`
+        : `<div class="info-box">
+               <p><strong>🔒 Bidding is exclusive to Revaamp Business Partners.</strong></p>
+               <p>Want to participate in future bid transactions?</p>
+               <a href="${baseUrl}/business-partner/register" class="btn-secondary">Become a Business Partner</a>
+           </div>`;
+
+    const conditionsList = notice.conditions && notice.conditions.length
+        ? `<ul>${notice.conditions.map(c => `<li>${c}</li>`).join('')}</ul>` : '';
+
+    const criteriaList = notice.allocationCriteria && notice.allocationCriteria.length
+        ? `<ul>${notice.allocationCriteria.map(c => `<li>${c}</li>`).join('')}</ul>` : '';
+
+    const notesList = notice.importantNotes && notice.importantNotes.length
+        ? `<ul>${notice.importantNotes.map(n => `<li>${n}</li>`).join('')}</ul>` : '';
+
+    const subject = `📢 New Bid Notice: ${notice.transactionNumber} — ${notice.client}`;
+
+    const html = `
+        <!DOCTYPE html>
+        <html>
+        <head>
+            <style>
+                body { font-family: Arial, sans-serif; line-height: 1.7; color: #333; margin: 0; padding: 0; }
+                .container { max-width: 620px; margin: 0 auto; padding: 20px; }
+                .header { background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); color: white; padding: 35px 30px; text-align: center; border-radius: 12px 12px 0 0; }
+                .header h1 { margin: 0 0 8px; font-size: 24px; }
+                .header p { margin: 0; opacity: 0.9; font-size: 15px; }
+                .badge { display: inline-block; background: rgba(255,255,255,0.25); padding: 5px 14px; border-radius: 20px; font-size: 12px; letter-spacing: 1px; margin-bottom: 12px; }
+                .content { background: #fff; padding: 30px; }
+                .notice-box { background: #fff8f8; border: 2px solid #f5576c; border-radius: 10px; padding: 20px; margin: 20px 0; }
+                .notice-row { display: flex; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid #fce4e4; font-size: 15px; }
+                .notice-row:last-child { border-bottom: none; }
+                .notice-label { color: #888; }
+                .notice-value { font-weight: 700; color: #333; }
+                .profit { color: #28a745 !important; font-size: 18px; }
+                .deadline { color: #dc3545 !important; }
+                .section-title { font-size: 13px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; color: #f5576c; margin: 20px 0 8px; }
+                ul { margin: 5px 0; padding-left: 20px; }
+                ul li { margin-bottom: 5px; font-size: 14px; }
+                .btn { display: inline-block; background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); color: white !important; padding: 14px 32px; text-decoration: none; border-radius: 8px; margin-top: 20px; font-weight: 700; font-size: 16px; }
+                .btn-secondary { display: inline-block; background: #333; color: white !important; padding: 11px 24px; text-decoration: none; border-radius: 8px; margin-top: 10px; font-size: 14px; }
+                .info-box { background: #f8f9fa; border-left: 4px solid #6c757d; padding: 15px 20px; border-radius: 0 8px 8px 0; margin-top: 20px; }
+                .info-box p { margin: 0 0 8px; font-size: 14px; }
+                .footer { background: #f8f9fa; text-align: center; padding: 20px; font-size: 12px; color: #999; border-radius: 0 0 12px 12px; }
+                .divider { height: 1px; background: #f0f0f0; margin: 20px 0; }
+            </style>
+        </head>
+        <body>
+            <div class="container">
+                <div class="header">
+                    <div class="badge">BID NOTICE</div>
+                    <h1>New Transaction Opportunity</h1>
+                    <p>${notice.description}</p>
+                </div>
+                <div class="content">
+                    <p>Dear ${user.name},</p>
+                    <p>Revaamp has secured an exclusive transaction opportunity. Below are the full details:</p>
+
+                    <div class="notice-box">
+                        <div class="notice-row">
+                            <span class="notice-label">Transaction Number</span>
+                            <span class="notice-value">${notice.transactionNumber}</span>
+                        </div>
+                        <div class="notice-row">
+                            <span class="notice-label">Client</span>
+                            <span class="notice-value">${notice.client}</span>
+                        </div>
+                        <div class="notice-row">
+                            <span class="notice-label">Total Lots Available</span>
+                            <span class="notice-value">${notice.totalLots} lots</span>
+                        </div>
+                        <div class="notice-row">
+                            <span class="notice-label">Transaction Price per Lot</span>
+                            <span class="notice-value">₦${notice.transactionPricePerLot.toLocaleString()}</span>
+                        </div>
+                        <div class="notice-row">
+                            <span class="notice-label">Transaction Cost per Lot</span>
+                            <span class="notice-value">₦${notice.transactionCostPerLot.toLocaleString()}</span>
+                        </div>
+                        <div class="notice-row">
+                            <span class="notice-label">Profit per Lot</span>
+                            <span class="notice-value profit">₦${notice.profitPerLot.toLocaleString()}</span>
+                        </div>
+                        <div class="notice-row">
+                            <span class="notice-label">Payment to Successful Bidders</span>
+                            <span class="notice-value">Day ${notice.paymentToPartnerDays || 9} from receipt of transaction cost</span>
+                        </div>
+                        <div class="notice-row">
+                            <span class="notice-label">Bid Deadline</span>
+                            <span class="notice-value deadline">${deadlineDisplay}</span>
+                        </div>
+                    </div>
+
+                    ${conditionsList ? `<div class="section-title">Conditions for Participation</div>${conditionsList}` : ''}
+                    ${criteriaList ? `<div class="section-title">Criteria for Allocation of Lots</div>${criteriaList}` : ''}
+                    ${notesList ? `<div class="section-title">⚠️ Important Notes</div>${notesList}` : ''}
+
+                    <div class="divider"></div>
+                    <div style="text-align:center;">
+                        ${bidCTA}
+                    </div>
+                </div>
+                <div class="footer">
+                    <p>This notice was sent to all registered members of RevaampAPA.</p>
+                    <p>© 2026 RevaampAPA All rights reserved. · Abuja, Nigeria</p>
+                    <p><a href="${baseUrl}" style="color:#f5576c;">www.revaampapa.com</a></p>
+                </div>
+            </div>
+        </body>
+        </html>
+    `;
+
+    return await sendEmail(user.email, subject, html);
+};
+
 // Don't forget to add to module.exports
 module.exports = {
     sendWelcomeEmailToPropertyOwner,
@@ -497,7 +625,8 @@ module.exports = {
     sendVerificationPaymentConfirmation,
     sendPropertyVerifiedEmail,
     sendPropertyRejectedEmail,
-    sendCommissionPayoutEmail
+    sendCommissionPayoutEmail,
+    sendBidNoticeEmail
 };
 
 // Add this at the end of utils/email.js to verify the module loads correctly

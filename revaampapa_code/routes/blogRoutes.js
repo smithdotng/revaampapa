@@ -1,20 +1,10 @@
 // routes/blogRoutes.js
 const express = require('express');
 const router = express.Router();
+const blogController = require('../controllers/blogController');
 
 // Public blog routes
-router.get('/', (req, res) => {
-    res.render('blog/index', {
-        title: 'Blog - RevaampAPA',
-        currentPath: '/blog'
-    });
-});
-
-router.get('/:slug', (req, res) => {
-    res.render('blog/detail', {
-        title: 'Blog Post - RevaampAPA',
-        currentPath: `/blog/${req.params.slug}`
-    });
-});
+router.get('/', blogController.getAllBlogs);
+router.get('/:slug', blogController.getBlogBySlug);
 
 module.exports = router;

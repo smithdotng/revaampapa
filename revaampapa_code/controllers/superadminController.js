@@ -1769,7 +1769,37 @@ exports.createBidNotice = async (req, res) => {
         });
 
         await notice.save();
-        req.flash('success', `Bid notice ${transactionNumber} created successfully`);
+
+        // ── Email all users in the background ──────────────────────────────────
+        // Respond to admin immediately; emails fire without blocking the request.
+        setImmediate(async () => {
+            try {
+                const { sendBidNoticeEmail } = require('../utils/email');
+
+                // Fetch every registered user who has an email address
+                const allUsers = await User.find(
+                    { email: { $exists: true, $ne: '' } },
+                    'name email userType'
+                ).lean();
+
+                console.log(`📧 Sending bid notice emails to ${allUsers.length} users...`);
+
+                for (const user of allUsers) {
+                    try {
+                        await sendBidNoticeEmail(user, notice);
+                    } catch (emailErr) {
+                        console.error(`Failed to email ${user.email}:`, emailErr.message);
+                    }
+                }
+
+                console.log(`✅ Bid notice emails dispatched for ${notice.transactionNumber}`);
+            } catch (bulkErr) {
+                console.error('Bulk bid-notice email error:', bulkErr);
+            }
+        });
+        // ───────────────────────────────────────────────────────────────────────
+
+        req.flash('success', `Bid notice ${transactionNumber} created and emails are being sent to all users`);
         res.redirect('/superadmin/bid-notices');
     } catch (error) {
         console.error('Create bid notice error:', error);

@@ -67,6 +67,17 @@ const bankGuaranteeStorage = multer.diskStorage({
     }
 });
 
+// Configure storage for blog images
+const blogStorage = multer.diskStorage({
+    destination: (req, file, cb) => {
+        cb(null, blogUploadDir);
+    },
+    filename: (req, file, cb) => {
+        const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
+        cb(null, 'blog-' + uniqueSuffix + path.extname(file.originalname));
+    }
+});
+
 // Configure storage for payment proofs
 const paymentStorage = multer.diskStorage({
     destination: (req, file, cb) => {
@@ -101,6 +112,13 @@ const documentFileFilter = (req, file, cb) => {
         cb(new Error('Only images, PDF, and Word documents are allowed'));
     }
 };
+
+// Blog image upload
+const uploadBlog = multer({
+    storage: blogStorage,
+    limits: { fileSize: 5 * 1024 * 1024 },
+    fileFilter: imageFileFilter
+});
 
 // Create multer instances
 const uploadProperty = multer({
@@ -166,6 +184,8 @@ const single = (fieldName) => {
         return uploadPaymentProof.single(fieldName);
     } else if (fieldName === 'barCertificate') {
         return uploadDocument.single(fieldName);
+    } else if (fieldName === 'featuredImage') {
+        return uploadBlog.single(fieldName);
     } else {
         return uploadProperty.single(fieldName);
     }
@@ -210,6 +230,7 @@ module.exports = {
     uploadProfile,
     uploadDocument,
     uploadBankGuarantee,
-    uploadPaymentProof
+    uploadPaymentProof,
+    uploadBlog
 };
 
