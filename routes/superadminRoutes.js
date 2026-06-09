@@ -17,6 +17,8 @@ router.get('/', superadminController.getDashboard);
 // List routes (no parameters)
 router.get('/properties', superadminController.getProperties);
 router.get('/properties/pending', superadminController.getPendingProperties);
+router.get('/properties/add', superadminController.getAddProperty);
+router.post('/properties/add', uploadMultiple, superadminController.postAddProperty);
 
 // Edit routes (specific paths with /edit)
 router.get('/properties/:id/edit', superadminController.getEditProperty);

@@ -200,6 +200,19 @@
                 </div>
             </div>
 
+            <!-- Actions Bar -->
+            <div class="mil-blog-list mil-p-0-20">
+                <div class="container">
+                    <div class="row">
+                        <div class="col-xl-12 text-right mb-3">
+                            <a href="/superadmin/properties/add" class="mil-btn" style="background:#03A6A6;color:white;padding:10px 24px;border-radius:6px;text-decoration:none;font-weight:600;">
+                                <i class="fas fa-plus-circle"></i> List Property for Owner
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
             <!-- Filters -->
             <div class="mil-blog-list mil-p-0-40">
                 <div class="container">
@@ -275,8 +288,17 @@
                                                             <% if (property.featured) { %>
                                                                 <span class="featured-badge"><i class="fa fa-star"></i> Featured</span>
                                                             <% } %>
+                                                            <% if (property.listedBySuperadmin) { %>
+                                                                <span style="background:#17a2b8;color:white;font-size:10px;padding:2px 6px;border-radius:4px;display:inline-block;margin-left:4px;">Proxy</span>
+                                                            <% } %>
                                                          </td>
-                                                         <td><%= property.owner ? property.owner.name : 'N/A' %></td>
+                                                         <td>
+                                                            <% if (property.listedBySuperadmin && property.externalOwner) { %>
+                                                                <%= property.externalOwner.name %> <span style="font-size:11px;color:#6c757d;">(unregistered)</span>
+                                                            <% } else { %>
+                                                                <%= property.owner ? property.owner.name : 'N/A' %>
+                                                            <% } %>
+                                                         </td>
                                                          <td>₦<%= property.price.toLocaleString() %></td>
                                                          <td>
                                                             <% if (property.verificationStatus === 'verified') { %>

@@ -92,6 +92,18 @@ const propertySchema = new mongoose.Schema({
         enum: ['property_owner', 'realtor', 'admin', 'superadmin'],
         default: 'property_owner'
     },
+
+    // Set when superadmin lists on behalf of an unregistered property owner
+    listedBySuperadmin: {
+        type: Boolean,
+        default: false
+    },
+    externalOwner: {
+        name: String,
+        phone: String,
+        email: String,
+        address: String
+    },
     
     // Verification status
     verificationStatus: {

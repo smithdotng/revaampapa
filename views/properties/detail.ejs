@@ -473,8 +473,19 @@
                             <div class="mil-price-card mil-up mil-mb-30">
                                 <h4 class="mil-mb-20">Property Owner</h4>
                                 <div class="mil-mb-15">
-                                    <p><strong><i class="fa fa-user"></i> <%= property.owner ? property.owner.name : 'N/A' %></strong></p>
-                                   
+                                    <% if (property.listedBySuperadmin && property.externalOwner) { %>
+                                        <p><strong><i class="fa fa-user"></i> <%= property.externalOwner.name %></strong></p>
+                                        <% if (property.externalOwner.phone) { %>
+                                            <p class="mil-text-s"><i class="fa fa-phone"></i> <%= property.externalOwner.phone %></p>
+                                        <% } %>
+                                        <div style="background:#e8f4fd;border-left:3px solid #17a2b8;padding:10px 14px;border-radius:4px;margin-top:10px;font-size:13px;">
+                                            <i class="fa fa-shield"></i> <strong>Managed Listing</strong><br>
+                                            Enquiries are handled by RevaampAP:<br>
+                                            <a href="mailto:listing@revaampapa.com" style="color:#17a2b8;font-weight:600;">listing@revaampapa.com</a>
+                                        </div>
+                                    <% } else { %>
+                                        <p><strong><i class="fa fa-user"></i> <%= property.owner ? property.owner.name : 'N/A' %></strong></p>
+                                    <% } %>
                                 </div>
                             </div>
 
@@ -505,7 +516,7 @@
                                 <h4 class="mil-mb-20">Interested in this property?</h4>
                                 
                                 <div id="successMessage" class="success-message">
-                                    <i class="fa fa-check-circle"></i> Inquiry sent successfully! The property owner will contact you soon.
+                                    <i class="fa fa-check-circle"></i> Inquiry sent successfully! <% if (property.listedBySuperadmin) { %>Our team at listing@revaampapa.com will be in touch shortly.<% } else { %>The property owner will contact you soon.<% } %>
                                 </div>
                                 <div id="errorMessage" class="error-message">
                                     <i class="fa fa-exclamation-circle"></i> <span id="errorText"></span>

@@ -1544,6 +1544,93 @@ exports.toggleHotelFeatured = async (req, res) => {
     }
 };
 
+// ============= ADD PROPERTY (SUPERADMIN PROXY LISTING) =============
+
+exports.getAddProperty = async (req, res) => {
+    try {
+        const user = await User.findById(req.session.userId);
+        res.render('superadmin/add-property', {
+            title: 'List Property for Owner - RevaampAP',
+            user,
+            currentPath: '/superadmin/properties'
+        });
+    } catch (error) {
+        console.error('Get add property error:', error);
+        req.flash('error', 'Error loading form');
+        res.redirect('/superadmin/properties');
+    }
+};
+
+exports.postAddProperty = async (req, res) => {
+    try {
+        const slugify = require('slugify');
+        const {
+            title, description, propertyType, transactionType,
+            price, priceNegotiable,
+            address, city, state, lga, landmark,
+            bedrooms, bathrooms, toilets, parkingSpaces,
+            floorArea, landArea,
+            furnished, serviced, security, powerSupply, borehole,
+            ownerName, ownerPhone, ownerEmail, ownerAddress
+        } = req.body;
+
+        const slug = slugify(title, { lower: true, strict: true }) + '-' + Date.now();
+
+        const images = [];
+        if (req.files && req.files.length > 0) {
+            req.files.forEach((file, index) => {
+                images.push({ url: '/uploads/properties/' + file.filename, isPrimary: index === 0 });
+            });
+        }
+
+        const property = new Property({
+            title: title.trim(),
+            slug,
+            description: description.trim(),
+            propertyType,
+            transactionType,
+            price: parseFloat(price),
+            priceNegotiable: priceNegotiable === 'on',
+            location: { address, city, state, lga, landmark },
+            features: {
+                bedrooms: bedrooms ? parseInt(bedrooms) : 0,
+                bathrooms: bathrooms ? parseInt(bathrooms) : 0,
+                toilets: toilets ? parseInt(toilets) : 0,
+                parkingSpaces: parkingSpaces ? parseInt(parkingSpaces) : 0,
+                floorArea: floorArea ? parseFloat(floorArea) : 0,
+                landArea: landArea ? parseFloat(landArea) : 0,
+                furnished: furnished === 'on',
+                serviced: serviced === 'on',
+                security: security === 'on',
+                powerSupply: powerSupply === 'on',
+                borehole: borehole === 'on'
+            },
+            images,
+            owner: req.session.userId,
+            ownerType: 'superadmin',
+            listedBySuperadmin: true,
+            externalOwner: {
+                name: ownerName.trim(),
+                phone: ownerPhone.trim(),
+                email: ownerEmail.trim(),
+                address: ownerAddress ? ownerAddress.trim() : ''
+            },
+            verificationStatus: 'verified',
+            status: 'available',
+            agencyFee: parseFloat(price) * 0.1
+        });
+
+        await property.save();
+
+        req.flash('success', `Property "${title}" listed successfully on behalf of ${ownerName}.`);
+        res.redirect('/superadmin/properties');
+    } catch (error) {
+        console.error('Post add property error:', error);
+        req.flash('error', 'Error listing property: ' + error.message);
+        res.redirect('/superadmin/properties/add');
+    }
+};
+
 // ============= EDIT PROPERTY =============
 
 // Get edit property page - FIXED VERSION

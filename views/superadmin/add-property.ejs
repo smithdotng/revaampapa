@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+<html lang="en-US">
+
+<head>
+    <title><%= title %></title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <link rel="stylesheet" href="/fonts/css/switzer.css" type="text/css" media="all">
+    <link rel="stylesheet" href="/fonts/css/font-awesome.min.css" type="text/css" media="all">
+    <link rel="stylesheet" href="/css/plugins/bootstrap-grid.css" type="text/css" media="all">
+    <link rel="stylesheet" href="/css/plugins/swiper.min.css" type="text/css" media="all">
+    <link rel="stylesheet" href="/css/plugins/magnific-popup.css" type="text/css" media="all">
+    <link rel="stylesheet" href="/css/style.css" type="text/css" media="all">
+    <link rel="stylesheet" href="/css/custom.css" type="text/css" media="all">
+
+    <link rel="shortcut icon" href="/favicon.ico" type="image/x-icon">
+
+    <style>
+        .form-container { max-width: 1200px; margin: 0 auto; }
+        .form-section { background: white; padding: 30px; border-radius: 12px; margin-bottom: 30px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); }
+        .form-section h3 { margin-bottom: 20px; padding-bottom: 10px; border-bottom: 2px solid #03A6A6; }
+        .form-group { margin-bottom: 20px; }
+        .form-group label { display: block; margin-bottom: 8px; font-weight: 600; color: #333; }
+        .form-group input, .form-group select, .form-group textarea { width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 8px; font-size: 14px; }
+        .form-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; }
+        .checkbox-group { display: flex; align-items: center; gap: 15px; flex-wrap: wrap; margin-top: 10px; }
+        .checkbox-group label { display: inline-flex; align-items: center; gap: 5px; font-weight: normal; cursor: pointer; }
+        .checkbox-group input { width: auto; margin-right: 5px; }
+        .btn-submit { background: #03A6A6; color: white; border: none; padding: 15px 40px; border-radius: 8px; font-size: 16px; font-weight: 600; cursor: pointer; margin-right: 15px; }
+        .btn-submit:hover { background: #028484; }
+        .btn-cancel { background: #6c757d; color: white; border: none; padding: 15px 40px; border-radius: 8px; font-size: 16px; font-weight: 600; cursor: pointer; text-decoration: none; display: inline-block; }
+        .btn-cancel:hover { background: #5a6268; color: white; }
+        .image-preview { display: flex; flex-wrap: wrap; gap: 15px; margin-top: 15px; }
+        .image-item { position: relative; width: 120px; height: 120px; border-radius: 8px; overflow: hidden; border: 2px solid #ddd; }
+        .image-item img { width: 100%; height: 100%; object-fit: cover; }
+        .proxy-notice { background: #e8f5e9; border-left: 4px solid #28a745; padding: 15px 20px; border-radius: 6px; margin-bottom: 20px; }
+        .proxy-notice strong { color: #1b5e20; }
+        .dropdown-menu { display: none; }
+        .dropdown:hover .dropdown-menu, .dropdown .dropdown-menu.show { display: block; }
+    </style>
+</head>
+
+<body>
+
+    <div id="smooth-wrapper" class="mil-wrapper">
+        <div class="mil-preloader">
+            <div class="mil-load"></div>
+            <p class="h2 mil-mb-30"><span class="mil-light mil-counter" data-number="100">100</span><span class="mil-light">%</span></p>
+        </div>
+
+        <div class="mil-progress-track"><div class="mil-progress"></div></div>
+        <div class="progress-wrap active-progress"></div>
+
+        <!-- top panel -->
+        <div class="mil-top-panel">
+            <div class="container">
+                <a href="/" class="mil-logo">
+                    <img src="/img/logo.png" alt="RevaampAP" width="83" height="32">
+                </a>
+                <nav class="mil-top-menu">
+                    <ul>
+                        <li><a href="/">Home</a></li>
+                        <li><a href="/superadmin/dashboard">Dashboard</a></li>
+                        <li><a href="/superadmin/properties" class="mil-active">Properties</a></li>
+                        <li><a href="/superadmin/promoters">Promoters</a></li>
+                        <li><a href="/superadmin/property-owners">Owners</a></li>
+                        <li><a href="/superadmin/transactions">Transactions</a></li>
+                        <li><a href="/superadmin/analytics">Analytics</a></li>
+                    </ul>
+                </nav>
+                <div class="mil-top-panel-right">
+                    <div class="dropdown">
+                        <button class="mil-btn mil-sm-btn dropdown-toggle">
+                            <i class="fas fa-user-shield"></i> <%= user.name %>
+                        </button>
+                        <div class="dropdown-menu dropdown-menu-right">
+                            <a class="dropdown-item" href="/superadmin/profile">Profile</a>
+                            <a class="dropdown-item" href="/superadmin/settings">Settings</a>
+                            <div class="dropdown-divider"></div>
+                            <a class="dropdown-item" href="/logout">Logout</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Page Content -->
+        <div class="mil-content" style="padding-top: 120px; padding-bottom: 80px;">
+            <div class="container">
+                <div class="form-container">
+
+                    <!-- Header -->
+                    <div class="d-flex justify-content-between align-items-center mb-4">
+                        <div>
+                            <h2 style="color: #03A6A6;">List Property on Behalf of Owner</h2>
+                            <p class="text-muted mb-0">List a property for an owner who is not registered on the platform. The listing will go live immediately and all enquiries will be directed to <strong>listing@revaampapa.com</strong>.</p>
+                        </div>
+                        <a href="/superadmin/properties" class="btn-cancel">
+                            <i class="fas fa-arrow-left"></i> Back
+                        </a>
+                    </div>
+
+                    <% if (typeof messages !== 'undefined' && messages.error && messages.error.length > 0) { %>
+                        <div class="alert alert-danger mb-4"><%= messages.error[0] %></div>
+                    <% } %>
+
+                    <div class="proxy-notice">
+                        <strong><i class="fas fa-info-circle"></i> Proxy Listing Notice:</strong>
+                        The property owner's details will be displayed on the public listing. However, all correspondence and enquiries from prospective buyers/tenants will be routed to <strong>listing@revaampapa.com</strong> — not directly to the owner.
+                    </div>
+
+                    <form action="/superadmin/properties/add" method="POST" enctype="multipart/form-data">
+
+                        <!-- Property Owner Details -->
+                        <div class="form-section">
+                            <h3><i class="fas fa-user" style="color:#03A6A6;"></i> Property Owner Details</h3>
+                            <p class="text-muted mb-4">Enter the details of the property owner (not registered on the platform).</p>
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label>Owner Full Name <span class="text-danger">*</span></label>
+                                    <input type="text" name="ownerName" placeholder="e.g. Emeka Okafor" required>
+                                </div>
+                                <div class="form-group">
+                                    <label>Owner Phone Number <span class="text-danger">*</span></label>
+                                    <input type="tel" name="ownerPhone" placeholder="e.g. 08031234567" required>
+                                </div>
+                            </div>
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label>Owner Email Address</label>
+                                    <input type="email" name="ownerEmail" placeholder="owner@example.com">
+                                </div>
+                                <div class="form-group">
+                                    <label>Owner Address / Location</label>
+                                    <input type="text" name="ownerAddress" placeholder="e.g. 12 Adeola Odeku, Victoria Island, Lagos">
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Property Details -->
+                        <div class="form-section">
+                            <h3><i class="fas fa-home" style="color:#03A6A6;"></i> Property Details</h3>
+                            <div class="form-group">
+                                <label>Property Title <span class="text-danger">*</span></label>
+                                <input type="text" name="title" placeholder="e.g. 4 Bedroom Duplex in Lekki Phase 1" required>
+                            </div>
+                            <div class="form-group">
+                                <label>Description <span class="text-danger">*</span></label>
+                                <textarea name="description" rows="5" placeholder="Provide a detailed description of the property..." required></textarea>
+                            </div>
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label>Property Type <span class="text-danger">*</span></label>
+                                    <select name="propertyType" required>
+                                        <option value="">-- Select Type --</option>
+                                        <option value="shortlet">Shortlet</option>
+                                        <option value="land">Land</option>
+                                        <option value="building">Building</option>
+                                        <option value="shop">Shop</option>
+                                        <option value="business_complex">Business Complex</option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label>Transaction Type <span class="text-danger">*</span></label>
+                                    <select name="transactionType" required>
+                                        <option value="">-- Select Transaction --</option>
+                                        <option value="rent">Rent</option>
+                                        <option value="sale">Sale</option>
+                                        <option value="lease">Lease</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label>Price (₦) <span class="text-danger">*</span></label>
+                                    <input type="number" name="price" min="0" step="1000" placeholder="e.g. 5000000" required>
+                                </div>
+                                <div class="form-group" style="display:flex;align-items:flex-end;padding-bottom:5px;">
+                                    <label style="margin-bottom:0;">
+                                        <input type="checkbox" name="priceNegotiable" style="width:auto;margin-right:8px;">
+                                        Price is Negotiable
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Location -->
+                        <div class="form-section">
+                            <h3><i class="fas fa-map-marker-alt" style="color:#03A6A6;"></i> Location</h3>
+                            <div class="form-group">
+                                <label>Street Address <span class="text-danger">*</span></label>
+                                <input type="text" name="address" placeholder="e.g. 15 Akin Adesola Street" required>
+                            </div>
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label>City <span class="text-danger">*</span></label>
+                                    <input type="text" name="city" placeholder="e.g. Lagos" required>
+                                </div>
+                                <div class="form-group">
+                                    <label>State <span class="text-danger">*</span></label>
+                                    <select name="state" required>
+                                        <option value="">-- Select State --</option>
+                                        <% ['Abia','Adamawa','Akwa Ibom','Anambra','Bauchi','Bayelsa','Benue','Borno','Cross River','Delta','Ebonyi','Edo','Ekiti','Enugu','FCT - Abuja','Gombe','Imo','Jigawa','Kaduna','Kano','Katsina','Kebbi','Kogi','Kwara','Lagos','Nasarawa','Niger','Ogun','Ondo','Osun','Oyo','Plateau','Rivers','Sokoto','Taraba','Yobe','Zamfara'].forEach(s => { %>
+                                            <option value="<%= s %>"><%= s %></option>
+                                        <% }); %>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label>LGA</label>
+                                    <input type="text" name="lga" placeholder="Local Government Area">
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label>Nearest Landmark</label>
+                                <input type="text" name="landmark" placeholder="e.g. Near Lekki Toll Gate">
+                            </div>
+                        </div>
+
+                        <!-- Property Features -->
+                        <div class="form-section">
+                            <h3><i class="fas fa-list-ul" style="color:#03A6A6;"></i> Property Features</h3>
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label>Bedrooms</label>
+                                    <input type="number" name="bedrooms" min="0" placeholder="0">
+                                </div>
+                                <div class="form-group">
+                                    <label>Bathrooms</label>
+                                    <input type="number" name="bathrooms" min="0" placeholder="0">
+                                </div>
+                                <div class="form-group">
+                                    <label>Toilets</label>
+                                    <input type="number" name="toilets" min="0" placeholder="0">
+                                </div>
+                                <div class="form-group">
+                                    <label>Parking Spaces</label>
+                                    <input type="number" name="parkingSpaces" min="0" placeholder="0">
+                                </div>
+                            </div>
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label>Floor Area (sqm)</label>
+                                    <input type="number" name="floorArea" min="0" step="0.5" placeholder="0">
+                                </div>
+                                <div class="form-group">
+                                    <label>Land Area (sqm)</label>
+                                    <input type="number" name="landArea" min="0" step="0.5" placeholder="0">
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label>Amenities</label>
+                                <div class="checkbox-group">
+                                    <label><input type="checkbox" name="furnished"> Furnished</label>
+                                    <label><input type="checkbox" name="serviced"> Serviced</label>
+                                    <label><input type="checkbox" name="security"> 24/7 Security</label>
+                                    <label><input type="checkbox" name="powerSupply"> Power Supply</label>
+                                    <label><input type="checkbox" name="borehole"> Borehole</label>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Property Images -->
+                        <div class="form-section">
+                            <h3><i class="fas fa-images" style="color:#03A6A6;"></i> Property Images</h3>
+                            <div class="form-group">
+                                <label>Upload Images (first image will be the primary/cover image)</label>
+                                <input type="file" name="images" multiple accept="image/*" id="imageInput" onchange="previewImages(this)">
+                                <small class="text-muted">You can select multiple images. Recommended: at least 3 images.</small>
+                            </div>
+                            <div class="image-preview" id="imagePreview"></div>
+                        </div>
+
+                        <!-- Submit -->
+                        <div class="form-section" style="text-align:right;">
+                            <a href="/superadmin/properties" class="btn-cancel mr-3">Cancel</a>
+                            <button type="submit" class="btn-submit">
+                                <i class="fas fa-check-circle"></i> List Property
+                            </button>
+                        </div>
+
+                    </form>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <script src="/js/plugins/jquery.min.js"></script>
+    <script src="/js/plugins/swiper.min.js"></script>
+    <script src="/js/plugins/gsap.min.js"></script>
+    <script src="/js/plugins/ScrollSmoother.min.js"></script>
+    <script src="/js/plugins/ScrollTrigger.min.js"></script>
+    <script src="/js/plugins/ScrollTo.min.js"></script>
+    <script src="/js/plugins/magnific-popup.js"></script>
+    <script src="/js/main.js"></script>
+
+    <script>
+        function previewImages(input) {
+            const preview = document.getElementById('imagePreview');
+            preview.innerHTML = '';
+            if (input.files && input.files.length > 0) {
+                Array.from(input.files).forEach((file, index) => {
+                    const reader = new FileReader();
+                    reader.onload = function(e) {
+                        const div = document.createElement('div');
+                        div.className = 'image-item';
+                        div.innerHTML = `<img src="${e.target.result}" alt="Preview">` +
+                            (index === 0 ? '<span style="position:absolute;bottom:5px;left:5px;background:#28a745;color:white;padding:2px 6px;border-radius:4px;font-size:10px;">Primary</span>' : '');
+                        preview.appendChild(div);
+                    };
+                    reader.readAsDataURL(file);
+                });
+            }
+        }
+    </script>
+</body>
+</html>
