@@ -784,9 +784,28 @@
                 alert('Please generate your referral link first.');
                 return;
             }
-            const message = `Become a promoter using my referral link: ${referralLink} and earn up to 90% commission on property sales. Multiple income streams including property introductions (40%), buyer referrals (90%+50%), hotel onboarding (30%), and business partner referrals (₦10,000). Start earning today!`;
-            window.open(`https://wa.me/?text=${encodeURIComponent(message)}`, '_blank');
-            await trackShare('whatsapp', 'referral');
+            const message = `🌟 *Exclusive Invitation to Earn Passive Income* 🌟
+
+I invite you to register for free as a Promoter and earn passive income just by sharing advertised properties for sale right from your phone! 
+
+*Ways you can earn:*
+• *Property Shares:* Share unique links from your dashboard.
+• *Referrals:* Earn by inviting others or referring buyers.
+• *Property Uploads:* Earn by listing properties for sale.
+
+🚀 *Become a promoter today using my referral link:* 
+${referralLink}
+
+*Multiple Income Streams Include:*
+• Property Introductions (40%)
+• Buyer Referrals (90% + 50%)
+• Hotel Onboarding (30%)
+• Business Partner Referrals (₦10,000)
+
+Use your data wisely. Start earning today!`;
+
+window.open(`https://wa.me/?text=${encodeURIComponent(message)}`, '_blank');
+await trackShare('whatsapp', 'referral');
         }
 
         async function shareOnFacebook() {
