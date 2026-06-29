@@ -15,7 +15,8 @@ const authMiddleware = {
                 'solicitor': '/solicitor/dashboard',
                 'hectare_solicitor': '/hectare-solicitor/dashboard',
                 'business_partner': '/business-partner/dashboard',
-                'project_subscriber': '/project-subscriber/dashboard'
+                'project_subscriber': '/project-subscriber/dashboard',
+                'architect': '/architect/dashboard'
             };
             
             const redirectUrl = redirectMap[userType] || '/dashboard';
@@ -202,6 +203,33 @@ const authMiddleware = {
             }
             req.flash('error', 'Your Revaamp HbH Solicitor account is pending approval.');
             res.redirect('/hectare-solicitor/pending');
+        } catch (error) {
+            next(error);
+        }
+    },
+
+    // Check if user is an Architect
+    isArchitect: (req, res, next) => {
+        if (req.session.userType === 'architect') {
+            return next();
+        }
+        req.flash('error', 'Access denied. Architect only area.');
+        if (req.path !== '/dashboard') {
+            return res.redirect('/dashboard');
+        }
+        return res.redirect('/');
+    },
+
+    // Check if architect is active (approved)
+    isArchitectActive: async (req, res, next) => {
+        try {
+            const Architect = require('../models/Architect');
+            const user = await Architect.findById(req.session.userId);
+            if (user && user.userType === 'architect' && user.architectProfile && user.architectProfile.isActive) {
+                return next();
+            }
+            req.flash('error', 'Your architect account is pending approval.');
+            res.redirect('/login');
         } catch (error) {
             next(error);
         }

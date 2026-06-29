@@ -42,6 +42,11 @@ router.post('/promoters/:id/reject', superadminController.rejectPromoter);
 router.post('/promoters/:id/suspend', superadminController.suspendPromoter);
 router.get('/promoters/:id/transactions', superadminController.getPromoterTransactions);
 
+// ============= ARCHITECT MANAGEMENT (PM Solution - verification phase) =============
+router.get('/architects/pending', superadminController.getPendingArchitects);
+router.post('/architects/:id/approve', superadminController.approveArchitect);
+router.post('/architects/:id/reject', superadminController.rejectArchitect);
+
 // ============= PROPERTY OWNER MANAGEMENT =============
 router.get('/property-owners', superadminController.getPropertyOwners);
 router.get('/property-owners/:id', superadminController.getPropertyOwnerDetails);

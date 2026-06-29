@@ -172,6 +172,24 @@ const uploadHectareSolicitorDocs = multer({
     { name: 'professionalProfile', maxCount: 1 }
 ]);
 
+// Architect document upload middleware (registration documents)
+const uploadArchitectDocs = multer({
+    storage: documentStorage,
+    limits: { fileSize: 10 * 1024 * 1024 },
+    fileFilter: documentFileFilter
+}).fields([
+    { name: 'arconCertificate', maxCount: 1 },
+    { name: 'firmRegistration', maxCount: 1 },
+    { name: 'professionalProfile', maxCount: 1 }
+]);
+
+// Structural assessment supporting documents upload (plans/drawings/report)
+const uploadStructuralAssessmentDocs = multer({
+    storage: documentStorage,
+    limits: { fileSize: 10 * 1024 * 1024 },
+    fileFilter: documentFileFilter
+}).array('supportingDocuments', 10);
+
 // Single file upload helpers
 const single = (fieldName) => {
     if (fieldName === 'profileImage') {
@@ -226,6 +244,8 @@ module.exports = {
     uploadPaymentProofDoc,
     uploadSolicitorDocs,
     uploadHectareSolicitorDocs,
+    uploadArchitectDocs,
+    uploadStructuralAssessmentDocs,
     uploadProperty,
     uploadProfile,
     uploadDocument,

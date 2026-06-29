@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="en-US">
+
+<head>
+    <title><%= title %></title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <link rel="stylesheet" href="/fonts/css/switzer.css" type="text/css" media="all">
+    <link rel="stylesheet" href="/fonts/css/font-awesome.min.css" type="text/css" media="all">
+    <link rel="stylesheet" href="/css/plugins/bootstrap-grid.css" type="text/css" media="all">
+    <link rel="stylesheet" href="/css/plugins/swiper.min.css" type="text/css" media="all">
+    <link rel="stylesheet" href="/css/style.css" type="text/css" media="all">
+    <link rel="stylesheet" href="/css/custom.css" type="text/css" media="all">
+    <link rel="shortcut icon" href="/favicon.ico" type="image/x-icon">
+</head>
+
+<body>
+    <div id="smooth-wrapper" class="mil-wrapper">
+        <div class="mil-preloader"><div class="mil-load"></div><p class="h2 mil-mb-30"><span class="mil-light mil-counter" data-number="100">100</span><span class="mil-light">%</span></p></div>
+        <div class="mil-progress-track"><div class="mil-progress"></div></div>
+        <div class="progress-wrap active-progress"></div>
+
+        <!-- Top Panel -->
+        <div class="mil-top-panel">
+            <div class="container">
+                <a href="/" class="mil-logo"><img src="/img/logo.png" alt="RevaampAP" width="83" height="32"></a>
+                <nav class="mil-top-menu">
+                    <ul>
+                        <li><a href="/">Home</a></li>
+                        <li><a href="/project-subscriber/dashboard">Dashboard</a></li>
+                        <li class="mil-active"><a href="/project-subscriber/projects">Projects</a></li>
+                        <li><a href="/project-subscriber/bank-guarantee">Bank Guarantee</a></li>
+                        <li><a href="/project-subscriber/subscription">Subscription</a></li>
+                    </ul>
+                </nav>
+                <div class="mil-menu-buttons">
+                    <div class="dropdown" style="position: relative;">
+                        <a href="#" class="mil-btn mil-sm dropdown-toggle" data-bs-toggle="dropdown">
+                            <i class="fa fa-user-circle"></i> <%= user.name %> <i class="fa fa-chevron-down"></i>
+                        </a>
+                        <ul class="dropdown-menu">
+                            <li><a href="/project-subscriber/dashboard"><i class="fa fa-tachometer"></i> Dashboard</a></li>
+                            <li><a href="/project-subscriber/settings"><i class="fa fa-cog"></i> Settings</a></li>
+                            <li><hr></li>
+                            <li><a href="/logout"><i class="fa fa-sign-out-alt"></i> Logout</a></li>
+                        </ul>
+                    </div>
+                    <div class="mil-menu-btn"><span></span></div>
+                </div>
+            </div>
+        </div>
+
+        <% if (typeof error !== 'undefined' && error && error.length) { %>
+            <div class="alert alert-danger m-3" style="position: fixed; top: 100px; right: 20px; z-index: 9999;"><i class="fas fa-exclamation-circle"></i> <%= error %></div>
+        <% } %>
+        <% if (typeof success !== 'undefined' && success && success.length) { %>
+            <div class="alert alert-success m-3" style="position: fixed; top: 100px; right: 20px; z-index: 9999;"><i class="fas fa-check-circle"></i> <%= success %></div>
+        <% } %>
+
+        <div id="smooth-content">
+            <div class="mil-banner mil-banner-inner mil-dissolve">
+                <div class="container">
+                    <div class="row align-items-center justify-content-center">
+                        <div class="col-xl-8">
+                            <div class="mil-banner-text mil-text-center">
+                                <h1 class="mil-mb-30">My Projects</h1>
+                                <p class="mil-text-m mil-soft">Track and manage your proposed and active projects</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="mil-blog-list mil-p-80-80">
+                <div class="container">
+                    <div class="row align-items-center mil-mb-30">
+                        <div class="col-md-8">
+                            <!-- Status filter -->
+                            <div class="mil-filter">
+                                <% var statuses = ['all','draft','pending_approval','approved','in_progress','on_hold','completed','cancelled']; %>
+                                <% var current = (filters && filters.status) ? filters.status : 'all'; %>
+                                <% statuses.forEach(function(s){ %>
+                                    <a href="/project-subscriber/projects?status=<%= s %>" class="mil-btn mil-sm <%= current === s ? '' : 'mil-light' %>" style="margin:3px;text-transform:capitalize;"><%= s.replace(/_/g,' ') %></a>
+                                <% }); %>
+                            </div>
+                        </div>
+                        <div class="col-md-4 mil-text-right">
+                            <a href="/project-subscriber/projects/create" class="mil-btn mil-md"><i class="fa fa-plus"></i> New Project</a>
+                        </div>
+                    </div>
+
+                    <div class="mil-price-card">
+                        <h4 class="mil-mb-30">Projects (<%= total %>)</h4>
+                        <% if (projects && projects.length > 0) { %>
+                            <div class="mil-table-responsive">
+                                <table class="mil-table" style="width:100%;">
+                                    <thead>
+                                        <tr><th>Title</th><th>Type</th><th>Location</th><th>Value</th><th>Status</th><th>Progress</th><th>Created</th><th></th></tr>
+                                    </thead>
+                                    <tbody>
+                                        <% projects.forEach(function(p){ %>
+                                            <tr>
+                                                <td><strong><%= p.title %></strong></td>
+                                                <td style="text-transform:capitalize;"><%= p.projectType %></td>
+                                                <td><%= (p.location && p.location.city) ? p.location.city : 'N/A' %><%= (p.location && p.location.state) ? ', ' + p.location.state : '' %></td>
+                                                <td>₦<%= (p.projectValue || 0).toLocaleString() %></td>
+                                                <td style="text-transform:capitalize;"><%= (p.status || '').replace(/_/g,' ') %></td>
+                                                <td><%= p.progress || 0 %>%</td>
+                                                <td><%= new Date(p.createdAt).toLocaleDateString() %></td>
+                                                <td><a href="/project-subscriber/projects/<%= p.slug %>" class="mil-btn mil-sm">View</a></td>
+                                            </tr>
+                                        <% }); %>
+                                    </tbody>
+                                </table>
+                            </div>
+
+                            <% if (totalPages > 1) { %>
+                                <div class="mil-pagination mil-text-center mil-mt-30">
+                                    <% for (var i = 1; i <= totalPages; i++) { %>
+                                        <a href="/project-subscriber/projects?status=<%= current %>&page=<%= i %>" class="mil-btn mil-sm <%= currentPage === i ? '' : 'mil-light' %>" style="margin:2px;"><%= i %></a>
+                                    <% } %>
+                                </div>
+                            <% } %>
+                        <% } else { %>
+                            <div class="mil-text-center mil-p-60">
+                                <i class="fa fa-folder-open" style="font-size: 64px; color: #03A6A6;"></i>
+                                <h4 class="mil-mt-30">No Projects Yet</h4>
+                                <p class="mil-text-m mil-soft">Propose your first project to get started.</p>
+                                <a href="/project-subscriber/projects/create" class="mil-btn mil-md mil-mt-15"><i class="fa fa-plus"></i> New Project</a>
+                            </div>
+                        <% } %>
+                    </div>
+                </div>
+            </div>
+
+            <footer class="mil-p-80-0">
+                <div class="container">
+                    <div class="mil-footer-bottom">
+                        <div class="row">
+                            <div class="col-xl-6"><p class="mil-text-s mil-soft">© 2026 RevaampAPA. All rights reserved.</p></div>
+                            <div class="col-xl-6"><p class="mil-text-s mil-text-right mil-sm-text-left mil-soft">Project Management Dashboard</p></div>
+                        </div>
+                    </div>
+                </div>
+            </footer>
+        </div>
+    </div>
+
+    <script src="/js/plugins/jquery.min.js"></script>
+    <script src="/js/plugins/swiper.min.js"></script>
+    <script src="/js/plugins/gsap.min.js"></script>
+    <script src="/js/plugins/ScrollSmoother.min.js"></script>
+    <script src="/js/plugins/ScrollTrigger.min.js"></script>
+    <script src="/js/plugins/ScrollTo.min.js"></script>
+    <script src="/js/plugins/magnific-popup.js"></script>
+    <script src="/js/main.js"></script>
+
+    <style>
+        .dropdown-menu { display: none; }
+        .dropdown:hover .dropdown-menu { display: block; }
+        .mil-p-60 { padding: 60px; }
+        .mil-table th, .mil-table td { padding: 10px 12px; text-align: left; }
+    </style>
+</body>
+
+</html>

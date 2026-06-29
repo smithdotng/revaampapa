@@ -160,6 +160,9 @@ app.use('/project-subscriber', require('./routes/projectSubscriberRoutes'));
 // Solicitor routes
 app.use('/solicitor', require('./routes/solicitorRoutes'));
 
+// Architect routes (Project Management Solution - verification phase)
+app.use('/architect', require('./routes/architectRoutes'));
+
 // Hotel routes
 app.use('/hotels', require('./routes/hotelRoutes'));
 

@@ -160,6 +160,9 @@ app.use('/project-subscriber', require('./routes/projectSubscriberRoutes'));
 // Solicitor routes
 app.use('/solicitor', require('./routes/solicitorRoutes'));
 
+// Architect routes (Project Management Solution - verification phase)
+app.use('/architect', require('./routes/architectRoutes'));
+
 // Hotel routes
 app.use('/hotels', require('./routes/hotelRoutes'));
 
@@ -485,7 +488,8 @@ app.use((req, res) => {
     res.status(404).render('404', {
         title: 'Page Not Found - RevaampAP',
         message: 'The page you are looking for does not exist.',
-        currentPath: req.path
+        currentPath: req.path,
+        user: req.session && req.session.userId ? { name: req.session.userName } : null
     });
 });
 
@@ -511,7 +515,8 @@ app.use((err, req, res, next) => {
     res.status(500).render('500', {
         title: 'Server Error - RevaampAP',
         message: process.env.NODE_ENV === 'development' ? err.message : 'Something went wrong on our end. Please try again later.',
-        currentPath: req.path
+        currentPath: req.path,
+        user: req.session && req.session.userId ? { name: req.session.userName } : null
     });
 });
 

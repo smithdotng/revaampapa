@@ -8,6 +8,7 @@ const Inquiry = require('../models/Inquiry');
 const Hotel = require('../models/Hotel');
 const BidNotice = require('../models/BidNotice');
 const Bid = require('../models/Bid');
+const Architect = require('../models/Architect');
 
 // In superadminController.js, update the getDashboard method
 // ============= DASHBOARD =============
@@ -1856,5 +1857,73 @@ exports.deleteBidNotice = async (req, res) => {
         console.error('Delete bid notice error:', error);
         req.flash('error', 'Error deleting bid notice');
         res.redirect('/superadmin/bid-notices');
+    }
+};
+
+// ============= ARCHITECT APPROVALS (PM Solution - verification phase) =============
+
+// Get pending architects
+exports.getPendingArchitects = async (req, res) => {
+    try {
+        const user = await User.findById(req.session.userId);
+
+        const architects = await Architect.find({
+            'architectProfile.isActive': false
+        }).select('-password').sort('-createdAt');
+
+        res.render('superadmin/pending-architects', {
+            title: 'Pending Architect Approvals - RevaampAP',
+            user: user,
+            architects: architects,
+            currentPath: '/superadmin/architects'
+        });
+    } catch (error) {
+        console.error('Get pending architects error:', error);
+        req.flash('error', 'Error loading pending architects');
+        res.redirect('/superadmin/dashboard');
+    }
+};
+
+// Approve architect
+exports.approveArchitect = async (req, res) => {
+    try {
+        const architect = await Architect.findById(req.params.id);
+
+        if (!architect) {
+            return res.status(404).json({ error: 'Architect not found' });
+        }
+
+        architect.architectProfile.isActive = true;
+        architect.architectProfile.approvedAt = new Date();
+        architect.architectProfile.approvedBy = req.session.userId;
+        await architect.save();
+
+        res.json({ success: true });
+    } catch (error) {
+        console.error('Approve architect error:', error);
+        res.status(500).json({ error: 'Error approving architect' });
+    }
+};
+
+// Reject architect
+exports.rejectArchitect = async (req, res) => {
+    try {
+        const { reason } = req.body;
+        const architect = await Architect.findById(req.params.id);
+
+        if (!architect) {
+            return res.status(404).json({ error: 'Architect not found' });
+        }
+
+        architect.architectProfile.isActive = false;
+        architect.isSuspended = true;
+        architect.suspensionReason = reason || 'Application rejected';
+        architect.suspendedAt = new Date();
+        await architect.save();
+
+        res.json({ success: true });
+    } catch (error) {
+        console.error('Reject architect error:', error);
+        res.status(500).json({ error: 'Error rejecting architect' });
     }
 };

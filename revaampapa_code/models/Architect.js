@@ -1,0 +1,154 @@
+// models/Architect.js
+const mongoose = require('mongoose');
+const bcrypt = require('bcryptjs');
+
+const architectSchema = new mongoose.Schema({
+    // Basic Information
+    name: {
+        type: String,
+        required: true,
+        trim: true
+    },
+    email: {
+        type: String,
+        required: true,
+        unique: true,
+        lowercase: true,
+        trim: true
+    },
+    phone: {
+        type: String,
+        required: true
+    },
+    password: {
+        type: String,
+        required: true
+    },
+    userType: {
+        type: String,
+        enum: ['architect', 'admin', 'superadmin'],
+        default: 'architect'
+    },
+
+    // Professional Information
+    firm: {
+        type: String,
+        required: true
+    },
+    arconNumber: {
+        // Architects Registration Council of Nigeria (ARCON) registration number
+        type: String,
+        required: true
+    },
+    countryOfPractice: {
+        type: String,
+        required: true
+    },
+    territory: {
+        type: String,
+        default: ''
+    },
+    experience: String,
+    specialization: [String],
+
+    // Documents
+    arconCertificate: {
+        url: String,
+        filename: String,
+        uploadedAt: Date
+    },
+    firmRegistration: {
+        url: String,
+        filename: String,
+        uploadedAt: Date
+    },
+    professionalProfile: {
+        url: {
+            type: String,
+            default: ''
+        },
+        filename: {
+            type: String,
+            default: ''
+        },
+        uploadedAt: {
+            type: Date,
+            default: Date.now
+        }
+    },
+
+    // REVAAMP Partner Architect Specific
+    architectProfile: {
+        isActive: {
+            type: Boolean,
+            default: false
+        },
+        approvedAt: Date,
+        approvedBy: {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: 'User'
+        },
+        mandateAccepted: {
+            type: Boolean,
+            default: false
+        },
+        mandateAcceptedAt: Date,
+        kpiMetrics: {
+            assessmentsSubmitted: { type: Number, default: 0 },
+            projectsVerified: { type: Number, default: 0 }
+        }
+    },
+
+    // Profile Image
+    profileImage: {
+        type: String,
+        default: 'default-avatar.jpg'
+    },
+
+    // Account Status
+    isSuspended: {
+        type: Boolean,
+        default: false
+    },
+    suspensionReason: String,
+    suspendedAt: Date,
+
+    // Password Reset
+    resetPasswordToken: String,
+    resetPasswordExpires: Date,
+
+    createdAt: {
+        type: Date,
+        default: Date.now
+    },
+    updatedAt: {
+        type: Date,
+        default: Date.now
+    }
+});
+
+// Hash password before saving
+architectSchema.pre('save', async function(next) {
+    if (!this.isModified('password')) return next();
+
+    try {
+        const salt = await bcrypt.genSalt(10);
+        this.password = await bcrypt.hash(this.password, salt);
+        next();
+    } catch (error) {
+        next(error);
+    }
+});
+
+// Update timestamp on save
+architectSchema.pre('save', function(next) {
+    this.updatedAt = Date.now();
+    next();
+});
+
+// Compare password method
+architectSchema.methods.comparePassword = async function(candidatePassword) {
+    return await bcrypt.compare(candidatePassword, this.password);
+};
+
+module.exports = mongoose.model('Architect', architectSchema);

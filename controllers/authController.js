@@ -2,6 +2,7 @@
 const User = require('../models/User');
 const Solicitor = require('../models/Solicitor');
 const HectareSolicitor = require('../models/HectareSolicitor');
+const Architect = require('../models/Architect');
 const axios = require('axios');
 const fs = require('fs');
 const path = require('path');
@@ -45,7 +46,12 @@ exports.postLogin = async (req, res) => {
             user = await HectareSolicitor.findOne({ email: email.toLowerCase() });
             userType = 'hectare_solicitor';
         }
-        
+
+        if (!user) {
+            user = await Architect.findOne({ email: email.toLowerCase() });
+            userType = 'architect';
+        }
+
         if (!user) {
             req.flash('error', 'Invalid email or password');
             return res.redirect('/login');
@@ -114,6 +120,13 @@ exports.postLogin = async (req, res) => {
                 res.redirect('/login');
             } else {
                 res.redirect('/hectare-solicitor/dashboard');
+            }
+        } else if (user.userType === 'architect') {
+            if (!user.architectProfile?.isActive) {
+                req.flash('error', 'Your architect account is pending approval.');
+                res.redirect('/login');
+            } else {
+                res.redirect('/architect/dashboard');
             }
         } else {
             res.redirect('/dashboard');
