@@ -259,7 +259,7 @@ exports.getHotels = async (req, res) => {
         if (state) query['location.state'] = new RegExp(state, 'i');
         
         const hotels = await Hotel.find(query)
-            .sort('-featured', '-createdAt')
+            .sort({ featured: -1, createdAt: -1 })
             .skip(skip)
             .limit(limit);
         

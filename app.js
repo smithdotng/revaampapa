@@ -108,6 +108,9 @@ app.set('views', path.join(__dirname, 'views'));
 // ============= STATIC FILES =============
 app.use(express.static(path.join(__dirname, 'public')));
 app.use('/uploads', express.static(path.join(__dirname, 'public/uploads')));
+// Alias legacy /assets/images paths to /public/img
+app.use('/assets/images', express.static(path.join(__dirname, 'public/img')));
+app.use('/assets/images/resources', express.static(path.join(__dirname, 'public/img')));
 
 // Create upload directories if they don't exist
 const uploadDirs = [

@@ -1,0 +1,492 @@
+<!DOCTYPE html>
+<html lang="en-US">
+
+<head>
+    <title><%= title %></title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="author" content="RevaampAP" />
+
+    <link rel="stylesheet" href="/fonts/css/switzer.css" type="text/css" media="all">
+    <link rel="stylesheet" href="/fonts/css/font-awesome.min.css" type="text/css" media="all">
+    <link rel="stylesheet" href="/css/plugins/bootstrap-grid.css" type="text/css" media="all">
+    <link rel="stylesheet" href="/css/plugins/swiper.min.css" type="text/css" media="all">
+    <link rel="stylesheet" href="/css/plugins/magnific-popup.css" type="text/css" media="all">
+    <link rel="stylesheet" href="/css/style.css" type="text/css" media="all">
+    <link rel="stylesheet" href="/css/custom.css" type="text/css" media="all">
+    <link rel="shortcut icon" href="/favicon.ico" type="image/x-icon">
+
+    <style>
+        .hotel-hero {
+            width: 100%;
+            height: 420px;
+            object-fit: cover;
+            border-radius: 16px;
+        }
+        .hotel-gallery-thumb {
+            width: 100%;
+            height: 110px;
+            object-fit: cover;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: opacity 0.2s;
+        }
+        .hotel-gallery-thumb:hover { opacity: 0.82; }
+        .amenity-chip {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background: #f4f4f4;
+            border-radius: 30px;
+            padding: 6px 14px;
+            font-size: 13px;
+            margin: 4px;
+        }
+        .amenity-chip i { color: #03A6A6; }
+        .info-row {
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+            padding: 12px 0;
+            border-bottom: 1px solid #f0f0f0;
+        }
+        .info-row:last-child { border-bottom: none; }
+        .info-row i {
+            width: 34px; height: 34px; line-height: 34px;
+            text-align: center; border-radius: 50%;
+            background: #f0fafa; color: #03A6A6;
+            flex-shrink: 0; font-size: 14px;
+        }
+        .star-rating { color: #f5a623; }
+        .star-rating .far { color: #ccc; }
+        .referral-box {
+            background: linear-gradient(135deg, #0f3460, #03A6A6);
+            border-radius: 12px;
+            padding: 24px;
+            color: white;
+        }
+        .referral-box input {
+            width: 100%; padding: 10px 12px;
+            border: none; border-radius: 6px;
+            font-size: 12px; color: #333;
+            margin: 10px 0;
+        }
+        .copy-btn {
+            background: white; color: #03A6A6;
+            border: none; border-radius: 6px;
+            padding: 8px 18px; font-weight: 600;
+            cursor: pointer; font-size: 13px;
+        }
+        .copy-btn:hover { background: #e8fafa; }
+        .share-btn {
+            display: inline-flex; align-items: center; gap: 5px;
+            padding: 7px 14px; border-radius: 6px;
+            color: white; text-decoration: none;
+            font-size: 12px; font-weight: 500; cursor: pointer; border: none;
+        }
+        .share-facebook { background: #3b5998; }
+        .share-whatsapp { background: #25d366; }
+        .share-twitter  { background: #1da1f2; }
+        .inquiry-field {
+            width: 100%; padding: 12px 15px;
+            border: 1px solid #e0e0e0; border-radius: 8px;
+            font-size: 14px; margin-bottom: 12px;
+            font-family: inherit;
+        }
+        .inquiry-field:focus { outline: none; border-color: #03A6A6; }
+        textarea.inquiry-field { height: 100px; resize: vertical; }
+        .section-label {
+            font-size: 11px; text-transform: uppercase;
+            letter-spacing: 1.5px; color: #03A6A6;
+            font-weight: 600; margin-bottom: 10px;
+        }
+    </style>
+</head>
+
+<body>
+
+<div id="smooth-wrapper" class="mil-wrapper">
+    <div class="mil-preloader"><div class="mil-load"></div><p class="h2 mil-mb-30"><span class="mil-light mil-counter" data-number="100">100</span><span class="mil-light">%</span></p></div>
+    <div class="mil-progress-track"><div class="mil-progress"></div></div>
+    <div class="progress-wrap active-progress"></div>
+
+    <!-- Top Nav -->
+    <div class="mil-top-panel">
+        <div class="container">
+            <a href="/" class="mil-logo"><img src="/img/logo.png" alt="RevaampAP" width="83" height="32"></a>
+            <nav class="mil-top-menu">
+                <ul>
+                    <li><a href="/">Home</a></li>
+                    <li><a href="/properties">Properties</a></li>
+                    <li><a href="/projects">Projects</a></li>
+                    <li><a href="/about">About</a></li>
+                    <li><a href="/contact">Contact</a></li>
+                </ul>
+            </nav>
+            <div class="mil-menu-buttons">
+                <% if (typeof user !== 'undefined' && user) { %>
+                    <div class="dropdown" style="position:relative;">
+                        <a href="#" class="mil-btn mil-sm dropdown-toggle">
+                            <i class="fa fa-user-circle"></i> <%= user.name %>
+                        </a>
+                        <ul class="dropdown-menu">
+                            <li><a href="/dashboard"><i class="fa fa-tachometer"></i> Dashboard</a></li>
+                            <li><a href="/logout"><i class="fa fa-sign-out"></i> Logout</a></li>
+                        </ul>
+                    </div>
+                <% } else { %>
+                    <a href="/login" class="mil-btn mil-sm">Log in</a>
+                    <a href="/register" class="mil-btn mil-sm mil-light">Get Started</a>
+                <% } %>
+                <div class="mil-menu-btn"><span></span></div>
+            </div>
+        </div>
+    </div>
+
+    <div id="smooth-content">
+
+        <!-- Page Banner -->
+        <div class="mil-banner mil-banner-inner mil-dissolve">
+            <div class="container">
+                <div class="row align-items-center justify-content-center">
+                    <div class="col-xl-8">
+                        <div class="mil-banner-text mil-text-center">
+                            <h1 class="mil-mb-30 mil-up"><%= hotel.name %></h1>
+                            <ul class="mil-breadcrumbs mil-center mil-up">
+                                <li><a href="/">Home</a></li>
+                                <li><a href="/hotels">Hotels</a></li>
+                                <li><%= hotel.name %></li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="mil-blog-list mil-p-0-80">
+            <div class="container">
+                <div class="row">
+
+                    <!-- Left: Hotel Details -->
+                    <div class="col-xl-8 col-lg-7">
+
+                        <!-- Hero Image -->
+                        <%
+                        var primaryImage = '/img/hotel-placeholder.svg';
+                        if (hotel.images && hotel.images.length > 0) {
+                            var pri = hotel.images.find(function(i){ return i.isPrimary; });
+                            primaryImage = pri ? pri.url : hotel.images[0].url;
+                        }
+                        %>
+                        <div class="mil-mb-30">
+                            <img src="<%= primaryImage %>"
+                                 alt="<%= hotel.name %>"
+                                 class="hotel-hero mil-up"
+                                 onerror="this.onerror=null;this.src='/img/hotel-placeholder.svg'">
+                        </div>
+
+                        <!-- Thumbnail Gallery -->
+                        <% if (hotel.images && hotel.images.length > 1) { %>
+                        <div class="row mil-mb-40">
+                            <% hotel.images.slice(0, 4).forEach(function(img, idx) { %>
+                            <div class="col-3">
+                                <a href="<%= img.url %>" data-fancybox="hotel-gallery">
+                                    <img src="<%= img.url %>"
+                                         class="hotel-gallery-thumb"
+                                         onerror="this.onerror=null;this.src='/img/hotel-placeholder.svg'"
+                                         alt="<%= hotel.name %> photo <%= idx + 1 %>">
+                                </a>
+                            </div>
+                            <% }); %>
+                        </div>
+                        <% } %>
+
+                        <!-- Hotel Name + Rating -->
+                        <div class="mil-mb-30 mil-up">
+                            <p class="section-label">About this hotel</p>
+                            <h2 class="mil-mb-10"><%= hotel.name %></h2>
+                            <p class="mil-text-s mil-soft mil-mb-15">
+                                <i class="fa fa-map-marker" style="color:#03A6A6; margin-right:6px;"></i>
+                                <%= hotel.location.address ? hotel.location.address + ', ' : '' %><%= hotel.location.city %>, <%= hotel.location.state %><%= hotel.location.country !== 'Nigeria' ? ', ' + hotel.location.country : '' %>
+                            </p>
+                            <% if (hotel.rating > 0) { %>
+                            <div class="star-rating mil-mb-10">
+                                <% for(var s=1; s<=5; s++) { %>
+                                    <% if (s <= Math.floor(hotel.rating)) { %><i class="fas fa-star"></i>
+                                    <% } else if (s - hotel.rating < 1) { %><i class="fas fa-star-half-alt"></i>
+                                    <% } else { %><i class="far fa-star"></i><% } %>
+                                <% } %>
+                                <span class="mil-text-s mil-soft" style="margin-left:6px;"><%= hotel.rating.toFixed(1) %> / 5</span>
+                            </div>
+                            <% } %>
+                        </div>
+
+                        <!-- Description -->
+                        <div class="mil-price-card mil-up mil-mb-30">
+                            <p class="section-label">Description</p>
+                            <p class="mil-text-m mil-soft"><%= hotel.description %></p>
+                        </div>
+
+                        <!-- Amenities -->
+                        <% if (hotel.amenities && hotel.amenities.length > 0) {
+                            var amenityMap = {
+                                wifi:            { icon: 'fa fa-wifi',        label: 'Free WiFi' },
+                                pool:            { icon: 'fa fa-tint',         label: 'Swimming Pool' },
+                                gym:             { icon: 'fa fa-heartbeat',   label: 'Gym & Fitness' },
+                                restaurant:      { icon: 'fa fa-cutlery',     label: 'Restaurant' },
+                                parking:         { icon: 'fa fa-car',         label: 'Free Parking' },
+                                spa:             { icon: 'fa fa-leaf',        label: 'Spa & Wellness' },
+                                conference:      { icon: 'fa fa-briefcase',   label: 'Conference Room' },
+                                airport_shuttle: { icon: 'fa fa-bus',         label: 'Airport Shuttle' },
+                                room_service:    { icon: 'fa fa-bell',        label: 'Room Service' },
+                                bar:             { icon: 'fa fa-glass',       label: 'Bar & Lounge' }
+                            };
+                        %>
+                        <div class="mil-price-card mil-up mil-mb-30">
+                            <p class="section-label">Amenities</p>
+                            <div>
+                                <% hotel.amenities.forEach(function(a) {
+                                    var info = amenityMap[a] || { icon: 'fa fa-check', label: a };
+                                %>
+                                    <span class="amenity-chip">
+                                        <i class="<%= info.icon %>"></i> <%= info.label %>
+                                    </span>
+                                <% }); %>
+                            </div>
+                        </div>
+                        <% } %>
+
+                        <!-- Enquiry Form -->
+                        <div class="mil-price-card mil-up mil-mb-30" id="enquiry">
+                            <p class="section-label">Make an Enquiry</p>
+                            <form id="hotelInquiryForm">
+                                <input type="hidden" name="hotelId" value="<%= hotel._id %>">
+                                <% if (uniqueCode) { %><input type="hidden" name="refCode" value="<%= uniqueCode %>"><% } %>
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <input class="inquiry-field" type="text" name="name" placeholder="Full Name" required>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <input class="inquiry-field" type="email" name="email" placeholder="Email Address" required>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <input class="inquiry-field" type="tel" name="phone" placeholder="Phone Number">
+                                    </div>
+                                    <div class="col-md-3">
+                                        <input class="inquiry-field" type="date" name="checkIn">
+                                    </div>
+                                    <div class="col-md-3">
+                                        <input class="inquiry-field" type="date" name="checkOut">
+                                    </div>
+                                    <div class="col-md-12">
+                                        <textarea class="inquiry-field" name="message" placeholder="Special requests or questions..."></textarea>
+                                    </div>
+                                    <div class="col-md-12">
+                                        <button type="submit" class="mil-btn mil-md mil-add-arrow">Send Enquiry</button>
+                                    </div>
+                                </div>
+                            </form>
+                            <div id="inquirySuccess" class="mil-mt-20" style="display:none; color:#28a745;">
+                                <i class="fa fa-check-circle"></i> Enquiry sent! The hotel will be in touch shortly.
+                            </div>
+                            <div id="inquiryError" class="mil-mt-20" style="display:none; color:#dc3545;">
+                                <i class="fa fa-times-circle"></i> Something went wrong. Please try again.
+                            </div>
+                        </div>
+
+                    </div><!-- /col-xl-8 -->
+
+                    <!-- Right: Sidebar -->
+                    <div class="col-xl-4 col-lg-5">
+
+                        <!-- Contact Info -->
+                        <div class="mil-price-card mil-up mil-mb-30">
+                            <p class="section-label">Contact & Info</p>
+                            <% if (hotel.contactInfo && hotel.contactInfo.phone) { %>
+                            <div class="info-row">
+                                <i class="fa fa-phone"></i>
+                                <div>
+                                    <small class="mil-soft" style="font-size:11px;">Phone</small><br>
+                                    <a href="tel:<%= hotel.contactInfo.phone.replace(/\s/g,'') %>"><%= hotel.contactInfo.phone %></a>
+                                </div>
+                            </div>
+                            <% } %>
+                            <% if (hotel.contactInfo && hotel.contactInfo.email) { %>
+                            <div class="info-row">
+                                <i class="fa fa-envelope"></i>
+                                <div>
+                                    <small class="mil-soft" style="font-size:11px;">Email</small><br>
+                                    <a href="mailto:<%= hotel.contactInfo.email %>"><%= hotel.contactInfo.email %></a>
+                                </div>
+                            </div>
+                            <% } %>
+                            <div class="info-row">
+                                <i class="fa fa-map-marker"></i>
+                                <div>
+                                    <small class="mil-soft" style="font-size:11px;">Address</small><br>
+                                    <%= hotel.location.address ? hotel.location.address + ', ' : '' %><%= hotel.location.city %>, <%= hotel.location.state %>
+                                </div>
+                            </div>
+                            <% if (hotel.contactInfo && hotel.contactInfo.website) { %>
+                            <div class="info-row">
+                                <i class="fa fa-globe"></i>
+                                <div>
+                                    <small class="mil-soft" style="font-size:11px;">Website</small><br>
+                                    <a href="<%= hotel.contactInfo.website %>" target="_blank">
+                                        <%= hotel.contactInfo.website.replace(/^https?:\/\//, '') %>
+                                    </a>
+                                </div>
+                            </div>
+                            <% } %>
+                        </div>
+
+                        <!-- Book CTA -->
+                        <div class="mil-price-card mil-featured mil-up mil-mb-30" style="text-align:center;">
+                            <h5 class="mil-light mil-mb-15">Ready to Book?</h5>
+                            <% if (hotel.contactInfo && hotel.contactInfo.website) { %>
+                                <a href="<%= hotel.contactInfo.website %>/rooms" target="_blank"
+                                   class="mil-btn mil-md mil-light mil-add-arrow" style="display:block; margin-bottom:12px;">
+                                    View Rooms
+                                </a>
+                            <% } %>
+                            <% if (hotel.contactInfo && hotel.contactInfo.phone) { %>
+                                <a href="tel:<%= hotel.contactInfo.phone.replace(/[\s\(\)]/g,'') %>"
+                                   class="mil-btn mil-md" style="display:block; background:rgba(255,255,255,0.15); color:white;">
+                                    <i class="fa fa-phone" style="margin-right:6px;"></i> Call Hotel
+                                </a>
+                            <% } %>
+                            <p class="mil-text-s mil-mt-20" style="color:rgba(255,255,255,0.7);">
+                                <i class="fa fa-check-circle" style="margin-right:4px;"></i> Revaamp Verified Partner Hotel
+                            </p>
+                        </div>
+
+                        <!-- Referral Link (Promoters / Business Partners) -->
+                        <% if (uniqueLink) { %>
+                        <div class="referral-box mil-up mil-mb-30">
+                            <p style="font-size:11px; text-transform:uppercase; letter-spacing:1.5px; opacity:0.8; margin-bottom:6px;">Your Referral Link</p>
+                            <p style="font-size:13px; opacity:0.9; margin-bottom:0;">Share this link to earn <strong><%= hotel.commissionRate %>% commission</strong> on bookings.</p>
+                            <input type="text" id="referralLinkInput" value="<%= uniqueLink %>" readonly>
+                            <div style="display:flex; gap:8px; flex-wrap:wrap; margin-top:4px;">
+                                <button class="copy-btn" onclick="copyReferralLink()">
+                                    <i class="fa fa-copy"></i> Copy Link
+                                </button>
+                                <a href="https://wa.me/?text=<%= encodeURIComponent(hotel.name + ' - ' + uniqueLink) %>"
+                                   target="_blank" class="share-btn share-whatsapp">
+                                    <i class="fa fa-whatsapp"></i> WhatsApp
+                                </a>
+                                <a href="https://www.facebook.com/sharer/sharer.php?u=<%= encodeURIComponent(uniqueLink) %>"
+                                   target="_blank" class="share-btn share-facebook">
+                                    <i class="fa fa-facebook"></i> Share
+                                </a>
+                                <a href="https://twitter.com/intent/tweet?url=<%= encodeURIComponent(uniqueLink) %>&text=<%= encodeURIComponent('Check out ' + hotel.name) %>"
+                                   target="_blank" class="share-btn share-twitter">
+                                    <i class="fa fa-twitter"></i> Tweet
+                                </a>
+                            </div>
+                            <span id="copyConfirm" style="font-size:12px; display:none; margin-top:6px; display:none;">
+                                <i class="fa fa-check"></i> Copied!
+                            </span>
+                        </div>
+                        <% } %>
+
+                        <!-- Map -->
+                        <% if (hotel.location.coordinates && hotel.location.coordinates.lat) { %>
+                        <div class="mil-price-card mil-up mil-mb-30" style="padding:0; overflow:hidden; border-radius:12px;">
+                            <div id="hotel-map" style="height:220px;"></div>
+                        </div>
+                        <% } %>
+
+                    </div><!-- /sidebar -->
+                </div><!-- /row -->
+            </div>
+        </div>
+
+        <!-- Footer -->
+        <footer class="mil-p-80-0">
+            <div class="container">
+                <div class="row">
+                    <div class="col-xl-3">
+                        <a href="/" class="mil-footer-logo mil-mb-60">
+                            <img src="/img/logo-2.png" alt="RevaampAP" width="28" height="32">
+                        </a>
+                    </div>
+                    <div class="col-xl-3 mil-mb-60">
+                        <h6 class="mil-mb-60">Quick Links</h6>
+                        <ul class="mil-footer-list">
+                            <li class="mil-text-m mil-soft mil-mb-15"><a href="/">Home</a></li>
+                            <li class="mil-text-m mil-soft mil-mb-15"><a href="/properties">Properties</a></li>
+                            <li class="mil-text-m mil-soft mil-mb-15"><a href="/projects">Projects</a></li>
+                            <li class="mil-text-m mil-soft mil-mb-15"><a href="/contact">Contact</a></li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="mil-footer-bottom">
+                    <div class="row">
+                        <div class="col-xl-6">
+                            <p class="mil-text-s mil-soft">© 2026 RevaampAPA. All rights reserved.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </footer>
+
+    </div><!-- /smooth-content -->
+</div><!-- /smooth-wrapper -->
+
+<script src="/js/plugins/jquery.min.js"></script>
+<script src="/js/plugins/swiper.min.js"></script>
+<script src="/js/plugins/gsap.min.js"></script>
+<script src="/js/plugins/ScrollSmoother.min.js"></script>
+<script src="/js/plugins/ScrollTrigger.min.js"></script>
+<script src="/js/plugins/ScrollTo.min.js"></script>
+<script src="/js/plugins/magnific-popup.js"></script>
+<script src="/js/main.js"></script>
+
+<script>
+function copyReferralLink() {
+    var el = document.getElementById('referralLinkInput');
+    el.select();
+    document.execCommand('copy');
+    var confirm = document.getElementById('copyConfirm');
+    confirm.style.display = 'inline';
+    setTimeout(function(){ confirm.style.display = 'none'; }, 2000);
+}
+
+$('#hotelInquiryForm').on('submit', function(e) {
+    e.preventDefault();
+    var $btn = $(this).find('button[type="submit"]');
+    $btn.prop('disabled', true).text('Sending...');
+    $.ajax({
+        url: '/api/hotels/inquiry',
+        method: 'POST',
+        data: $(this).serialize(),
+        success: function() { $('#inquirySuccess').show(); $('#hotelInquiryForm')[0].reset(); },
+        error:   function() { $('#inquiryError').show(); },
+        complete: function() { $btn.prop('disabled', false).text('Send Enquiry'); }
+    });
+});
+
+<% if (hotel.location.coordinates && hotel.location.coordinates.lat) { %>
+function initMap() {
+    var loc = { lat: <%= hotel.location.coordinates.lat %>, lng: <%= hotel.location.coordinates.lng %> };
+    var map = new google.maps.Map(document.getElementById('hotel-map'), { zoom: 15, center: loc });
+    new google.maps.Marker({ position: loc, map: map, title: '<%= hotel.name.replace(/'/g, "\\'") %>' });
+}
+<% } else { %>
+function initMap() {}
+<% } %>
+</script>
+
+<% if (hotel.location.coordinates && hotel.location.coordinates.lat) { %>
+<script async defer src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCYc537bQom7ajFpWE5sQaVyz1SQa9_tuY&callback=initMap"></script>
+<% } %>
+
+<style>
+.dropdown-menu { display:none; }
+.dropdown:hover .dropdown-menu { display:block; }
+.mil-mt-20 { margin-top:20px; }
+</style>
+
+</body>
+</html>
