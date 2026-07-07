@@ -108,6 +108,9 @@ app.set('views', path.join(__dirname, 'views'));
 // ============= STATIC FILES =============
 app.use(express.static(path.join(__dirname, 'public')));
 app.use('/uploads', express.static(path.join(__dirname, 'public/uploads')));
+// Fallback: hotel images uploaded before the middleware fix were saved to uploads/properties/
+// This serves them transparently without needing a DB migration or file move
+app.use('/uploads/hotels', express.static(path.join(__dirname, 'public/uploads/properties')));
 // Alias legacy /assets/images paths to /public/img
 app.use('/assets/images', express.static(path.join(__dirname, 'public/img')));
 app.use('/assets/images/resources', express.static(path.join(__dirname, 'public/img')));

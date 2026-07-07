@@ -108,6 +108,8 @@ app.set('views', path.join(__dirname, 'views'));
 // ============= STATIC FILES =============
 app.use(express.static(path.join(__dirname, 'public')));
 app.use('/uploads', express.static(path.join(__dirname, 'public/uploads')));
+// Fallback: hotel images uploaded before the middleware fix were saved to uploads/properties/
+app.use('/uploads/hotels', express.static(path.join(__dirname, 'public/uploads/properties')));
 
 // Create upload directories if they don't exist
 const uploadDirs = [
