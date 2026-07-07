@@ -12,9 +12,9 @@ router.get('/track/:hotelId/:code', hotelController.trackHotelClick);
 // ============= SUPERADMIN ROUTES =============
 router.get('/superadmin/hotels', authMiddleware.isAuthenticated, authMiddleware.isSuperadmin, hotelController.getAllHotels);
 router.get('/superadmin/hotels/add', authMiddleware.isAuthenticated, authMiddleware.isSuperadmin, hotelController.getAddHotel);
-router.post('/superadmin/hotels/add', authMiddleware.isAuthenticated, authMiddleware.isSuperadmin, upload.uploadMultiple, hotelController.postAddHotel);
+router.post('/superadmin/hotels/add', authMiddleware.isAuthenticated, authMiddleware.isSuperadmin, upload.uploadHotel, hotelController.postAddHotel);
 router.get('/superadmin/hotels/:id/edit', authMiddleware.isAuthenticated, authMiddleware.isSuperadmin, hotelController.getEditHotel);
-router.post('/superadmin/hotels/:id/edit', authMiddleware.isAuthenticated, authMiddleware.isSuperadmin, upload.uploadMultiple, hotelController.updateHotel);
+router.post('/superadmin/hotels/:id/edit', authMiddleware.isAuthenticated, authMiddleware.isSuperadmin, upload.uploadHotel, hotelController.updateHotel);
 router.delete('/superadmin/hotels/:id', authMiddleware.isAuthenticated, authMiddleware.isSuperadmin, hotelController.deleteHotel);
 router.post('/superadmin/hotels/:id/toggle-status', authMiddleware.isAuthenticated, authMiddleware.isSuperadmin, hotelController.toggleHotelStatus);
 router.post('/superadmin/hotels/:id/toggle-featured', authMiddleware.isAuthenticated, authMiddleware.isSuperadmin, hotelController.toggleFeatured);

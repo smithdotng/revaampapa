@@ -78,6 +78,17 @@ const blogStorage = multer.diskStorage({
     }
 });
 
+// Configure storage for hotel images
+const hotelStorage = multer.diskStorage({
+    destination: (req, file, cb) => {
+        cb(null, hotelUploadDir);
+    },
+    filename: (req, file, cb) => {
+        const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
+        cb(null, 'hotel-' + uniqueSuffix + path.extname(file.originalname));
+    }
+});
+
 // Configure storage for payment proofs
 const paymentStorage = multer.diskStorage({
     destination: (req, file, cb) => {
@@ -222,6 +233,9 @@ const array = (fieldName, maxCount) => {
 // Handle multiple images for properties
 const uploadMultiple = uploadProperty.array('images', 10);
 
+// Handle multiple images for hotels
+const uploadHotel = multer({ storage: hotelStorage, limits: { fileSize: 10 * 1024 * 1024 }, fileFilter: imageFileFilter }).array('images', 10);
+
 // Handle single document upload
 const uploadSingleDocument = uploadDocument.single('document');
 
@@ -238,7 +252,8 @@ module.exports = {
         array: array,
         fields: fields
     },
-    uploadMultiple,           // For multiple property/hotel images
+    uploadMultiple,           // For multiple property images
+    uploadHotel,              // For multiple hotel images
     uploadSingleDocument,
     uploadBankGuaranteeDoc,
     uploadPaymentProofDoc,

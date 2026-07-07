@@ -3,7 +3,7 @@ const express = require('express');
 const router = express.Router();
 const superadminController = require('../controllers/superadminController');
 const authMiddleware = require('../middleware/auth');
-const { upload, uploadBlog, uploadMultiple } = require('../middleware/upload');
+const { upload, uploadBlog, uploadMultiple, uploadHotel } = require('../middleware/upload');
 
 // All routes require superadmin authentication
 router.use(authMiddleware.isAuthenticated);
@@ -82,9 +82,9 @@ router.post('/payments/reject/:id', superadminController.rejectPayment);
 // ============= HOTEL MANAGEMENT =============
 router.get('/hotels', superadminController.getAllHotels);
 router.get('/hotels/add', superadminController.getAddHotel);
-router.post('/hotels/add', uploadMultiple, superadminController.postAddHotel);
+router.post('/hotels/add', uploadHotel, superadminController.postAddHotel);
 router.get('/hotels/:id/edit', superadminController.getEditHotel);
-router.post('/hotels/:id/edit', uploadMultiple, superadminController.updateHotel);
+router.post('/hotels/:id/edit', uploadHotel, superadminController.updateHotel);
 router.delete('/hotels/:id', superadminController.deleteHotel);
 router.post('/hotels/:id/toggle-status', superadminController.toggleHotelStatus);
 router.post('/hotels/:id/toggle-featured', superadminController.toggleHotelFeatured);
