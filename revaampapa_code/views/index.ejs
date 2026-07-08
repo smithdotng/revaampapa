@@ -112,6 +112,7 @@
                     <ul>
                         <li class="mil-active"><a href="/">Home</a></li>
                         <li><a href="/properties">Properties</a></li>
+                        <li><a href="/hotels">Hotels</a></li>
                         <li><a href="/projects">Projects</a></li>
                         <li><a href="/about">About</a></li>
                         <li><a href="/contact">Contact</a></li>
@@ -824,7 +825,7 @@
                                 <h2 class="mil-mb-30 mil-up">Featured Properties</h2>
                                 <p class="mil-text-m mil-soft mil-mb-60 mil-up">Handpicked premium properties just for you</p>
                             </div>
-                            <div class="swiper-container mil-testimonials-1 mil-up" id="featuredPropertiesSlider">
+                            <div class="swiper-container mil-featured-slider mil-up" id="featuredPropertiesSlider">
                                 <div class="swiper-wrapper" id="featuredPropertiesContainer">
                                     <div class="swiper-slide text-center">
                                         <div class="mil-center">
@@ -833,11 +834,11 @@
                                     </div>
                                 </div>
                                 <div class="mil-slider-nav-1">
-                                    <div class="mil-testi-prev"></div>
-                                    <div class="mil-testi-next"></div>
+                                    <div class="mil-featured-prev"></div>
+                                    <div class="mil-featured-next"></div>
                                 </div>
                             </div>
-                            <div class="mil-testi-pagination mil-up"></div>
+                            <div class="mil-featured-pagination mil-up"></div>
                         </div>
                     </div>
                 </div>
@@ -1181,9 +1182,9 @@
                         new Swiper('#featuredPropertiesSlider', {
                             slidesPerView: 1,
                             spaceBetween: 30,
-                            loop: true,
-                            navigation: { nextEl: '.mil-testi-next', prevEl: '.mil-testi-prev' },
-                            pagination: { el: '.mil-testi-pagination', clickable: true },
+                            loop: data.properties.length > 1,
+                            navigation: { nextEl: '.mil-featured-next', prevEl: '.mil-featured-prev' },
+                            pagination: { el: '.mil-featured-pagination', clickable: true },
                             breakpoints: { 768: { slidesPerView: 2 }, 1200: { slidesPerView: 3 } }
                         });
                     } else {

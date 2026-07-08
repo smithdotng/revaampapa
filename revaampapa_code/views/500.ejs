@@ -58,12 +58,13 @@
                     <ul>
                         <li><a href="/">Home</a></li>
                         <li><a href="/properties">Properties</a></li>
+                        <li><a href="/hotels">Hotels</a></li>
                         <li><a href="/about">About</a></li>
                         <li><a href="/contact">Contact</a></li>
                     </ul>
                 </nav>
                 <div class="mil-menu-buttons">
-                    <% if (user) { %>
+                    <% if (typeof user !== 'undefined' && user) { %>
                         <div class="dropdown" style="position: relative;">
                             <a href="#" class="mil-btn mil-sm dropdown-toggle" data-bs-toggle="dropdown">
                                 <i class="fa fa-user-circle"></i> <%= user.name %>

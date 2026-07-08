@@ -640,7 +640,7 @@
                                         <div class="mil-text-center">
                                             <i class="fa fa-hotel" style="font-size: 40px; color: #03A6A6; margin-bottom: 15px;"></i>
                                             <h5 class="mil-mb-15">Promote Hotels</h5>
-                                            <p class="mil-text-s mil-soft">Share hotel links to earn 30% commission on every booking</p>
+                                            <p class="mil-text-s mil-soft">Share hotel links and earn a commission on every booking made through your referral</p>
                                         </div>
                                     </div>
                                     <div class="col-md-3 mil-mb-30">
@@ -784,9 +784,22 @@
                 alert('Please generate your referral link first.');
                 return;
             }
-            const message = `Become a promoter using my referral link: ${referralLink} and earn up to 90% commission on property sales. Multiple income streams including property introductions (40%), buyer referrals (90%+50%), hotel onboarding (30%), and business partner referrals (₦10,000). Start earning today!`;
-            window.open(`https://wa.me/?text=${encodeURIComponent(message)}`, '_blank');
-            await trackShare('whatsapp', 'referral');
+            const message = `🌟 *Exclusive Invitation to Earn Passive Income* 🌟
+
+I invite you to register for free as a Promoter and earn passive income just by sharing advertised properties for sale right from your phone! 
+
+*Ways you can earn:*
+• *Property Sharing:* Share unique link attached to each property you desire to promote from your dashboard to earn agency fee from both buyer and seller when the property is sold to your referral.
+• *Invite other Promoters:* Earn additional income by inviting others to become Promoters.
+• *Property Uploads:* Earn agency fee from listing other properties for sale.
+
+🚀 *Become a promoter today using my referral link:* 
+${referralLink}
+
+Use your data wisely. Start earning today!`;
+
+window.open(`https://wa.me/?text=${encodeURIComponent(message)}`, '_blank');
+await trackShare('whatsapp', 'referral');
         }
 
         async function shareOnFacebook() {
