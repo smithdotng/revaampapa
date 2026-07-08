@@ -7,6 +7,40 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="author" content="RevaampAP" />
 
+    <%
+        const _ogDesc = hotel.description
+            ? hotel.description.replace(/<[^>]*>/g, '').replace(/\s+/g, ' ').trim().substring(0, 200) + (hotel.description.length > 200 ? '...' : '')
+            : (hotel.name + ' — a partner hotel on RevaampAP located in ' + hotel.location.city + ', ' + hotel.location.state + '.');
+        const _primaryImg = hotel.images && hotel.images.find(i => i.isPrimary);
+        const _ogImg = _primaryImg
+            ? _primaryImg.url
+            : (hotel.images && hotel.images.length > 0 ? hotel.images[0].url : '/img/hotel-placeholder.svg');
+        const _ogImgAbs = _ogImg.startsWith('http') ? _ogImg : ('https://revaampapa.com' + _ogImg);
+        const _canonicalUrl = 'https://revaampapa.com/hotels/' + hotel.slug;
+    %>
+
+    <!-- Primary Meta -->
+    <meta name="description" content="<%= _ogDesc %>">
+    <link rel="canonical" href="<%= _canonicalUrl %>">
+
+    <!-- Open Graph (Facebook, WhatsApp, LinkedIn) -->
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="<%= _canonicalUrl %>">
+    <meta property="og:title" content="<%= hotel.name %> | RevaampAP Partner Hotels">
+    <meta property="og:description" content="<%= _ogDesc %>">
+    <meta property="og:image" content="<%= _ogImgAbs %>">
+    <meta property="og:image:width" content="1200">
+    <meta property="og:image:height" content="630">
+    <meta property="og:site_name" content="RevaampAP">
+    <meta property="og:locale" content="en_NG">
+
+    <!-- Twitter Card -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:url" content="<%= _canonicalUrl %>">
+    <meta name="twitter:title" content="<%= hotel.name %> | RevaampAP Partner Hotels">
+    <meta name="twitter:description" content="<%= _ogDesc %>">
+    <meta name="twitter:image" content="<%= _ogImgAbs %>">
+
     <link rel="stylesheet" href="/fonts/css/switzer.css" type="text/css" media="all">
     <link rel="stylesheet" href="/fonts/css/font-awesome.min.css" type="text/css" media="all">
     <link rel="stylesheet" href="/css/plugins/bootstrap-grid.css" type="text/css" media="all">
