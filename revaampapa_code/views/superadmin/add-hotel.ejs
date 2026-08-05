@@ -13,8 +13,12 @@
     <link rel="stylesheet" href="/css/plugins/magnific-popup.css" type="text/css" media="all">
     <link rel="stylesheet" href="/css/style.css" type="text/css" media="all">
     <link rel="stylesheet" href="/css/custom.css" type="text/css" media="all">
+
+    <!-- TinyMCE CDN for rich text editor -->
+    <script src="https://cdn.tiny.cloud/1/ol1n69jx2n02ml9t329v60ngyfhvuzc05utzy95pwmkd6kdu/tinymce/6/tinymce.min.js" referrerpolicy="origin"></script>
+
     <link rel="shortcut icon" href="/favicon.ico" type="image/x-icon">
-    
+
     <style>
         .form-container { max-width: 1000px; margin: 0 auto; }
         .form-section { background: white; padding: 30px; border-radius: 12px; margin-bottom: 30px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); }
@@ -89,7 +93,7 @@
                             </div>
                             <div class="form-group">
                                 <label>Description *</label>
-                                <textarea name="description" rows="5" required><%= hotel ? hotel.description : '' %></textarea>
+                                <textarea id="description" name="description" rows="5" required><%= hotel ? hotel.description : '' %></textarea>
                             </div>
                         </div>
 
@@ -185,5 +189,33 @@
     <script src="/js/plugins/ScrollTo.min.js"></script>
     <script src="/js/plugins/magnific-popup.js"></script>
     <script src="/js/main.js"></script>
+
+    <script>
+        // Initialize TinyMCE rich text editor for description
+        tinymce.init({
+            selector: '#description',
+            height: 400,
+            menubar: true,
+            plugins: [
+                'advlist', 'autolink', 'lists', 'link', 'image', 'charmap', 'preview',
+                'anchor', 'searchreplace', 'visualblocks', 'code', 'fullscreen',
+                'insertdatetime', 'media', 'table', 'help', 'wordcount'
+            ],
+            toolbar: 'undo redo | blocks | bold italic backcolor | alignleft aligncenter alignright alignjustify | bullist numlist outdent indent | removeformat | help | image media link',
+            content_style: 'body { font-family:Helvetica,Arial,sans-serif; font-size:16px }',
+            setup: function (editor) {
+                editor.on('change', function () {
+                    editor.save();
+                });
+            }
+        });
+
+        // Ensure TinyMCE content is synced to the textarea before submit
+        document.querySelector('form').addEventListener('submit', function () {
+            if (typeof tinymce !== 'undefined') {
+                tinymce.triggerSave();
+            }
+        });
+    </script>
 </body>
 </html>
