@@ -118,4 +118,10 @@ router.get('/bid-notices/:id', superadminController.getBidNoticeDetails);
 router.post('/bid-notices/:id/close', superadminController.closeBidNotice);
 router.delete('/bid-notices/:id', superadminController.deleteBidNotice);
 
+// ============= REVAAMP PARTNER HOTEL MANAGEMENT =============
+router.get('/partner-hotels', superadminController.getPartnerHotels);
+router.post('/partner-hotels/:id/approve', superadminController.approvePartnerHotel);
+router.post('/partner-hotels/:id/reject', superadminController.rejectPartnerHotel);
+router.post('/partner-hotels/:id/toggle-featured', superadminController.togglePartnerHotelFeatured);
+
 module.exports = router;

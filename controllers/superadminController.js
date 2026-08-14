@@ -2014,3 +2014,186 @@ exports.rejectArchitect = async (req, res) => {
         res.status(500).json({ error: 'Error rejecting architect' });
     }
 };
+
+
+// ============= REVAAMP PARTNER HOTEL MANAGEMENT =============
+// Hotels that partner with Revaamp for marketing & promotion. Approving an
+// application publishes a live Hotel listing that the whole network can promote.
+
+// List partner hotel applications
+exports.getPartnerHotels = async (req, res) => {
+    try {
+        const PartnerHotel = require('../models/PartnerHotel');
+        const user = await User.findById(req.session.userId);
+        const { status } = req.query;
+
+        let query = {};
+        if (status === 'pending') {
+            query = { 'partnerProfile.isActive': false, isSuspended: { $ne: true } };
+        } else if (status === 'active') {
+            query = { 'partnerProfile.isActive': true };
+        } else if (status === 'declined') {
+            query = { isSuspended: true };
+        }
+
+        const partnerHotels = await PartnerHotel.find(query)
+            .select('-password')
+            .populate('partnerProfile.onboardedByPromoter', 'name email')
+            .sort('-createdAt');
+
+        const stats = {
+            total: await PartnerHotel.countDocuments(),
+            pending: await PartnerHotel.countDocuments({ 'partnerProfile.isActive': false, isSuspended: { $ne: true } }),
+            active: await PartnerHotel.countDocuments({ 'partnerProfile.isActive': true }),
+            declined: await PartnerHotel.countDocuments({ isSuspended: true })
+        };
+
+        res.render('superadmin/pending-partner-hotels', {
+            title: 'Partner Hotels - RevaampAP',
+            user: user,
+            partnerHotels: partnerHotels,
+            stats: stats,
+            filters: req.query,
+            currentPath: '/superadmin/partner-hotels'
+        });
+    } catch (error) {
+        console.error('Get partner hotels error:', error);
+        req.flash('error', 'Error loading partner hotels');
+        res.redirect('/superadmin/dashboard');
+    }
+};
+
+// Approve a partner hotel and publish its public listing
+exports.approvePartnerHotel = async (req, res) => {
+    try {
+        const PartnerHotel = require('../models/PartnerHotel');
+        const Hotel = require('../models/Hotel');
+
+        const partner = await PartnerHotel.findById(req.params.id);
+        if (!partner) {
+            return res.status(404).json({ error: 'Partner hotel not found' });
+        }
+
+        let listing = partner.partnerProfile && partner.partnerProfile.listing
+            ? await Hotel.findById(partner.partnerProfile.listing)
+            : null;
+
+        if (!listing) {
+            listing = new Hotel({
+                name: partner.hotelName,
+                description: partner.description,
+                location: {
+                    address: partner.location && partner.location.address,
+                    city: partner.location && partner.location.city,
+                    state: partner.location && partner.location.state,
+                    country: (partner.location && partner.location.country) || 'Nigeria'
+                },
+                images: partner.images && partner.images.length ? partner.images : [],
+                amenities: partner.amenities || [],
+                contactInfo: {
+                    phone: partner.phone,
+                    email: partner.email,
+                    website: partner.website
+                },
+                commissionRate: (partner.partnerProfile && partner.partnerProfile.commissionRate) || 30,
+                rating: partner.starRating || 0,
+                featured: partner.partnerProfile && partner.partnerProfile.placementTier === 'featured',
+                isActive: true,
+                createdBy: req.session.userId
+            });
+        } else {
+            listing.isActive = true;
+        }
+
+        await listing.save();
+
+        partner.partnerProfile.isActive = true;
+        partner.partnerProfile.approvedAt = new Date();
+        partner.partnerProfile.approvedBy = req.session.userId;
+        partner.partnerProfile.listing = listing._id;
+        partner.isSuspended = false;
+        partner.suspensionReason = undefined;
+        await partner.save();
+
+        console.log('Partner Hotel approved & published: ' + partner.hotelName + ' -> /hotels/' + listing.slug);
+
+        // Partner hotels have no dashboard - this email is their only notification
+        let emailed = false;
+        try {
+            const emailService = require('../utils/email');
+            emailed = await emailService.sendPartnerHotelApprovedEmail(partner, listing);
+        } catch (mailError) {
+            console.error('Partner hotel approval email failed:', mailError);
+        }
+
+        res.json({ success: true, slug: listing.slug, emailed: !!emailed });
+    } catch (error) {
+        console.error('Approve partner hotel error:', error);
+        res.status(500).json({ error: 'Error approving partner hotel' });
+    }
+};
+
+// Reject an application / suspend an active partner hotel
+exports.rejectPartnerHotel = async (req, res) => {
+    try {
+        const PartnerHotel = require('../models/PartnerHotel');
+        const Hotel = require('../models/Hotel');
+
+        const { reason } = req.body;
+        const partner = await PartnerHotel.findById(req.params.id);
+        if (!partner) {
+            return res.status(404).json({ error: 'Partner hotel not found' });
+        }
+
+        partner.partnerProfile.isActive = false;
+        partner.partnerProfile.rejectionReason = reason || 'Application rejected';
+        partner.isSuspended = true;
+        partner.suspensionReason = reason || 'Application rejected';
+        partner.suspendedAt = new Date();
+        await partner.save();
+
+        // Pull the public listing down as well
+        if (partner.partnerProfile && partner.partnerProfile.listing) {
+            const listing = await Hotel.findById(partner.partnerProfile.listing);
+            if (listing) {
+                listing.isActive = false;
+                await listing.save();
+            }
+        }
+
+        res.json({ success: true });
+    } catch (error) {
+        console.error('Reject partner hotel error:', error);
+        res.status(500).json({ error: 'Error rejecting partner hotel' });
+    }
+};
+
+// Toggle featured placement for a partner hotel
+exports.togglePartnerHotelFeatured = async (req, res) => {
+    try {
+        const PartnerHotel = require('../models/PartnerHotel');
+        const Hotel = require('../models/Hotel');
+
+        const partner = await PartnerHotel.findById(req.params.id);
+        if (!partner) {
+            return res.status(404).json({ error: 'Partner hotel not found' });
+        }
+
+        const nextTier = (partner.partnerProfile && partner.partnerProfile.placementTier) === 'featured' ? 'standard' : 'featured';
+        partner.partnerProfile.placementTier = nextTier;
+        await partner.save();
+
+        if (partner.partnerProfile && partner.partnerProfile.listing) {
+            const listing = await Hotel.findById(partner.partnerProfile.listing);
+            if (listing) {
+                listing.featured = nextTier === 'featured';
+                await listing.save();
+            }
+        }
+
+        res.json({ success: true, placementTier: nextTier });
+    } catch (error) {
+        console.error('Toggle partner hotel featured error:', error);
+        res.status(500).json({ error: 'Error updating placement' });
+    }
+};

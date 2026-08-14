@@ -201,6 +201,33 @@ const uploadStructuralAssessmentDocs = multer({
     fileFilter: documentFileFilter
 }).array('supportingDocuments', 10);
 
+// Revaamp Partner Hotel registration upload.
+// Photos go to the hotels folder, verification documents to the documents folder.
+const partnerHotelStorage = multer.diskStorage({
+    destination: (req, file, cb) => {
+        cb(null, file.fieldname === 'images' ? hotelUploadDir : documentUploadDir);
+    },
+    filename: (req, file, cb) => {
+        const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
+        const prefix = file.fieldname === 'images' ? 'hotel' : file.fieldname;
+        cb(null, prefix + '-' + uniqueSuffix + path.extname(file.originalname));
+    }
+});
+
+const uploadPartnerHotelDocs = multer({
+    storage: partnerHotelStorage,
+    limits: { fileSize: 10 * 1024 * 1024 },
+    fileFilter: (req, file, cb) => {
+        if (file.fieldname === 'images') return imageFileFilter(req, file, cb);
+        return documentFileFilter(req, file, cb);
+    }
+}).fields([
+    { name: 'images', maxCount: 10 },
+    { name: 'cacCertificate', maxCount: 1 },
+    { name: 'hotelLicence', maxCount: 1 },
+    { name: 'ratePolicy', maxCount: 1 }
+]);
+
 // Single file upload helpers
 const single = (fieldName) => {
     if (fieldName === 'profileImage') {
@@ -261,6 +288,7 @@ module.exports = {
     uploadHectareSolicitorDocs,
     uploadArchitectDocs,
     uploadStructuralAssessmentDocs,
+    uploadPartnerHotelDocs,
     uploadProperty,
     uploadProfile,
     uploadDocument,

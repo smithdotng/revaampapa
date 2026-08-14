@@ -3,6 +3,7 @@ const User = require('../models/User');
 const Solicitor = require('../models/Solicitor');
 const HectareSolicitor = require('../models/HectareSolicitor');
 const Architect = require('../models/Architect');
+const PartnerHotel = require('../models/PartnerHotel');
 const axios = require('axios');
 const fs = require('fs');
 const path = require('path');
@@ -53,10 +54,21 @@ exports.postLogin = async (req, res) => {
         }
 
         if (!user) {
+            user = await PartnerHotel.findOne({ email: email.toLowerCase() });
+            userType = 'partner_hotel';
+        }
+
+        if (!user) {
             req.flash('error', 'Invalid email or password');
             return res.redirect('/login');
         }
         
+        // Partner hotels have no account area - they are notified by email only
+        if ((user.userType || userType) === 'partner_hotel') {
+            req.flash('error', 'Revaamp Partner Hotels do not have a login area. We notify you by email about your application and your listing. For anything else, please contact info@revaampapa.com.');
+            return res.redirect('/login');
+        }
+
         const isMatch = await user.comparePassword(password);
         
         if (!isMatch) {

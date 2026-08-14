@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="en-US">
+
+<head>
+    <title><%= title %></title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <link rel="stylesheet" href="/fonts/css/switzer.css" type="text/css" media="all">
+    <link rel="stylesheet" href="/fonts/css/font-awesome.min.css" type="text/css" media="all">
+    <link rel="stylesheet" href="/css/plugins/bootstrap-grid.css" type="text/css" media="all">
+    <link rel="stylesheet" href="/css/plugins/swiper.min.css" type="text/css" media="all">
+    <link rel="stylesheet" href="/css/plugins/magnific-popup.css" type="text/css" media="all">
+    <link rel="stylesheet" href="/css/style.css" type="text/css" media="all">
+    <link rel="stylesheet" href="/css/custom.css" type="text/css" media="all">
+    <link rel="shortcut icon" href="/favicon.ico" type="image/x-icon">
+</head>
+
+<body>
+    <div id="smooth-wrapper" class="mil-wrapper">
+        <div class="mil-preloader"><div class="mil-load"></div><p class="h2 mil-mb-30"><span class="mil-light mil-counter" data-number="100">100</span><span class="mil-light">%</span></p></div>
+        <div class="mil-progress-track"><div class="mil-progress"></div></div>
+        <div class="progress-wrap active-progress"></div>
+
+        <div class="mil-top-panel">
+            <div class="container">
+                <a href="/" class="mil-logo"><img src="/img/logo.png" alt="RevaampAP" width="83" height="32"></a>
+                <nav class="mil-top-menu">
+                    <ul>
+                        <li><a href="/">Home</a></li>
+                        <li><a href="/superadmin/dashboard">Dashboard</a></li>
+                        <li><a href="/superadmin/properties">Properties</a></li>
+                        <li><a href="/superadmin/hotels">Hotels</a></li>
+                        <li class="mil-active"><a href="/superadmin/partner-hotels">Partner Hotels</a></li>
+                        <li><a href="/superadmin/promoters">Promoters</a></li>
+                        <li><a href="/superadmin/architects/pending">Architects</a></li>
+                        <li><a href="/superadmin/analytics">Analytics</a></li>
+                    </ul>
+                </nav>
+                <div class="mil-menu-buttons">
+                    <div class="dropdown" style="position: relative;">
+                        <a href="#" class="mil-btn mil-sm dropdown-toggle" data-bs-toggle="dropdown" style="display: flex; align-items: center; gap: 8px;">
+                            <i class="fa fa-user-circle"></i><span><%= user.name %></span><i class="fa fa-chevron-down"></i>
+                        </a>
+                        <ul class="dropdown-menu">
+                            <li><a href="/superadmin/profile"><i class="fa fa-user"></i> Profile</a></li>
+                            <li><a href="/superadmin/settings"><i class="fa fa-cog"></i> Settings</a></li>
+                            <li><hr></li>
+                            <li><a href="/logout"><i class="fa fa-sign-out-alt"></i> Logout</a></li>
+                        </ul>
+                    </div>
+                    <div class="mil-menu-btn"><span></span></div>
+                </div>
+            </div>
+        </div>
+
+        <div id="smooth-content">
+            <div class="mil-banner mil-banner-inner mil-dissolve">
+                <div class="container">
+                    <div class="row align-items-center justify-content-center">
+                        <div class="col-xl-8">
+                            <div class="mil-banner-text mil-text-center">
+                                <h1 class="mil-mb-60 mil-up">Revaamp Partner Hotels</h1>
+                                <ul class="mil-breadcrumbs mil-pub-info mil-center mil-up">
+                                    <li><a href="/">Home</a></li>
+                                    <li><a href="/superadmin/dashboard">Dashboard</a></li>
+                                    <li>Partner Hotels</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="mil-blog-list mil-p-80-40">
+                <div class="container">
+                    <div class="row">
+                        <div class="col-xl-3 col-md-6 mil-mb-30">
+                            <div class="mil-price-card mil-up mil-text-center"><h3><%= stats.pending %></h3><p class="mil-text-s mil-soft">Pending review</p></div>
+                        </div>
+                        <div class="col-xl-3 col-md-6 mil-mb-30">
+                            <div class="mil-price-card mil-up mil-text-center"><h3><%= stats.active %></h3><p class="mil-text-s mil-soft">Active partners</p></div>
+                        </div>
+                        <div class="col-xl-3 col-md-6 mil-mb-30">
+                            <div class="mil-price-card mil-up mil-text-center"><h3><%= stats.declined %></h3><p class="mil-text-s mil-soft">Declined / suspended</p></div>
+                        </div>
+                        <div class="col-xl-3 col-md-6 mil-mb-30">
+                            <div class="mil-price-card mil-up mil-text-center"><h3><%= stats.total %></h3><p class="mil-text-s mil-soft">Total applications</p></div>
+                        </div>
+                    </div>
+
+                    <div class="mil-mb-30">
+                        <a href="/superadmin/partner-hotels?status=pending" class="mil-btn mil-sm">Pending</a>
+                        <a href="/superadmin/partner-hotels?status=active" class="mil-btn mil-sm">Active</a>
+                        <a href="/superadmin/partner-hotels?status=declined" class="mil-btn mil-sm">Declined</a>
+                        <a href="/superadmin/partner-hotels" class="mil-btn mil-sm">All</a>
+                    </div>
+                </div>
+            </div>
+
+            <div class="mil-p-0-80">
+                <div class="container">
+                    <div class="row">
+                        <div class="col-xl-12">
+                            <div class="mil-price-card mil-up mil-mb-30">
+                                <h4 class="mil-mb-30">Applications (<%= partnerHotels.length %>)</h4>
+
+                                <% if (partnerHotels && partnerHotels.length > 0) { %>
+                                    <div class="mil-table-responsive">
+                                        <table class="mil-table">
+                                            <thead>
+                                                <tr>
+                                                    <th>Hotel</th><th>Location</th><th>Rooms</th><th>Contact</th>
+                                                    <th>Documents</th><th>Onboarded by</th><th>Status</th><th>Applied</th><th>Actions</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                <% partnerHotels.forEach(function(ph) { %>
+                                                    <tr>
+                                                        <td>
+                                                            <strong><%= ph.hotelName %></strong><br>
+                                                            <span class="mil-text-xs mil-soft"><%= ph.starRating ? ph.starRating + ' star' : 'Unrated' %> · <%= (ph.images && ph.images.length) || 0 %> photos</span>
+                                                        </td>
+                                                        <td><%= (ph.location && ph.location.city) || '—' %><br><span class="mil-text-xs mil-soft"><%= (ph.location && ph.location.state) || '' %>, <%= (ph.location && ph.location.country) || '' %></span></td>
+                                                        <td><%= ph.numberOfRooms || '—' %></td>
+                                                        <td><%= ph.name %><br><span class="mil-text-xs mil-soft"><%= ph.email %><br><%= ph.phone %></span></td>
+                                                        <td>
+                                                            <% if (ph.cacCertificate && ph.cacCertificate.url) { %><a href="<%= ph.cacCertificate.url %>" target="_blank"><i class="fa fa-file-alt"></i> CAC</a><br><% } %>
+                                                            <% if (ph.hotelLicence && ph.hotelLicence.url) { %><a href="<%= ph.hotelLicence.url %>" target="_blank"><i class="fa fa-file-alt"></i> Licence</a><br><% } %>
+                                                            <% if (ph.ratePolicy && ph.ratePolicy.url) { %><a href="<%= ph.ratePolicy.url %>" target="_blank"><i class="fa fa-file-alt"></i> Rates</a><% } %>
+                                                            <% if ((!ph.cacCertificate || !ph.cacCertificate.url) && (!ph.hotelLicence || !ph.hotelLicence.url) && (!ph.ratePolicy || !ph.ratePolicy.url)) { %><span class="mil-soft">None</span><% } %>
+                                                        </td>
+                                                        <td><%= ph.partnerProfile && ph.partnerProfile.onboardedByPromoter ? (ph.partnerProfile.onboardedByPromoter.name || 'Promoter') : '—' %></td>
+                                                        <td>
+                                                            <% if (ph.isSuspended) { %>
+                                                                <span style="color:#dc3545;">Declined</span>
+                                                            <% } else if (ph.partnerProfile && ph.partnerProfile.isActive) { %>
+                                                                <span style="color:#28a745;">Active</span>
+                                                            <% } else { %>
+                                                                <span style="color:#e67e22;">Pending</span>
+                                                            <% } %>
+                                                        </td>
+                                                        <td><%= new Date(ph.createdAt).toLocaleDateString() %></td>
+                                                        <td>
+                                                            <% if (!ph.partnerProfile || !ph.partnerProfile.isActive) { %>
+                                                                <button onclick="approvePartnerHotel('<%= ph._id %>')" class="mil-btn mil-sm" style="background:#28a745;margin-bottom:5px;"><i class="fa fa-check"></i> Approve &amp; publish</button><br>
+                                                            <% } else { %>
+                                                                <a href="/hotels/<%= ph.partnerProfile.listing ? '' : '' %>" style="display:none;"></a>
+                                                                <button onclick="toggleFeaturedPartnerHotel('<%= ph._id %>')" class="mil-btn mil-sm" style="background:#e67e22;margin-bottom:5px;"><i class="fa fa-star"></i> Toggle featured</button><br>
+                                                            <% } %>
+                                                            <button onclick="rejectPartnerHotel('<%= ph._id %>')" class="mil-btn mil-sm" style="background:#dc3545;"><i class="fa fa-times"></i> <%= ph.partnerProfile && ph.partnerProfile.isActive ? 'Suspend' : 'Reject' %></button>
+                                                        </td>
+                                                    </tr>
+                                                <% }); %>
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                <% } else { %>
+                                    <div class="mil-text-center mil-p-60">
+                                        <i class="fa fa-hotel" style="font-size: 64px; color: #7b4397;"></i>
+                                        <h4 class="mil-mt-30">No Partner Hotel Applications</h4>
+                                        <p class="mil-text-m mil-soft">Nothing to review under this filter.</p>
+                                    </div>
+                                <% } %>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <footer class="mil-p-80-0">
+                <div class="container">
+                    <div class="mil-footer-bottom">
+                        <div class="row">
+                            <div class="col-xl-6"><p class="mil-text-s mil-soft">© 2026 RevaampAPA All rights reserved.</p></div>
+                            <div class="col-xl-6"><p class="mil-text-s mil-text-right mil-sm-text-left mil-soft">Superadmin Dashboard</p></div>
+                        </div>
+                    </div>
+                </div>
+            </footer>
+        </div>
+    </div>
+
+    <script src="/js/plugins/jquery.min.js"></script>
+    <script src="/js/plugins/swiper.min.js"></script>
+    <script src="/js/plugins/gsap.min.js"></script>
+    <script src="/js/plugins/ScrollSmoother.min.js"></script>
+    <script src="/js/plugins/ScrollTrigger.min.js"></script>
+    <script src="/js/plugins/ScrollTo.min.js"></script>
+    <script src="/js/plugins/magnific-popup.js"></script>
+    <script src="/js/main.js"></script>
+
+    <style>
+        .dropdown-menu { display: none; }
+        .dropdown:hover .dropdown-menu, .dropdown .dropdown-menu.show { display: block; }
+        .mil-p-80-40 { padding: 80px 0 40px; }
+        .mil-p-0-80 { padding: 0 0 80px; }
+        .mil-p-60 { padding: 60px; }
+        .mil-table { width: 100%; }
+    </style>
+
+    <script>
+        function approvePartnerHotel(id) {
+            if (!confirm('Approve this hotel, publish its listing, and email the hotel to confirm approval?')) return;
+            fetch('/superadmin/partner-hotels/' + id + '/approve', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' }
+            })
+            .then(function(r) { return r.json(); })
+            .then(function(data) {
+                if (data.success) { alert('Partner hotel approved and listing published.' + (data.emailed ? ' Approval email sent.' : ' NOTE: approval email could not be sent - contact them manually.')); location.reload(); }
+                else { alert(data.error || 'Error approving partner hotel'); }
+            })
+            .catch(function(e) { console.error(e); alert('Error approving partner hotel'); });
+        }
+
+        function rejectPartnerHotel(id) {
+            var reason = prompt('Reason for rejection / suspension:');
+            if (!reason) return;
+            fetch('/superadmin/partner-hotels/' + id + '/reject', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ reason: reason })
+            })
+            .then(function(r) { return r.json(); })
+            .then(function(data) {
+                if (data.success) { alert('Done.'); location.reload(); }
+                else { alert(data.error || 'Error'); }
+            })
+            .catch(function(e) { console.error(e); alert('Error'); });
+        }
+
+        function toggleFeaturedPartnerHotel(id) {
+            fetch('/superadmin/partner-hotels/' + id + '/toggle-featured', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' }
+            })
+            .then(function(r) { return r.json(); })
+            .then(function(data) {
+                if (data.success) { location.reload(); }
+                else { alert(data.error || 'Error'); }
+            })
+            .catch(function(e) { console.error(e); alert('Error'); });
+        }
+    </script>
+</body>
+
+</html>

@@ -338,7 +338,7 @@
             <div class="mil-blog-list mil-p-80-80">
                 <div class="container">
                     <div class="sec-title text-center w-100 mil-mb-60">
-                        <span class="mil-text-m mil-accent mil-up">Three Ways to Use Revaamp APA</span>
+                        <span class="mil-text-m mil-accent mil-up" id="partner-hotel">Ways to Work With Revaamp APA</span>
                         <h2 class="mil-mb-30 mil-up">Choose Your Role</h2>
                         <p class="mil-text-m mil-soft mil-up">Whether you're looking to buy, sell, or earn commissions, we've got you covered</p>
                     </div>
@@ -358,6 +358,11 @@
                             <li class="nav-item">
                                 <a class="nav-link" data-tab="agent">
                                     <i class="fa fa-user-tie"></i> Agents
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" data-tab="hotel">
+                                    <i class="fa fa-hotel"></i> Partner Hotels
                                 </a>
                             </li>
                         </ul>
@@ -537,6 +542,64 @@
                             </div>
                         </div>
 
+
+                        <!-- Partner Hotels -->
+                        <div class="tab-pane" id="tab-hotel">
+                            <div class="row">
+                                <div class="col-md-4">
+                                    <div class="how-work-box mil-up">
+                                        <div class="how-work-inner">
+                                            <h3>1. Apply to List</h3>
+                                            <p>Submit your hotel with photos, room types and rates. We verify your CAC registration and operating licence &mdash; the network only sees hotels that are real and ready.</p>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="how-work-box mil-up">
+                                        <div class="how-work-inner">
+                                            <h3>2. Go Live to the Network</h3>
+                                            <p>Once approved, your listing is published to the Revaamp hotel directory and every promoter and business partner across Africa can market it with their own tracking link.</p>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="how-work-box mil-up">
+                                        <div class="how-work-inner">
+                                            <h3>3. Get Your Rooms Off-Taken</h3>
+                                            <p>Revaamp off-takes your rooms and the network fills them. Your dashboard shows every click, the promoter behind it, and the booking it became.</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="commission-card mt-5 text-white text-center mil-up">
+                                <h3 class="mb-4">Why Hotels Partner With Revaamp</h3>
+                                <div class="row">
+                                    <div class="col-md-4">
+                                        <div class="commission-item">
+                                            <h2 class="text-warning">Pan-African</h2>
+                                            <p>Reach across the Revaamp programme</p>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <div class="commission-item">
+                                            <h2 class="text-info">&#8358;0</h2>
+                                            <p>Upfront cost to be listed</p>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <div class="commission-item">
+                                            <h2 class="text-light">100%</h2>
+                                            <p>Of your traffic tracked and attributed</p>
+                                        </div>
+                                    </div>
+                                </div>
+                                <p class="mt-4 mb-0">Property owners, promoters, business partners and project subscribers &mdash; all of them see your rooms.</p>
+                            </div>
+                            <div class="text-center mt-5">
+                                <a href="/partner-hotel/register" class="thm-btn">Become a Partner Hotel</a>
+                            </div>
+                        </div>
+
                     </div><!-- /tab-content -->
                 </div>
             </div>
@@ -697,6 +760,12 @@
                 if (target) target.classList.add('active');
             });
         });
+
+        // Deep link: /how-it-works#partner-hotel opens the Partner Hotels tab
+        if (window.location.hash === '#partner-hotel') {
+            var hotelPill = document.querySelector('#roleTabs .nav-link[data-tab="hotel"]');
+            if (hotelPill) hotelPill.click();
+        }
 
         // ── FAQ Accordion ──
         document.querySelectorAll('.faq-question').forEach(function(btn) {

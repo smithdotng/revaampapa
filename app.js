@@ -172,6 +172,9 @@ app.use('/architect', require('./routes/architectRoutes'));
 // Hotel routes
 app.use('/hotels', require('./routes/hotelRoutes'));
 
+// Revaamp Partner Hotel routes
+app.use('/partner-hotel', require('./routes/partnerHotelRoutes'));
+
 
 const businessPartnerRoutes = require('./routes/businessPartnerRoutes');
 app.use('/business-partner', businessPartnerRoutes);

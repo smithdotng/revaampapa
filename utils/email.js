@@ -615,6 +615,48 @@ const sendBidNoticeEmail = async (user, notice) => {
     return await sendEmail(user.email, subject, html);
 };
 
+// Send approval notice to a Revaamp Partner Hotel
+// Partner hotels have no dashboard - this email IS their notification.
+const sendPartnerHotelApprovedEmail = async (partnerHotel, listing) => {
+    const base = process.env.BASE_URL || 'http://localhost:3000';
+    const listingUrl = listing && listing.slug ? `${base}/hotels/${listing.slug}` : `${base}/hotels`;
+    const subject = `Approved - ${partnerHotel.hotelName} is now a Revaamp Partner Hotel`;
+    const html = `
+        <!DOCTYPE html>
+        <html>
+        <head>
+            <style>
+                body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }
+                .container { max-width: 600px; margin: 0 auto; padding: 20px; }
+                .header { background: linear-gradient(135deg, #7b4397 0%, #dc2430 100%); color: white; padding: 30px; text-align: center; border-radius: 10px 10px 0 0; }
+                .content { padding: 30px; background: #f9f9f9; }
+                .btn { display: inline-block; background: #7b4397; color: white; padding: 12px 30px; text-decoration: none; border-radius: 5px; margin-top: 20px; }
+                .footer { text-align: center; padding: 20px; font-size: 12px; color: #999; }
+            </style>
+        </head>
+        <body>
+            <div class="container">
+                <div class="header">
+                    <h1>Your application has been approved 🎉</h1>
+                </div>
+                <div class="content">
+                    <h2>Hello ${partnerHotel.name},</h2>
+                    <p>Your application for <strong>${partnerHotel.hotelName}</strong> to join the Revaamp Partner Hotel programme has been approved.</p>
+                    <p>Your hotel is now listed on RevaampAPA and visible to our network of property owners, promoters and business partners across Africa. Our promoters can now market your rooms, and Revaamp will off-take rooms in line with the terms agreed with our team.</p>
+                    <a href="${listingUrl}" class="btn">View Your Listing</a>
+                    <p style="margin-top:30px;">There is nothing further for you to do here. Your Revaamp account manager will be in touch about rates, availability and off-take. If you need to change anything on your listing, just reply to this email or contact us at info@revaampapa.com.</p>
+                </div>
+                <div class="footer">
+                    <p>&copy; 2026 RevaampAPA. All rights reserved.</p>
+                </div>
+            </div>
+        </body>
+        </html>
+    `;
+
+    return await sendEmail(partnerHotel.email, subject, html);
+};
+
 // Don't forget to add to module.exports
 module.exports = {
     sendWelcomeEmailToPropertyOwner,
@@ -626,7 +668,8 @@ module.exports = {
     sendPropertyVerifiedEmail,
     sendPropertyRejectedEmail,
     sendCommissionPayoutEmail,
-    sendBidNoticeEmail
+    sendBidNoticeEmail,
+    sendPartnerHotelApprovedEmail
 };
 
 // Add this at the end of utils/email.js to verify the module loads correctly

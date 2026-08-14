@@ -54,7 +54,14 @@
                         <ul class="main-menu__list">
                             <li class="<%= typeof currentPath !== 'undefined' && currentPath === '/' ? 'current' : '' %>"><a href="/">Home</a></li>
                             <li><a href="/properties">Properties</a></li>
-                            <li><a href="/hotels">Hotels</a></li>
+                            <li class="dropdown">
+                                <a href="/hotels">Hotels</a>
+                                <ul>
+                                    <li><a href="/hotels">Browse Partner Hotels</a></li>
+                                    <li><a href="/partner-hotel/register">List Your Hotel</a></li>
+                                    <li><a href="/how-it-works#partner-hotel">Partner Hotel Programme</a></li>
+                                </ul>
+                            </li>
                             <li class="dropdown">
                                 <a href="#">For Owners</a>
                                 <ul>
@@ -69,6 +76,14 @@
                                     <li><a href="/promoter/register">Become a Promoter</a></li>
                                     <li><a href="/how-it-works#promoter">How It Works</a></li>
                                     <li><a href="/how-it-works#commission">Commission Structure</a></li>
+                                </ul>
+                            </li>
+                            <li class="dropdown">
+                                <a href="#">For Professionals</a>
+                                <ul>
+                                    <li><a href="/architect/register">Partner Architect</a></li>
+                                    <li><a href="/solicitor/register">Partner Solicitor</a></li>
+                                    <li><a href="/solicitor/hectare/register">Revaamp HbH Solicitor</a></li>
                                 </ul>
                             </li>
                             <li><a href="/about">About</a></li>
