@@ -375,6 +375,31 @@
                             <% } %>
                         </div>
 
+                        <!-- Room Voucher -->
+                        <% var vm = (typeof voucherMode !== 'undefined') ? voucherMode : null; %>
+                        <% if (hotel.voucherDiscountRate && hotel.voucherDiscountRate > 0) { %>
+                        <div class="mil-price-card mil-mb-30" style="background: linear-gradient(135deg, #8E2DE2 0%, #4A00E0 100%);">
+                            <h5 class="mil-light mil-mb-10"><i class="fa fa-ticket"></i> Room Voucher cashback</h5>
+                            <h2 class="mil-light" style="margin:0 0 10px;"><%= hotel.voucherDiscountRate %>%</h2>
+                            <p class="mil-text-s" style="color:rgba(255,255,255,0.85);">
+                                Room Voucher Subscribers earn <%= hotel.voucherDiscountRate %>% of the stay back as cashback here.
+                                You must register your stay against this hotel <strong>before you check in</strong> &mdash; there is no retroactive claim.
+                            </p>
+                            <% if (vm || (typeof userType !== 'undefined' && userType === 'voucher_subscriber')) { %>
+                                <a href="/voucher/reserve/<%= hotel.slug %>" class="mil-btn mil-md mil-light" style="display:block;margin-top:15px;">
+                                    <i class="fa fa-calendar-plus-o"></i> Register my stay
+                                </a>
+                            <% } else { %>
+                                <a href="/hotels" class="mil-btn mil-md mil-light" style="display:block;margin-top:15px;">
+                                    I am a subscriber &mdash; confirm membership
+                                </a>
+                                <a href="/voucher/register" class="mil-btn mil-md" style="display:block;margin-top:10px;background:rgba(255,255,255,0.15);color:#fff;">
+                                    Join the Room Voucher
+                                </a>
+                            <% } %>
+                        </div>
+                        <% } %>
+
                         <!-- Book CTA -->
                         <div class="mil-price-card mil-featured mil-up mil-mb-30" style="text-align:center;">
                             <h5 class="mil-light mil-mb-15">Ready to Book?</h5>

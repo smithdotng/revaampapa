@@ -337,6 +337,7 @@
             <!-- Role Tabs -->
             <div class="mil-blog-list mil-p-80-80">
                 <div class="container">
+                    <span id="room-voucher"></span>
                     <div class="sec-title text-center w-100 mil-mb-60">
                         <span class="mil-text-m mil-accent mil-up" id="partner-hotel">Ways to Work With Revaamp APA</span>
                         <h2 class="mil-mb-30 mil-up">Choose Your Role</h2>
@@ -363,6 +364,11 @@
                             <li class="nav-item">
                                 <a class="nav-link" data-tab="hotel">
                                     <i class="fa fa-hotel"></i> Partner Hotels
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" data-tab="voucher">
+                                    <i class="fa fa-ticket"></i> Room Voucher
                                 </a>
                             </li>
                         </ul>
@@ -600,6 +606,64 @@
                             </div>
                         </div>
 
+
+                        <!-- Room Voucher Subscribers -->
+                        <div class="tab-pane" id="tab-voucher">
+                            <div class="row">
+                                <div class="col-md-4">
+                                    <div class="how-work-box mil-up">
+                                        <div class="how-work-inner">
+                                            <h3>1. Subscribe</h3>
+                                            <p>Join the Room Voucher programme and we issue your membership number. It is what identifies you at any hotel in the Revaamp directory, anywhere we operate.</p>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="how-work-box mil-up">
+                                        <div class="how-work-inner">
+                                            <h3>2. Register the stay before you go</h3>
+                                            <p>Pick a listed hotel, check the cashback rate shown on it, and register your stay. <strong>This step is the claim</strong> &mdash; a stay that was never registered cannot be paid out afterwards.</p>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="how-work-box mil-up">
+                                        <div class="how-work-inner">
+                                            <h3>3. Stay, then get paid</h3>
+                                            <p>Book and pay the hotel exactly as you normally would. Once the stay is confirmed, Revaamp pays your discount to you as cashback.</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="commission-card mt-5 text-white text-center mil-up">
+                                <h3 class="mb-4">What Subscribers Get</h3>
+                                <div class="row">
+                                    <div class="col-md-4">
+                                        <div class="commission-item">
+                                            <h2 class="text-warning">Cashback</h2>
+                                            <p>Paid to you after the stay, not held as credit</p>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <div class="commission-item">
+                                            <h2 class="text-info">Every listing</h2>
+                                            <p>One membership works across the whole directory</p>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <div class="commission-item">
+                                            <h2 class="text-light">&#8358;0</h2>
+                                            <p>Booking fees &mdash; you book with the hotel direct</p>
+                                        </div>
+                                    </div>
+                                </div>
+                                <p class="mt-4 mb-0">Cashback rates are set per hotel and shown on each listing, so you always know the number before you commit.</p>
+                            </div>
+                            <div class="text-center mt-5">
+                                <a href="/voucher/register" class="thm-btn">Subscribe to the Room Voucher</a>
+                            </div>
+                        </div>
+
                     </div><!-- /tab-content -->
                 </div>
             </div>
@@ -761,10 +825,12 @@
             });
         });
 
-        // Deep link: /how-it-works#partner-hotel opens the Partner Hotels tab
-        if (window.location.hash === '#partner-hotel') {
-            var hotelPill = document.querySelector('#roleTabs .nav-link[data-tab="hotel"]');
-            if (hotelPill) hotelPill.click();
+        // Deep links: /how-it-works#partner-hotel and #room-voucher open their tab
+        var hashTabs = { '#partner-hotel': 'hotel', '#room-voucher': 'voucher' };
+        var wantedTab = hashTabs[window.location.hash];
+        if (wantedTab) {
+            var pill = document.querySelector('#roleTabs .nav-link[data-tab="' + wantedTab + '"]');
+            if (pill) pill.click();
         }
 
         // ── FAQ Accordion ──

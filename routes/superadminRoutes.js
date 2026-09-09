@@ -124,4 +124,12 @@ router.post('/partner-hotels/:id/approve', superadminController.approvePartnerHo
 router.post('/partner-hotels/:id/reject', superadminController.rejectPartnerHotel);
 router.post('/partner-hotels/:id/toggle-featured', superadminController.togglePartnerHotelFeatured);
 
+// ============= ROOM VOUCHER MANAGEMENT =============
+router.get('/voucher-subscribers', superadminController.getVoucherSubscribers);
+router.post('/voucher-subscribers/:id/activate', superadminController.activateVoucherSubscriber);
+router.post('/voucher-subscribers/:id/suspend', superadminController.suspendVoucherSubscriber);
+router.get('/voucher-reservations', superadminController.getVoucherReservations);
+router.post('/voucher-reservations/:id/status', superadminController.updateVoucherReservationStatus);
+router.post('/voucher-reservations/:id/cashback', superadminController.updateVoucherCashback);
+
 module.exports = router;

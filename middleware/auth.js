@@ -16,7 +16,8 @@ const authMiddleware = {
                 'hectare_solicitor': '/hectare-solicitor/dashboard',
                 'business_partner': '/business-partner/dashboard',
                 'project_subscriber': '/project-subscriber/dashboard',
-                'architect': '/architect/dashboard'
+                'architect': '/architect/dashboard',
+                'voucher_subscriber': '/voucher/dashboard'
             };
             
             const redirectUrl = redirectMap[userType] || '/dashboard';
@@ -203,6 +204,33 @@ const authMiddleware = {
             }
             req.flash('error', 'Your Revaamp HbH Solicitor account is pending approval.');
             res.redirect('/hectare-solicitor/pending');
+        } catch (error) {
+            next(error);
+        }
+    },
+
+    // Check if user is a Room Voucher Subscriber
+    isVoucherSubscriber: (req, res, next) => {
+        if (req.session.userType === 'voucher_subscriber') {
+            return next();
+        }
+        req.flash('error', 'Access denied. Room Voucher Subscriber only area.');
+        if (req.path !== '/dashboard') {
+            return res.redirect('/dashboard');
+        }
+        return res.redirect('/');
+    },
+
+    // Check the subscription is actually live before a stay can be registered
+    isVoucherSubscriberActive: async (req, res, next) => {
+        try {
+            const VoucherSubscriber = require('../models/VoucherSubscriber');
+            const subscriber = await VoucherSubscriber.findById(req.session.userId);
+            if (subscriber && subscriber.hasActiveSubscription()) {
+                return next();
+            }
+            req.flash('error', 'Your Room Voucher subscription is not active yet.');
+            res.redirect('/voucher/dashboard');
         } catch (error) {
             next(error);
         }

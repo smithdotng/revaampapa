@@ -50,6 +50,14 @@ const hotelSchema = new mongoose.Schema({
         min: 0,
         max: 100
     },
+    // Cashback rate offered to Revaamp Room Voucher Subscribers who register a
+    // stay against this listing before check-in.
+    voucherDiscountRate: {
+        type: Number,
+        default: 0,
+        min: 0,
+        max: 100
+    },
     isActive: {
         type: Boolean,
         default: true

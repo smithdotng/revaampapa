@@ -175,6 +175,9 @@ app.use('/hotels', require('./routes/hotelRoutes'));
 // Revaamp Partner Hotel routes
 app.use('/partner-hotel', require('./routes/partnerHotelRoutes'));
 
+// Revaamp Room Voucher subscription + reservation module
+app.use('/voucher', require('./routes/voucherRoutes'));
+
 
 const businessPartnerRoutes = require('./routes/businessPartnerRoutes');
 app.use('/business-partner', businessPartnerRoutes);

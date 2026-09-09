@@ -657,6 +657,90 @@ const sendPartnerHotelApprovedEmail = async (partnerHotel, listing) => {
     return await sendEmail(partnerHotel.email, subject, html);
 };
 
+// ============= ROOM VOUCHER EMAILS =============
+
+const voucherEmailShell = (heading, bodyHtml) => `
+    <!DOCTYPE html>
+    <html>
+    <head>
+        <style>
+            body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }
+            .container { max-width: 600px; margin: 0 auto; padding: 20px; }
+            .header { background: linear-gradient(135deg, #8E2DE2 0%, #4A00E0 100%); color: white; padding: 30px; text-align: center; border-radius: 10px 10px 0 0; }
+            .content { padding: 30px; background: #f9f9f9; }
+            .btn { display: inline-block; background: #6C2BD9; color: white; padding: 12px 30px; text-decoration: none; border-radius: 5px; margin-top: 20px; }
+            .footer { text-align: center; padding: 20px; font-size: 12px; color: #999; }
+        </style>
+    </head>
+    <body>
+        <div class="container">
+            <div class="header"><h1>${heading}</h1></div>
+            <div class="content">${bodyHtml}</div>
+            <div class="footer"><p>&copy; 2026 RevaampAPA. All rights reserved.</p></div>
+        </div>
+    </body>
+    </html>
+`;
+
+const sendVoucherSubscriptionReceivedEmail = async (subscriber) => {
+    const base = process.env.BASE_URL || 'http://localhost:3000';
+    const html = voucherEmailShell('Welcome to the Room Voucher', `
+        <h2>Hello ${subscriber.name},</h2>
+        <p>Thanks for subscribing to the Revaamp Room Voucher. Your membership number is <strong>${subscriber.subscriberCode}</strong>.</p>
+        <p>We are reviewing your subscription now and will email you the moment it is active. Once it is, you can register stays at any hotel listed on Revaamp and earn cashback.</p>
+        <p><strong>One thing worth knowing up front:</strong> you must register a stay against a specific hotel listing before you check in. Cashback cannot be claimed retroactively.</p>
+        <a href="${base}/hotels" class="btn">Browse listed hotels</a>
+    `);
+    return await sendEmail(subscriber.email, 'Your Revaamp Room Voucher subscription - ' + subscriber.subscriberCode, html);
+};
+
+const sendVoucherSubscriptionActivatedEmail = async (subscriber) => {
+    const base = process.env.BASE_URL || 'http://localhost:3000';
+    const expiry = subscriber.subscription && subscriber.subscription.expiresAt
+        ? new Date(subscriber.subscription.expiresAt).toDateString()
+        : null;
+    const html = voucherEmailShell('Your Room Voucher is active', `
+        <h2>Hello ${subscriber.name},</h2>
+        <p>Your Revaamp Room Voucher subscription is now <strong>active</strong>. Membership number <strong>${subscriber.subscriberCode}</strong>${expiry ? ', valid until ' + expiry : ''}.</p>
+        <p>Every hotel in the Revaamp directory shows the cashback rate you earn there. Pick one, register your stay before you check in, and we pay your cashback after the stay is confirmed.</p>
+        <a href="${base}/voucher/dashboard" class="btn">Open my dashboard</a>
+    `);
+    return await sendEmail(subscriber.email, 'Your Revaamp Room Voucher is active', html);
+};
+
+const sendVoucherReservationRegisteredEmail = async (subscriber, reservation, hotel) => {
+    const base = process.env.BASE_URL || 'http://localhost:3000';
+    const html = voucherEmailShell('Stay registered', `
+        <h2>Hello ${subscriber.name},</h2>
+        <p>Your stay at <strong>${hotel.name}</strong> is registered against your Room Voucher.</p>
+        <p>
+            Reference: <strong>${reservation.reference}</strong><br>
+            Dates: ${new Date(reservation.checkInDate).toDateString()} to ${new Date(reservation.checkOutDate).toDateString()} (${reservation.nights} night(s))<br>
+            Estimated cashback: <strong>NGN ${(reservation.cashbackAmount || 0).toLocaleString()}</strong> at ${reservation.voucherDiscountRate}%
+        </p>
+        <p>Book the room with the hotel as you normally would. This registration is what makes your cashback claimable; we confirm the final amount against the actual stay before paying out.</p>
+        <a href="${base}/voucher/reservations" class="btn">View my reservations</a>
+    `);
+    return await sendEmail(subscriber.email, 'Stay registered - ' + reservation.reference, html);
+};
+
+const sendVoucherCashbackPaidEmail = async (subscriber, reservation) => {
+    const base = process.env.BASE_URL || 'http://localhost:3000';
+    const hotelName = reservation.hotel && reservation.hotel.name ? reservation.hotel.name : (reservation.hotelName || 'your stay');
+    const html = voucherEmailShell('Your cashback has been paid', `
+        <h2>Hello ${subscriber.name},</h2>
+        <p>Your Room Voucher cashback for <strong>${hotelName}</strong> has been paid.</p>
+        <p>
+            Reference: <strong>${reservation.reference}</strong><br>
+            Amount: <strong>NGN ${(reservation.cashbackAmount || 0).toLocaleString()}</strong>
+            ${reservation.cashbackPaymentReference ? '<br>Payment reference: ' + reservation.cashbackPaymentReference : ''}
+        </p>
+        <p>Thanks for using the Revaamp Room Voucher. Register your next stay before you travel to keep the cashback coming.</p>
+        <a href="${base}/hotels" class="btn">Find your next stay</a>
+    `);
+    return await sendEmail(subscriber.email, 'Room Voucher cashback paid - ' + reservation.reference, html);
+};
+
 // Don't forget to add to module.exports
 module.exports = {
     sendWelcomeEmailToPropertyOwner,
@@ -669,7 +753,11 @@ module.exports = {
     sendPropertyRejectedEmail,
     sendCommissionPayoutEmail,
     sendBidNoticeEmail,
-    sendPartnerHotelApprovedEmail
+    sendPartnerHotelApprovedEmail,
+    sendVoucherSubscriptionReceivedEmail,
+    sendVoucherSubscriptionActivatedEmail,
+    sendVoucherReservationRegisteredEmail,
+    sendVoucherCashbackPaidEmail
 };
 
 // Add this at the end of utils/email.js to verify the module loads correctly

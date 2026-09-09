@@ -1342,7 +1342,7 @@ exports.postAddHotel = async (req, res) => {
     try {
         const {
             name, description, address, city, state, country,
-            phone, email, website, commissionRate,
+            phone, email, website, commissionRate, voucherDiscountRate,
             amenities, featured, rating, isActive
         } = req.body;
         
@@ -1379,6 +1379,7 @@ exports.postAddHotel = async (req, res) => {
                 website: website || '' 
             },
             commissionRate: parseFloat(commissionRate) || 30,
+            voucherDiscountRate: parseFloat(voucherDiscountRate) || 0,
             amenities: amenitiesArray,
             featured: featured === 'on',
             rating: parseFloat(rating) || 0,
@@ -1433,7 +1434,7 @@ exports.updateHotel = async (req, res) => {
         
         const {
             name, description, address, city, state, country,
-            phone, email, website, commissionRate,
+            phone, email, website, commissionRate, voucherDiscountRate,
             amenities, featured, rating, isActive
         } = req.body;
         
@@ -1457,6 +1458,7 @@ exports.updateHotel = async (req, res) => {
             website: website || '' 
         };
         hotel.commissionRate = parseFloat(commissionRate) || 30;
+        hotel.voucherDiscountRate = parseFloat(voucherDiscountRate) || 0;
         hotel.amenities = amenitiesArray;
         hotel.featured = featured === 'on';
         hotel.rating = parseFloat(rating) || 0;
@@ -2195,5 +2197,224 @@ exports.togglePartnerHotelFeatured = async (req, res) => {
     } catch (error) {
         console.error('Toggle partner hotel featured error:', error);
         res.status(500).json({ error: 'Error updating placement' });
+    }
+};
+
+
+// ============= ROOM VOUCHER SUBSCRIBERS =============
+
+exports.getVoucherSubscribers = async (req, res) => {
+    try {
+        const VoucherSubscriber = require('../models/VoucherSubscriber');
+        const user = await User.findById(req.session.userId);
+        const { status } = req.query;
+
+        let query = {};
+        if (status === 'pending') query = { 'subscription.status': 'pending', isSuspended: { $ne: true } };
+        else if (status === 'active') query = { 'subscription.status': 'active', isSuspended: { $ne: true } };
+        else if (status === 'suspended') query = { isSuspended: true };
+
+        const subscribers = await VoucherSubscriber.find(query)
+            .select('-password')
+            .populate('referral.referredBy', 'name email userType')
+            .sort('-createdAt');
+
+        const stats = {
+            total: await VoucherSubscriber.countDocuments(),
+            pending: await VoucherSubscriber.countDocuments({ 'subscription.status': 'pending', isSuspended: { $ne: true } }),
+            active: await VoucherSubscriber.countDocuments({ 'subscription.status': 'active', isSuspended: { $ne: true } }),
+            suspended: await VoucherSubscriber.countDocuments({ isSuspended: true })
+        };
+
+        res.render('superadmin/voucher-subscribers', {
+            title: 'Room Voucher Subscribers - RevaampAP',
+            user: user,
+            subscribers: subscribers,
+            stats: stats,
+            filters: req.query,
+            currentPath: '/superadmin/voucher-subscribers'
+        });
+    } catch (error) {
+        console.error('Get voucher subscribers error:', error);
+        req.flash('error', 'Error loading voucher subscribers');
+        res.redirect('/superadmin/dashboard');
+    }
+};
+
+exports.activateVoucherSubscriber = async (req, res) => {
+    try {
+        const VoucherSubscriber = require('../models/VoucherSubscriber');
+        const subscriber = await VoucherSubscriber.findById(req.params.id);
+        if (!subscriber) return res.status(404).json({ error: 'Subscriber not found' });
+
+        const months = parseInt(req.body.months, 10);
+        const now = new Date();
+
+        subscriber.subscription.status = 'active';
+        subscriber.subscription.startedAt = subscriber.subscription.startedAt || now;
+        subscriber.subscription.activatedAt = now;
+        subscriber.subscription.activatedBy = req.session.userId;
+        if (months && months > 0) {
+            const expires = new Date(now);
+            expires.setMonth(expires.getMonth() + months);
+            subscriber.subscription.expiresAt = expires;
+        } else {
+            subscriber.subscription.expiresAt = undefined;
+        }
+        subscriber.isSuspended = false;
+        subscriber.suspensionReason = undefined;
+        await subscriber.save();
+
+        let emailed = false;
+        try {
+            const emailService = require('../utils/email');
+            if (emailService.sendVoucherSubscriptionActivatedEmail) {
+                emailed = await emailService.sendVoucherSubscriptionActivatedEmail(subscriber);
+            }
+        } catch (mailError) {
+            console.error('Voucher activation email failed:', mailError);
+        }
+
+        res.json({ success: true, emailed: !!emailed });
+    } catch (error) {
+        console.error('Activate voucher subscriber error:', error);
+        res.status(500).json({ error: 'Error activating subscription' });
+    }
+};
+
+exports.suspendVoucherSubscriber = async (req, res) => {
+    try {
+        const VoucherSubscriber = require('../models/VoucherSubscriber');
+        const subscriber = await VoucherSubscriber.findById(req.params.id);
+        if (!subscriber) return res.status(404).json({ error: 'Subscriber not found' });
+
+        subscriber.isSuspended = true;
+        subscriber.suspensionReason = req.body.reason || 'Suspended by administrator';
+        subscriber.suspendedAt = new Date();
+        subscriber.subscription.status = 'cancelled';
+        subscriber.subscription.cancelledAt = new Date();
+        subscriber.subscription.cancellationReason = req.body.reason || 'Suspended by administrator';
+        await subscriber.save();
+
+        res.json({ success: true });
+    } catch (error) {
+        console.error('Suspend voucher subscriber error:', error);
+        res.status(500).json({ error: 'Error suspending subscription' });
+    }
+};
+
+// ============= ROOM VOUCHER RESERVATIONS =============
+
+exports.getVoucherReservations = async (req, res) => {
+    try {
+        const RoomVoucherReservation = require('../models/RoomVoucherReservation');
+        const user = await User.findById(req.session.userId);
+        const { status, cashback } = req.query;
+
+        const query = {};
+        if (status) query.status = status;
+        if (cashback) query.cashbackStatus = cashback;
+
+        const reservations = await RoomVoucherReservation.find(query)
+            .populate('subscriber', 'name email subscriberCode')
+            .populate('hotel', 'name slug')
+            .sort('-createdAt');
+
+        const all = await RoomVoucherReservation.find();
+        const live = all.filter(r => r.status !== 'cancelled' && r.status !== 'no_show');
+        const sum = (list) => list.reduce((t, r) => t + (r.cashbackAmount || 0), 0);
+
+        const stats = {
+            registered: all.filter(r => ['registered', 'confirmed'].indexOf(r.status) !== -1).length,
+            stayed: all.filter(r => r.status === 'stayed').length,
+            cashbackOwing: sum(live.filter(r => ['pending', 'approved'].indexOf(r.cashbackStatus) !== -1)),
+            cashbackPaid: sum(all.filter(r => r.cashbackStatus === 'paid'))
+        };
+
+        res.render('superadmin/voucher-reservations', {
+            title: 'Room Voucher Reservations - RevaampAP',
+            user: user,
+            reservations: reservations,
+            stats: stats,
+            filters: req.query,
+            currentPath: '/superadmin/voucher-reservations'
+        });
+    } catch (error) {
+        console.error('Get voucher reservations error:', error);
+        req.flash('error', 'Error loading voucher reservations');
+        res.redirect('/superadmin/dashboard');
+    }
+};
+
+exports.updateVoucherReservationStatus = async (req, res) => {
+    try {
+        const RoomVoucherReservation = require('../models/RoomVoucherReservation');
+        const allowed = ['registered', 'confirmed', 'stayed', 'cancelled', 'no_show'];
+        const { status } = req.body;
+
+        if (allowed.indexOf(status) === -1) {
+            return res.status(400).json({ error: 'Unknown status' });
+        }
+
+        const reservation = await RoomVoucherReservation.findById(req.params.id);
+        if (!reservation) return res.status(404).json({ error: 'Reservation not found' });
+
+        reservation.status = status;
+        if (status === 'confirmed') reservation.confirmedAt = new Date();
+        if (status === 'stayed') reservation.stayedAt = new Date();
+        if (status === 'cancelled') reservation.cancelledAt = new Date();
+        // The model voids cashback on cancelled / no_show automatically
+        await reservation.save();
+
+        res.json({ success: true, cashbackStatus: reservation.cashbackStatus });
+    } catch (error) {
+        console.error('Update voucher reservation status error:', error);
+        res.status(500).json({ error: 'Error updating reservation' });
+    }
+};
+
+exports.updateVoucherCashback = async (req, res) => {
+    try {
+        const RoomVoucherReservation = require('../models/RoomVoucherReservation');
+        const allowed = ['pending', 'approved', 'paid', 'void'];
+        const { cashbackStatus, paymentReference } = req.body;
+
+        if (allowed.indexOf(cashbackStatus) === -1) {
+            return res.status(400).json({ error: 'Unknown cashback status' });
+        }
+
+        const reservation = await RoomVoucherReservation.findById(req.params.id)
+            .populate('subscriber', 'name email subscriberCode')
+            .populate('hotel', 'name slug');
+        if (!reservation) return res.status(404).json({ error: 'Reservation not found' });
+
+        if (cashbackStatus === 'approved') {
+            reservation.cashbackApprovedAt = new Date();
+            reservation.cashbackApprovedBy = req.session.userId;
+        }
+        if (cashbackStatus === 'paid') {
+            reservation.cashbackPaidAt = new Date();
+            reservation.cashbackPaidBy = req.session.userId;
+            if (paymentReference) reservation.cashbackPaymentReference = paymentReference;
+        }
+        reservation.cashbackStatus = cashbackStatus;
+        await reservation.save();
+
+        let emailed = false;
+        if (cashbackStatus === 'paid' && reservation.subscriber) {
+            try {
+                const emailService = require('../utils/email');
+                if (emailService.sendVoucherCashbackPaidEmail) {
+                    emailed = await emailService.sendVoucherCashbackPaidEmail(reservation.subscriber, reservation);
+                }
+            } catch (mailError) {
+                console.error('Voucher cashback email failed:', mailError);
+            }
+        }
+
+        res.json({ success: true, emailed: !!emailed });
+    } catch (error) {
+        console.error('Update voucher cashback error:', error);
+        res.status(500).json({ error: 'Error updating cashback' });
     }
 };

@@ -173,6 +173,65 @@
             </div>
         </div>
 
+
+        <!-- Room Voucher Subscriber check -->
+        <div class="mil-blog-list mil-p-40-0">
+            <div class="container">
+                <% var vm = (typeof voucherMode !== 'undefined') ? voucherMode : null; %>
+                <% if (vm) { %>
+                    <div class="mil-price-card mil-up" style="background: linear-gradient(135deg, #8E2DE2 0%, #4A00E0 100%);">
+                        <div class="row align-items-center">
+                            <div class="col-md-8">
+                                <h5 class="mil-light mil-mb-10"><i class="fa fa-ticket"></i> Room Voucher active &mdash; <%= vm.name %> (<%= vm.code %>)</h5>
+                                <p class="mil-text-s mil-mb-0" style="color:rgba(255,255,255,0.85);">Cashback rates are shown on each listing below. Register your stay on a hotel before you check in to claim it.</p>
+                            </div>
+                            <div class="col-md-4 mil-text-right">
+                                <form method="POST" action="/voucher/exit" style="display:inline;">
+                                    <button type="submit" class="mil-btn mil-sm" style="background:rgba(255,255,255,0.2);color:#fff;">Not you? Sign out of voucher mode</button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                <% } else { %>
+                    <div class="mil-price-card mil-up" style="border-left:5px solid #6C2BD9;">
+                        <div class="row align-items-center">
+                            <div class="col-xl-5">
+                                <h5 class="mil-mb-10"><i class="fa fa-ticket" style="color:#6C2BD9;"></i> Are you a Room Voucher Subscriber?</h5>
+                                <p class="mil-text-s mil-soft mil-mb-0">Subscribers get discounted rates at every listed hotel, paid back as cashback. Confirm your membership to see your rate on each listing.</p>
+                            </div>
+                            <div class="col-xl-7">
+                                <form method="POST" action="/voucher/check">
+                                    <div class="row align-items-end">
+                                        <div class="col-md-4 mil-mb-10">
+                                            <label style="font-size:13px;font-weight:600;display:block;margin-bottom:6px;">Are you a subscriber?</label>
+                                            <select name="isSubscriber" id="voucherIsSubscriber" style="width:100%;padding:9px;border:1px solid #ddd;border-radius:6px;">
+                                                <option value="yes">Yes &mdash; I am subscribed</option>
+                                                <option value="no">No &mdash; tell me more</option>
+                                            </select>
+                                        </div>
+                                        <div class="col-md-4 mil-mb-10 voucher-id-field">
+                                            <label style="font-size:13px;font-weight:600;display:block;margin-bottom:6px;">Email</label>
+                                            <input type="email" name="email" placeholder="you@example.com" style="width:100%;padding:9px;border:1px solid #ddd;border-radius:6px;">
+                                        </div>
+                                        <div class="col-md-2 mil-mb-10 voucher-id-field">
+                                            <label style="font-size:13px;font-weight:600;display:block;margin-bottom:6px;">or Member no.</label>
+                                            <input type="text" name="subscriberCode" placeholder="RV-XXXXXX" style="width:100%;padding:9px;border:1px solid #ddd;border-radius:6px;">
+                                        </div>
+                                        <div class="col-md-2 mil-mb-10">
+                                            <button type="submit" class="mil-btn" style="width:100%;padding:10px 12px;background:#6C2BD9;color:#fff;">Continue</button>
+                                        </div>
+                                    </div>
+                                    <p class="mil-text-xs mil-soft" style="margin-top:6px;">
+                                        Not subscribed? <a href="/voucher/register" class="mil-accent">Join the Room Voucher programme</a> &mdash; cashback on stays at any hotel listed here.
+                                    </p>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                <% } %>
+            </div>
+        </div>
+
         <!-- Hotel Grid -->
         <div class="mil-blog-list mil-p-40-80">
             <div class="container">
@@ -197,6 +256,7 @@
                                 <% } %>
                                 <h5 style="margin-bottom:6px;"><%= hotel.name %></h5>
                                 <p class="hotel-location"><i class="fa fa-map-marker"></i> <%= hotel.location.city %><% if (hotel.location.state) { %>, <%= hotel.location.state %><% } %></p>
+                                <% if (hotel.voucherDiscountRate && hotel.voucherDiscountRate > 0) { %><span style="background:#f6f2ff;color:#6C2BD9;font-size:11px;font-weight:600;padding:3px 8px;border-radius:4px;display:inline-block;margin-bottom:8px;"><i class="fa fa-ticket"></i> <%= hotel.voucherDiscountRate %>% Room Voucher cashback</span><% } %>
                                 <% if (hotel.rating && hotel.rating > 0) { %>
                                 <p class="hotel-rating mil-mb-10">
                                     <% for (let i = 1; i <= 5; i++) { %>

@@ -4,6 +4,7 @@ const Solicitor = require('../models/Solicitor');
 const HectareSolicitor = require('../models/HectareSolicitor');
 const Architect = require('../models/Architect');
 const PartnerHotel = require('../models/PartnerHotel');
+const VoucherSubscriber = require('../models/VoucherSubscriber');
 const axios = require('axios');
 const fs = require('fs');
 const path = require('path');
@@ -56,6 +57,11 @@ exports.postLogin = async (req, res) => {
         if (!user) {
             user = await PartnerHotel.findOne({ email: email.toLowerCase() });
             userType = 'partner_hotel';
+        }
+
+        if (!user) {
+            user = await VoucherSubscriber.findOne({ email: email.toLowerCase() });
+            userType = 'voucher_subscriber';
         }
 
         if (!user) {
@@ -140,6 +146,9 @@ exports.postLogin = async (req, res) => {
             } else {
                 res.redirect('/architect/dashboard');
             }
+        } else if (user.userType === 'voucher_subscriber') {
+            // Subscribers can sign in while pending - the dashboard shows status
+            res.redirect('/voucher/dashboard');
         } else {
             res.redirect('/dashboard');
         }

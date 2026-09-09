@@ -74,7 +74,7 @@ exports.postAddHotel = async (req, res) => {
     try {
         const {
             name, description, address, city, state, country,
-            phone, email, website, commissionRate,
+            phone, email, website, commissionRate, voucherDiscountRate,
             amenities, featured, rating
         } = req.body;
         
@@ -95,6 +95,7 @@ exports.postAddHotel = async (req, res) => {
             images,
             contactInfo: { phone, email, website },
             commissionRate: parseFloat(commissionRate) || 30,
+            voucherDiscountRate: parseFloat(voucherDiscountRate) || 0,
             amenities: amenities ? (Array.isArray(amenities) ? amenities : [amenities]) : [],
             featured: featured === 'on',
             rating: parseFloat(rating) || 0,
@@ -148,7 +149,7 @@ exports.updateHotel = async (req, res) => {
         
         const {
             name, description, address, city, state, country,
-            phone, email, website, commissionRate,
+            phone, email, website, commissionRate, voucherDiscountRate,
             amenities, featured, rating, isActive
         } = req.body;
         
@@ -157,6 +158,7 @@ exports.updateHotel = async (req, res) => {
         hotel.location = { address, city, state, country };
         hotel.contactInfo = { phone, email, website };
         hotel.commissionRate = parseFloat(commissionRate) || 30;
+        hotel.voucherDiscountRate = parseFloat(voucherDiscountRate) || 0;
         hotel.amenities = amenities ? (Array.isArray(amenities) ? amenities : [amenities]) : [];
         hotel.featured = featured === 'on';
         hotel.rating = parseFloat(rating) || 0;
@@ -272,6 +274,7 @@ exports.getHotels = async (req, res) => {
             totalPages: Math.ceil(total / limit),
             total: total,
             filters: req.query,
+            voucherMode: req.session.voucherMode || null,
             user: req.session.userId ? { name: req.session.userName, type: req.session.userType } : null
         });
     } catch (error) {
@@ -307,6 +310,7 @@ exports.getHotelDetail = async (req, res) => {
             hotel: hotel,
             uniqueLink: uniqueLink,
             uniqueCode: uniqueCode,
+            voucherMode: req.session.voucherMode || null,
             userType: userType,
             user: req.session.userId ? { name: req.session.userName, type: userType } : null
         });

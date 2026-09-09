@@ -119,6 +119,7 @@
                             <h3>Hotel Settings</h3>
                             <div class="form-row">
                                 <div class="form-group"><label>Commission Rate (%)</label><input type="number" name="commissionRate" step="1" min="0" max="100" value="<%= hotel ? hotel.commissionRate : 30 %>"></div>
+                                <label style="display:block;margin-top:14px;font-size:13px;font-weight:600;">Room Voucher cashback rate (%)</label><input type="number" name="voucherDiscountRate" min="0" max="100" step="1" value="<%= hotel && hotel.voucherDiscountRate ? hotel.voucherDiscountRate : 0 %>" placeholder="e.g. 10" class="form-control" style="width:100%;padding:8px;margin-bottom:8px;"><small style="color:#888;">Cashback paid to Room Voucher Subscribers who register a stay here. 0 disables the voucher on this hotel.</small>
                                 <div class="form-group"><label>Rating (0-5)</label><input type="number" name="rating" step="0.1" min="0" max="5" value="<%= hotel ? hotel.rating : 0 %>"></div>
                             </div>
                             <div class="checkbox-group">
