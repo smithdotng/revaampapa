@@ -2,7 +2,7 @@ import type { Metadata } from 'next'
 import Link from 'next/link'
 import { getHomeData } from '@/lib/data'
 
-export const metadata: Metadata = { title: 'About us', description: 'RevaampAPA brings property aggregation, promotion and project management onto one platform.' }
+export const metadata: Metadata = { title: 'About us', description: 'RevaampAPA is one programme for real estate development across Africa: aggregation, promotion and project management on one platform.' }
 
 const VALUES = [
   ['Trust and transparency', 'Every listing is verified before it’s published, and every commission is tracked against your account.'],
@@ -17,7 +17,7 @@ export default async function AboutPage() {
     <>
       <section className="wrap grid gap-10 pb-16 pt-12 md:pt-16 lg:grid-cols-[1.3fr_1fr] lg:items-end">
         <div>
-          <h1 className="t-hero max-w-[14ch]">Property works better when everyone earns.</h1>
+          <h1 className="t-hero max-w-[14ch]">Real estate development works better when everyone earns.</h1>
         </div>
         <p className="lede">
           RevaampAPA — Revaamps Aggregation, Promotions and Agency Platform — connects verified property owners with a promoter network across Africa, and gives people building across Africa a project management service they can trust.
@@ -42,9 +42,9 @@ export default async function AboutPage() {
       <section className="wrap grid gap-12 py-20 lg:grid-cols-2">
         <div>
           <h2 className="t-1">Mission</h2>
-          <p className="mt-4 text-lg text-ink-2">To make property aggregation and promotion across Africa transparent, efficient and rewarding for owners, promoters and investors.</p>
+          <p className="mt-4 text-lg text-ink-2">To make real estate development across Africa transparent, efficient and rewarding for owners, promoters and investors.</p>
           <h2 className="t-1 mt-12">Vision</h2>
-          <p className="mt-4 text-lg text-ink-2">To become Africa’s most trusted platform for property aggregation, promotion and project management — creating wealth for the community that powers it.</p>
+          <p className="mt-4 text-lg text-ink-2">To become Africa’s most trusted platform for real estate development — through aggregation, promotion and project management — creating wealth for the community that powers it.</p>
         </div>
         <dl className="grid content-start gap-px overflow-hidden rounded-[var(--radius-lg)] border border-line bg-line sm:grid-cols-2">
           {VALUES.map(([t, d]) => (

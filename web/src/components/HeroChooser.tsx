@@ -78,7 +78,7 @@ export function HeroChooser({ stats }: { stats: { properties: number; promoters:
     <div className="grid items-center gap-12 lg:grid-cols-[minmax(0,7fr)_minmax(0,5fr)] lg:gap-16">
       <div>
         <p className="max-w-xl text-[1.05rem] text-ink-2">
-          RevaampAPA brings property owners, promoters, hotels and builders across Africa onto one platform.
+          RevaampAPA brings owners, promoters, hotels and builders together for real estate development across Africa.
           <span className="text-ink"> What brings you here?</span>
         </p>
 

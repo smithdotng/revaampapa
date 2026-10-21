@@ -1,5 +1,5 @@
 import Link from 'next/link'
-import type { ReactNode } from 'react'
+import { Children, cloneElement, isValidElement, type ReactElement, type ReactNode } from 'react'
 import { STATUS_LABEL, STATUS_TONE } from '@/lib/roles'
 
 export function DashHeader({ title, intro, actions, back }: { title: string; intro?: ReactNode; actions?: ReactNode; back?: { label: string; href: string } }) {
@@ -32,7 +32,7 @@ export function StatGrid({ children, cols = 4 }: { children: ReactNode; cols?: 2
 
 export function Panel({ title, intro, action, children, className = '', pad = true }: { title?: ReactNode; intro?: ReactNode; action?: ReactNode; children: ReactNode; className?: string; pad?: boolean }) {
   return (
-    <section className={`rounded-[var(--radius-lg)] border border-line bg-white ${className}`}>
+    <section className={`min-w-0 rounded-[var(--radius-lg)] border border-line bg-white ${className}`}>
       {(title || action) && (
         <div className="flex flex-wrap items-start justify-between gap-3 border-b border-line px-5 py-4 sm:px-6">
           <div>
@@ -72,16 +72,36 @@ export function StatusPill({ status, label }: { status?: string; label?: string 
   return <span className={`inline-flex items-center whitespace-nowrap rounded-full px-2.5 py-0.5 text-xs font-semibold ${TONES[tone]}`}>{text}</span>
 }
 
+/**
+ * Data table. On phones each row becomes a stacked card (header text shown
+ * above each value) instead of a table that scrolls sideways.
+ */
 export function Table({ head, children, empty }: { head: ReactNode[]; children: ReactNode; empty?: ReactNode }) {
+  const labels = head.map((h) => (typeof h === 'string' ? h : ''))
+  const rows = Children.map(children, (row) => {
+    if (!isValidElement<{ children?: ReactNode }>(row) || row.type !== 'tr') return row
+    let i = 0
+    const cells = Children.map(row.props.children, (cell) => {
+      if (!isValidElement(cell)) return cell
+      const first = i === 0
+      const label = labels[i++] || ''
+      const el = cell as ReactElement<{ children?: ReactNode }>
+      // Labelled cells get one wrapper so the phone layout is "label | value"
+      return first || !label
+        ? cloneElement(el, { 'data-label': label } as object)
+        : cloneElement(el, { 'data-label': label } as object, <div className="min-w-0">{el.props.children}</div>)
+    })
+    return cloneElement(row, {}, cells)
+  })
   return (
-    <div className="overflow-x-auto">
-      <table className="w-full min-w-[640px] border-collapse text-left text-[0.925rem]">
+    <div className="md:overflow-x-auto">
+      <table className="rv-table w-full border-collapse text-left text-[0.925rem] md:min-w-[640px]">
         <thead>
           <tr className="border-b border-line text-xs text-muted">
             {head.map((h, i) => <th key={i} scope="col" className="whitespace-nowrap px-5 py-3 font-semibold first:pl-6 last:pr-6">{h}</th>)}
           </tr>
         </thead>
-        <tbody className="divide-y divide-line [&_td]:px-5 [&_td]:py-3.5 [&_td:first-child]:pl-6 [&_td:last-child]:pr-6">{children}</tbody>
+        <tbody className="divide-y divide-line md:[&_td]:px-5 md:[&_td]:py-3.5 md:[&_td:first-child]:pl-6 md:[&_td:last-child]:pr-6">{rows}</tbody>
       </table>
       {empty}
     </div>
@@ -107,20 +127,21 @@ export function Bars({ data, format, emptyText = 'No earnings recorded in the la
   const allZero = data.every((d) => d.value === 0)
   return (
     <figure>
-      <div className="flex h-44 items-end gap-3" role="img" aria-label={data.map((d) => `${d.label}: ${format(d.value)}`).join(', ')}>
+      <div className={`flex h-44 items-end ${data.length > 8 ? 'gap-1 sm:gap-2' : 'gap-3'}`} role="img" aria-label={data.map((d) => `${d.label}: ${format(d.value)}`).join(', ')}>
         {data.map((d, i) => {
           // Label only the peak and the latest month; the rest show on hover
           const labelled = d.value > 0 && (d.value === max || i === data.length - 1)
           return (
-            <div key={d.label} className="group relative flex h-full flex-1 flex-col items-center justify-end gap-2" title={`${d.label}: ${format(d.value)}`}>
+            <div key={d.label} className="group relative flex h-full min-w-0 flex-1 flex-col items-center justify-end gap-2" title={`${d.label}: ${format(d.value)}`}>
               <span className={`text-xs font-medium text-ink-2 ${labelled ? '' : 'opacity-0 group-hover:opacity-100'}`}>{format(d.value)}</span>
               <div className="w-full max-w-12 rounded-t-[4px] bg-lagoon transition-colors group-hover:bg-lagoon-3" style={{ height: `${Math.max(d.value ? 4 : 2, (d.value / max) * 100)}%`, opacity: d.value ? 1 : 0.15 }} />
             </div>
           )
         })}
       </div>
-      <div className="mt-2 flex gap-3 border-t border-line pt-2">
-        {data.map((d) => <span key={d.label} className="flex-1 text-center text-xs text-muted">{d.label}</span>)}
+      <div className={`mt-2 flex border-t border-line pt-2 ${data.length > 8 ? 'gap-1 sm:gap-2' : 'gap-3'}`}>
+        {/* With many bars, label every other one on phones so they don't collide */}
+        {data.map((d, i) => <span key={d.label} className={`min-w-0 flex-1 text-center text-[0.7rem] leading-tight text-muted sm:text-xs ${data.length > 8 && i % 2 ? 'invisible sm:visible' : ''}`}>{d.label}</span>)}
       </div>
       {allZero && <figcaption className="mt-3 text-sm text-muted">{emptyText}</figcaption>}
     </figure>

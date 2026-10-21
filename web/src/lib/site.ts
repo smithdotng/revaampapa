@@ -6,7 +6,7 @@ export const SITE = {
   legalName: 'Revacom Nigeria Limited',
   tagline: 'Aggregation, Promotions & Agency Platform',
   description:
-    'Verified property across Africa, a promoter network that earns on every deal, partner hotels with Room Voucher cashback, and project management for your build.',
+    'Real estate development across Africa: verified listings, a promoter network that earns on every deal, partner hotels with Room Voucher cashback, and project management for your build.',
   url: process.env.BASE_URL || 'https://revaampapa.com',
   email: 'info@revaampapa.com',
   supportEmail: 'support@revaampapa.com',
@@ -196,7 +196,7 @@ export const ROLES: Role[] = [
 export const FAQ: { q: string; a: string }[] = [
   {
     q: 'What is RevaampAPA?',
-    a: 'RevaampAPA (Revaamps — Aggregation, Promotions and Agency Platform) brings together property aggregation, promotion and project management. Owners list verified property, promoters market it and earn, and subscribers build with milestone-based payments.',
+    a: 'RevaampAPA (Revaamps — Aggregation, Promotions and Agency Platform) is one programme for real estate development across Africa, bringing together aggregation, promotion and project management. Owners list verified property, promoters market it and earn, and subscribers build with milestone-based payments.',
   },
   {
     q: 'How much does it cost to become a promoter?',
