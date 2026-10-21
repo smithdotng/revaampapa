@@ -15,6 +15,15 @@ type Intent = {
 
 const INTENTS: Intent[] = [
   {
+    key: 'learn',
+    label: 'Learn more',
+    headline: 'One programme for real estate development across Africa.',
+    body: 'Revaamp verifies listings, rewards the promoters who market them, partners with hotels and manages builds — so owners, buyers, investors and builders across Africa can deal with confidence.',
+    primary: { label: 'How Revaamp works', href: '/how-it-works' },
+    secondary: { label: 'About Revaamp', href: '/about' },
+    image: { src: '/brand/hero-2.png', cutout: false, alt: 'Model apartment blocks standing on a globe' },
+  },
+  {
     key: 'find',
     label: 'Find a property',
     headline: 'Verified property, ready to view.',
@@ -58,15 +67,6 @@ const INTENTS: Intent[] = [
     primary: { label: 'See partner hotels', href: '/hotels' },
     secondary: { label: 'Subscribe to the Room Voucher', href: '/voucher/register' },
     image: { src: '/brand/hero-1.png', cutout: true, alt: 'A guest checking his booking on a phone' },
-  },
-  {
-    key: 'learn',
-    label: 'Learn more',
-    headline: 'One programme for real estate development across Africa.',
-    body: 'Revaamp verifies listings, rewards the promoters who market them, partners with hotels and manages builds — so owners, buyers, investors and builders across Africa can deal with confidence.',
-    primary: { label: 'How Revaamp works', href: '/how-it-works' },
-    secondary: { label: 'About Revaamp', href: '/about' },
-    image: { src: '/brand/hero-2.png', cutout: false, alt: 'Model apartment blocks standing on a globe' },
   },
 ]
 
