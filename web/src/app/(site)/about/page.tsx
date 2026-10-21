@@ -15,7 +15,7 @@ export default async function AboutPage() {
   const { stats } = await getHomeData()
   return (
     <>
-      <section className="wrap grid gap-10 pb-16 pt-12 md:pt-16 lg:grid-cols-[1.3fr_1fr] lg:items-end">
+      <section className="wrap grid grid-cols-1 gap-10 pb-16 pt-12 md:pt-16 lg:grid-cols-[1.3fr_1fr] lg:items-end">
         <div>
           <h1 className="t-hero max-w-[14ch]">Real estate development works better when everyone earns.</h1>
         </div>
@@ -25,7 +25,7 @@ export default async function AboutPage() {
       </section>
 
       <section className="border-y border-line bg-white">
-        <div className="wrap grid gap-12 py-20 md:grid-cols-3">
+        <div className="wrap grid grid-cols-1 gap-12 py-20 md:grid-cols-3">
           {[
             ['Property aggregation', 'We gather verified properties from trusted owners into one place, so buyers and tenants see quality real estate, not noise.'],
             ['Promotion services', 'Promoters share listings with their networks and earn on every introduction, from properties and buyers to hotels and subscribers.'],
@@ -39,7 +39,7 @@ export default async function AboutPage() {
         </div>
       </section>
 
-      <section className="wrap grid gap-12 py-20 lg:grid-cols-2">
+      <section className="wrap grid grid-cols-1 gap-12 py-20 lg:grid-cols-2">
         <div>
           <h2 className="t-1">Mission</h2>
           <p className="mt-4 text-lg text-ink-2">To make real estate development across Africa transparent, efficient and rewarding for owners, promoters and investors.</p>
@@ -58,7 +58,7 @@ export default async function AboutPage() {
 
       {stats.properties + stats.promoters + stats.hotels > 0 && (
         <section className="bg-lagoon text-white">
-          <dl className="wrap grid gap-10 py-16 sm:grid-cols-3">
+          <dl className="wrap grid grid-cols-1 gap-10 py-16 sm:grid-cols-3">
             {[[stats.properties, 'Verified listings live today'], [stats.promoters, 'Approved promoters'], [stats.hotels, 'Partner hotels in the directory']].map(([n, l]) => (
               <div key={l as string}>
                 <dd className="font-display text-5xl font-semibold tracking-tight">{Number(n).toLocaleString()}</dd>

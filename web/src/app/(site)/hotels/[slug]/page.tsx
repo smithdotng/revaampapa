@@ -31,7 +31,7 @@ export default async function HotelPage({ params }: { params: Params }) {
           <ol className="flex gap-2"><li><Link href="/hotels" className="hover:text-ink">Hotels</Link></li><li aria-hidden>/</li><li aria-current="page" className="text-ink-2">{h.name}</li></ol>
         </nav>
       </div>
-      <div className="wrap grid gap-10 pb-24 pt-6 lg:grid-cols-[minmax(0,1fr)_380px] lg:gap-14">
+      <div className="wrap grid grid-cols-1 gap-10 pb-24 pt-6 lg:grid-cols-[minmax(0,1fr)_380px] lg:gap-14">
         <div className="min-w-0">
           <Gallery images={h.images} title={h.name} />
           <header className="mt-8">

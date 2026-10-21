@@ -25,7 +25,7 @@ export default async function HotelsPage({ searchParams }: { searchParams: SP })
   return (
     <>
       <section className="bg-lagoon text-white">
-        <div className="wrap grid gap-10 py-14 md:py-16 lg:grid-cols-[1.2fr_1fr] lg:items-end">
+        <div className="wrap grid grid-cols-1 gap-10 py-14 md:py-16 lg:grid-cols-[1.2fr_1fr] lg:items-end">
           <div>
             <h1 className="t-1 text-white">Partner hotels</h1>
             <p className="mt-4 max-w-xl text-lg text-white/75">

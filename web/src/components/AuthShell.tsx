@@ -17,7 +17,7 @@ export function AuthShell({
   wide?: boolean
 }) {
   return (
-    <div className="wrap grid gap-10 py-10 md:py-14 lg:grid-cols-[minmax(0,1.35fr)_minmax(0,1fr)] lg:gap-16">
+    <div className="wrap grid grid-cols-1 gap-10 py-10 md:py-14 lg:grid-cols-[minmax(0,1.35fr)_minmax(0,1fr)] lg:gap-16">
       <div className={wide ? '' : 'max-w-xl'}>
         <h1 className="t-1">{title}</h1>
         {intro && <div className="lede mt-3">{intro}</div>}

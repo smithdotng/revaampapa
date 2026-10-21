@@ -57,7 +57,7 @@ export default async function Home() {
       </section>
 
       <section aria-labelledby="roles-title" className="border-t border-line bg-white">
-        <div className="wrap grid gap-12 py-24 lg:grid-cols-[minmax(0,4fr)_minmax(0,8fr)]">
+        <div className="wrap grid grid-cols-1 gap-12 py-24 lg:grid-cols-[minmax(0,4fr)_minmax(0,8fr)]">
           <div className="lg:sticky lg:top-28 lg:self-start">
             <h2 id="roles-title" className="t-1">Nine ways to work with Revaamp</h2>
             <p className="mt-4 text-ink-2">
@@ -70,7 +70,7 @@ export default async function Home() {
       </section>
 
       <section aria-labelledby="hotels-title" className="bg-lagoon text-white">
-        <div className="wrap grid gap-14 py-24 lg:grid-cols-2 lg:gap-20">
+        <div className="wrap grid grid-cols-1 gap-14 py-24 lg:grid-cols-2 lg:gap-20">
           <div>
             <h2 id="hotels-title" className="t-1 text-white">Stay at partner hotels. Get money back.</h2>
             <p className="mt-5 max-w-xl text-lg text-white/75">
@@ -97,16 +97,16 @@ export default async function Home() {
             </div>
           </div>
 
-          <div>
+          <div className="min-w-0">
             {hotels.length ? (
-              <div className="grid gap-4">
+              <div className="grid grid-cols-1 gap-4">
                 {hotels.map((h) => (
                   <Link key={h.id} href={`/hotels/${h.slug}`} className="group flex items-center gap-5 rounded-[var(--radius-md)] bg-lagoon-2 p-3 pr-5 transition-colors hover:bg-lagoon-3">
                     <div className="relative size-24 shrink-0 overflow-hidden rounded-[var(--radius-sm)] bg-lagoon-3">
                       <SmartImage src={h.image} alt="" sizes="96px" />
                     </div>
                     <div className="min-w-0 flex-1">
-                      <p className="truncate text-lg font-semibold">{h.name}</p>
+                      <p className="line-clamp-2 text-lg font-semibold leading-snug">{h.name}</p>
                       <p className="text-sm text-white/65">{[h.location.city, h.location.state].filter(Boolean).join(', ')}</p>
                     </div>
                     {h.voucherDiscountRate > 0 && (
@@ -151,7 +151,7 @@ export default async function Home() {
       </section>
 
       <section aria-labelledby="faq-title" className="border-t border-line bg-white">
-        <div className="wrap grid gap-10 py-24 lg:grid-cols-[minmax(0,4fr)_minmax(0,8fr)]">
+        <div className="wrap grid grid-cols-1 gap-10 py-24 lg:grid-cols-[minmax(0,4fr)_minmax(0,8fr)]">
           <div>
             <h2 id="faq-title" className="t-1">Questions people ask first</h2>
             <p className="mt-4 text-ink-2">

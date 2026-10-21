@@ -5,7 +5,7 @@ export function LegalPage({ doc }: { doc: keyof typeof LEGAL }) {
   const d = LEGAL[doc]
   const others = (['terms', 'privacy', 'cookies'] as const).filter((x) => x !== doc)
   return (
-    <div className="wrap grid gap-12 py-12 md:py-16 lg:grid-cols-[220px_minmax(0,1fr)]">
+    <div className="wrap grid grid-cols-1 gap-12 py-12 md:py-16 lg:grid-cols-[220px_minmax(0,1fr)]">
       <nav aria-label="On this page" className="hidden lg:block">
         <ol className="sticky top-28 grid gap-2 text-sm">
           {d.sections.map(([t], i) => (

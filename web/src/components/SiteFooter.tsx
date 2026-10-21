@@ -47,7 +47,7 @@ const COLUMNS: { title: string; links: [string, string][] }[] = [
 export function SiteFooter() {
   return (
     <footer className="bg-lagoon text-white/80">
-      <div className="wrap grid gap-12 py-16 lg:grid-cols-[1.2fr_2fr]">
+      <div className="wrap grid grid-cols-1 gap-12 py-16 lg:grid-cols-[1.2fr_2fr]">
         <div className="max-w-sm">
           <Logo tone="light" />
           <p className="mt-5 text-[0.95rem] leading-relaxed text-white/70">{SITE.description}</p>

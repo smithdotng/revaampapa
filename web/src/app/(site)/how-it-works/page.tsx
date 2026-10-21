@@ -70,7 +70,7 @@ export default function HowItWorks() {
       </section>
       {TRACKS.map((t, idx) => (
         <section key={t.id} id={t.id} className={`scroll-mt-20 border-t border-line ${idx % 2 ? 'bg-white' : ''}`} aria-labelledby={`${t.id}-t`}>
-          <div className="wrap grid gap-10 py-16 lg:grid-cols-[minmax(0,4fr)_minmax(0,8fr)]">
+          <div className="wrap grid grid-cols-1 gap-10 py-16 lg:grid-cols-[minmax(0,4fr)_minmax(0,8fr)]">
             <div>
               <p className="text-sm font-semibold text-teal-ink">{t.label}</p>
               <h2 id={`${t.id}-t`} className="t-2 mt-2">{t.title}</h2>
@@ -92,7 +92,7 @@ export default function HowItWorks() {
         </section>
       ))}
       <section id="faq" className="border-t border-line">
-        <div className="wrap grid gap-10 py-20 lg:grid-cols-[minmax(0,4fr)_minmax(0,8fr)]">
+        <div className="wrap grid grid-cols-1 gap-10 py-20 lg:grid-cols-[minmax(0,4fr)_minmax(0,8fr)]">
           <h2 className="t-1">Common questions</h2>
           <Faq items={FAQ} />
         </div>

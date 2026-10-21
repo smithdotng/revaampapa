@@ -15,7 +15,7 @@ export default async function ReservePage({ params }: { params: Promise<{ slug: 
   if (!sub || !sub.hasActiveSubscription()) redirect('/hotels')
 
   return (
-    <div className="wrap grid gap-12 py-12 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.4fr)] lg:py-16">
+    <div className="wrap grid grid-cols-1 gap-12 py-12 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.4fr)] lg:py-16">
       <div>
         <Link href={`/hotels/${hotel.slug}`} className="text-sm text-muted hover:text-ink">Back to {hotel.name}</Link>
         <h1 className="t-1 mt-4">Register your stay at {hotel.name}</h1>

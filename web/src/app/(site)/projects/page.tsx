@@ -21,7 +21,7 @@ export default function ProjectsPage() {
   const role = ROLES.find((r) => r.slug === 'project-subscriber')!
   return (
     <>
-      <section className="wrap grid gap-12 pb-20 pt-12 md:pt-16 lg:grid-cols-[1.3fr_1fr] lg:items-center">
+      <section className="wrap grid grid-cols-1 gap-12 pb-20 pt-12 md:pt-16 lg:grid-cols-[1.3fr_1fr] lg:items-center">
         <div>
           <h1 className="t-hero max-w-[13ch]">Build your home without the usual risk.</h1>
           <p className="lede mt-6">{role.summary} Revaamp Project Management handles the professionals, materials and monitoring for projects across Africa.</p>

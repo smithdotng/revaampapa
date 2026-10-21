@@ -7,7 +7,7 @@ export const metadata: Metadata = { title: 'Contact us', description: 'Talk to t
 
 export default function ContactPage() {
   return (
-    <div className="wrap grid gap-14 py-12 md:py-16 lg:grid-cols-[minmax(0,1.4fr)_minmax(0,1fr)]">
+    <div className="wrap grid grid-cols-1 gap-14 py-12 md:py-16 lg:grid-cols-[minmax(0,1.4fr)_minmax(0,1fr)]">
       <div>
         <h1 className="t-1">Talk to us</h1>
         <p className="lede mt-3">Questions about a listing, a partnership or your account. We reply within one working day.</p>

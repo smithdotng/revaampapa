@@ -76,7 +76,7 @@ export default async function PropertyPage({ params, searchParams }: { params: P
         </nav>
       </div>
 
-      <div className="wrap grid gap-10 pb-20 pt-6 lg:grid-cols-[minmax(0,1fr)_380px] lg:gap-14">
+      <div className="wrap grid grid-cols-1 gap-10 pb-20 pt-6 lg:grid-cols-[minmax(0,1fr)_380px] lg:gap-14">
         <div className="min-w-0">
           <Gallery images={p.images} title={p.title} />
 
