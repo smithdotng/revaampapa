@@ -1,0 +1,41 @@
+{
+  "name": "revaampapa-web",
+  "version": "0.1.0",
+  "private": true,
+  "description": "RevaampAPA (revaampapa.com) — the whole site, dashboards and superadmin, built with Next.js for Vercel.",
+  "scripts": {
+    "dev": "next dev -p 3001",
+    "build": "next build",
+    "start": "next start -p 3001",
+    "lint": "next lint",
+    "typecheck": "tsc --noEmit",
+    "upload-legacy-files": "node scripts/upload-legacy-files.mjs"
+  },
+  "engines": {
+    "node": ">=20.9.0"
+  },
+  "dependencies": {
+    "@fontsource-variable/bricolage-grotesque": "^5.3.0",
+    "@fontsource-variable/figtree": "^5.3.0",
+    "@vercel/blob": "^2.8.2",
+    "bcryptjs": "^2.4.3",
+    "clsx": "^2.1.1",
+    "lucide-react": "^1.61.0",
+    "mongoose": "^8.24.6",
+    "next": "^16.4.2",
+    "nodemailer": "^8.0.11",
+    "react": "^19.3.1",
+    "react-dom": "^19.3.1",
+    "server-only": "^0.0.1",
+    "slugify": "^1.6.9"
+  },
+  "devDependencies": {
+    "@tailwindcss/postcss": "^4.3.3",
+    "@types/node": "^26.6.5",
+    "@types/nodemailer": "^8.0.2",
+    "@types/react": "^19.3.0",
+    "@types/react-dom": "^19.3.0",
+    "tailwindcss": "^4.3.3",
+    "typescript": "^5.9.3"
+  }
+}
