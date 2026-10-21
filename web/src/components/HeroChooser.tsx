@@ -62,7 +62,7 @@ const INTENTS: Intent[] = [
   {
     key: 'learn',
     label: 'Learn more',
-    headline: 'One programme for property across Africa.',
+    headline: 'One programme for real estate development across Africa.',
     body: 'Revaamp verifies listings, rewards the promoters who market them, partners with hotels and manages builds — so owners, buyers, investors and builders across Africa can deal with confidence.',
     primary: { label: 'How Revaamp works', href: '/how-it-works' },
     secondary: { label: 'About Revaamp', href: '/about' },
