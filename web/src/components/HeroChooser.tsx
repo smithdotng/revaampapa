@@ -18,7 +18,7 @@ const INTENTS: Intent[] = [
     key: 'find',
     label: 'Find a property',
     headline: 'Verified property, ready to view.',
-    body: 'Land, buildings, shops and shortlets across Nigeria. Our team checks every listing before it goes live, and you can message the owner straight from the page.',
+    body: 'Land, buildings, shops and shortlets across Africa. Our team checks every listing before it goes live, and you can message the owner straight from the page.',
     primary: { label: 'Browse properties', href: '/properties' },
     secondary: { label: 'How verification works', href: '/how-it-works#owners' },
     image: { src: '/brand/hero-2.png', cutout: false, alt: 'Model apartment blocks standing on a globe' },
@@ -35,8 +35,8 @@ const INTENTS: Intent[] = [
   {
     key: 'list',
     label: 'List my property',
-    headline: 'Your property, in front of a nationwide network.',
-    body: 'Register free and list as many properties as you like. Each listing is verified for ₦20,000, then marketed by promoters across the country.',
+    headline: 'Your property, in front of a network across Africa.',
+    body: 'Register free and list as many properties as you like. Each listing is verified for ₦20,000, then marketed by promoters across Africa.',
     primary: { label: 'List your property', href: '/register' },
     secondary: { label: 'Owner benefits', href: '/join#property-owner' },
     image: { src: '/brand/hero-2.png', cutout: false, alt: 'Model apartment blocks standing on a globe' },
@@ -59,6 +59,15 @@ const INTENTS: Intent[] = [
     secondary: { label: 'Subscribe to the Room Voucher', href: '/voucher/register' },
     image: { src: '/brand/hero-1.png', cutout: true, alt: 'A guest checking his booking on a phone' },
   },
+  {
+    key: 'learn',
+    label: 'Learn more',
+    headline: 'One programme for property across Africa.',
+    body: 'Revaamp verifies listings, rewards the promoters who market them, partners with hotels and manages builds — so owners, buyers, investors and builders across Africa can deal with confidence.',
+    primary: { label: 'How Revaamp works', href: '/how-it-works' },
+    secondary: { label: 'About Revaamp', href: '/about' },
+    image: { src: '/brand/hero-2.png', cutout: false, alt: 'Model apartment blocks standing on a globe' },
+  },
 ]
 
 export function HeroChooser({ stats }: { stats: { properties: number; promoters: number; hotels: number } }) {
@@ -69,7 +78,7 @@ export function HeroChooser({ stats }: { stats: { properties: number; promoters:
     <div className="grid items-center gap-12 lg:grid-cols-[minmax(0,7fr)_minmax(0,5fr)] lg:gap-16">
       <div>
         <p className="max-w-xl text-[1.05rem] text-ink-2">
-          RevaampAPA brings property owners, promoters, hotels and builders onto one platform.
+          RevaampAPA brings property owners, promoters, hotels and builders across Africa onto one platform.
           <span className="text-ink"> What brings you here?</span>
         </p>
 

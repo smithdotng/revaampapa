@@ -4,7 +4,7 @@ import { listBlogs } from '@/lib/data'
 import { BlogCard } from '@/components/BlogCard'
 import { Pagination } from '@/components/Pagination'
 
-export const metadata: Metadata = { title: 'Blog — real estate insights for Nigeria', description: 'Buying guides, legal checklists, market news and promoter tips from the Revaamp team.' }
+export const metadata: Metadata = { title: 'Blog — real estate insights across Africa', description: 'Buying guides, legal checklists, market news and promoter tips from the Revaamp team.' }
 
 type SP = Promise<Record<string, string | string[] | undefined>>
 const one = (v: string | string[] | undefined) => (Array.isArray(v) ? v[0] : v) || undefined

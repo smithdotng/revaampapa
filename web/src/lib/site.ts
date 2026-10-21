@@ -6,7 +6,7 @@ export const SITE = {
   legalName: 'Revacom Nigeria Limited',
   tagline: 'Aggregation, Promotions & Agency Platform',
   description:
-    'Verified property across Nigeria, a promoter network that earns on every deal, partner hotels with Room Voucher cashback, and project management for your build.',
+    'Verified property across Africa, a promoter network that earns on every deal, partner hotels with Room Voucher cashback, and project management for your build.',
   url: process.env.BASE_URL || 'https://revaampapa.com',
   email: 'info@revaampapa.com',
   supportEmail: 'support@revaampapa.com',
@@ -62,7 +62,7 @@ export const ROLES: Role[] = [
     slug: 'property-owner',
     name: 'Property Owner',
     short: 'Property owner',
-    summary: 'List unlimited properties in front of a nationwide promoter network.',
+    summary: 'List unlimited properties in front of a promoter network across Africa.',
     figure: '₦20,000',
     figureLabel: 'verification fee per listing',
     benefits: [

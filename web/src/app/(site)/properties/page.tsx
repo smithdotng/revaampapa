@@ -11,7 +11,7 @@ import { SortSelect } from '@/components/SortSelect'
 
 export const metadata: Metadata = {
   title: 'Verified properties for sale, rent and lease',
-  description: 'Browse verified land, buildings, shops, shortlets and business complexes across Nigeria.',
+  description: 'Browse verified land, buildings, shops, shortlets and business complexes across Africa.',
 }
 
 type SP = Promise<Record<string, string | string[] | undefined>>

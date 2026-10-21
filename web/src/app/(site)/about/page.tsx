@@ -8,7 +8,7 @@ const VALUES = [
   ['Trust and transparency', 'Every listing is verified before it’s published, and every commission is tracked against your account.'],
   ['Excellence', 'From property verification to project delivery, we hold the work to a high standard.'],
   ['Partnership', 'Owners, promoters, hotels and professionals grow together — the platform only works when they all earn.'],
-  ['Innovation', 'Room Voucher cashback, milestone-based building and white-label tools are built for how Nigerians actually transact.'],
+  ['Innovation', 'Room Voucher cashback, milestone-based building and white-label tools are built for how people across Africa actually transact.'],
 ]
 
 export default async function AboutPage() {
@@ -20,7 +20,7 @@ export default async function AboutPage() {
           <h1 className="t-hero max-w-[14ch]">Property works better when everyone earns.</h1>
         </div>
         <p className="lede">
-          RevaampAPA — Revaamps Aggregation, Promotions and Agency Platform — connects verified property owners with a nationwide promoter network, and gives people building across Africa a project management service they can trust.
+          RevaampAPA — Revaamps Aggregation, Promotions and Agency Platform — connects verified property owners with a promoter network across Africa, and gives people building across Africa a project management service they can trust.
         </p>
       </section>
 
@@ -42,7 +42,7 @@ export default async function AboutPage() {
       <section className="wrap grid gap-12 py-20 lg:grid-cols-2">
         <div>
           <h2 className="t-1">Mission</h2>
-          <p className="mt-4 text-lg text-ink-2">To make property aggregation and promotion in Nigeria transparent, efficient and rewarding for owners, promoters and investors.</p>
+          <p className="mt-4 text-lg text-ink-2">To make property aggregation and promotion across Africa transparent, efficient and rewarding for owners, promoters and investors.</p>
           <h2 className="t-1 mt-12">Vision</h2>
           <p className="mt-4 text-lg text-ink-2">To become Africa’s most trusted platform for property aggregation, promotion and project management — creating wealth for the community that powers it.</p>
         </div>
